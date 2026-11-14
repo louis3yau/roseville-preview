@@ -475,18 +475,19 @@ function caresList(){
   const ordered=[...current,...upcoming,...previous];
   function renderCaresRow(row){
     const date=row.date,title=row.title,month=row.month;
+    const displayTitle=title==='APWM'||title==='APWM (Australian Presbyterian World Mission)'?'Australian Presbyterian World Mission':title==='PIM'||title==='PIM (Presbyterian Inland Mission)'?'Presbyterian Inland Mission':title;
     const isCurrent=month===currentMonth,isPast=month<currentMonth;
     const tag=isCurrent?'This month':month===currentMonth-1?'Last month':'';
     const links=careLinks[title]||[];
     const classes='row compact reading-day cares-day'+(isCurrent?' is-current-month':'')+(isPast?' is-past':'');
-    const heading='<span><span class="reading-date">'+esc(date)+'</span><span class="reading-summary">'+esc(title)+'</span></span>';
+    const heading='<span><span class="reading-date">'+esc(date)+'</span><span class="reading-summary">'+esc(displayTitle)+'</span></span>';
     const badge=tag?'<span class="row-tag">'+tag+'</span>':'';
     if(!links.length)return '<div class="'+classes+' cares-unconfirmed"><div class="cares-static">'+heading+badge+'</div></div>';
     const buttons=links.map(([label,url])=>'<span class="reading-passage"><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(label)+' (opens in a new tab)">'+esc(label)+'</a></span>').join('');
     return '<details class="'+classes+'"'+(isCurrent?' open':'')+'><summary>'+heading+badge+'</summary><div class="reading-links cares-links">'+buttons+'</div></details>';
   }
   const archiveStart=current.length+upcoming.length;
-  return '<div class="rows cares-list">'+ordered.map((row,i)=>(i===archiveStart&&previous.length?'<div class="cares-archive-heading">Previously supported</div>':'')+renderCaresRow(row)).join('')+'</div>';
+  return '<div class="rows cares-list">'+ordered.map((row,i)=>(i===archiveStart&&previous.length?'<div class="cares-archive-heading">Previous months</div>':'')+renderCaresRow(row)).join('')+'</div>';
 }
 const readingRows=[['Fri 13 November','Joshua 1; Psalms 120–122'],['Mon 16 November','Joshua 2; Psalms 123–125'],['Tue 17 November','Joshua 3; Psalms 126–128'],['Wed 18 November','Joshua 4; Psalms 129–131'],['Thu 19 November','Joshua 5; 6:1–5; Psalms 132–134'],['Fri 20 November','Joshua 6:6–27; Psalms 135–136'],['Mon 23 November','Joshua 7; Psalms 137–138'],['Tue 24 November','Joshua 8; Psalm 139'],['Wed 25 November','Joshua 9; Psalms 140–141'],['Thu 26 November','Joshua 10; Psalms 142–143'],['Fri 27 November','Joshua 11; Psalm 144'],['Mon 30 November','Joshua 12–13; Psalm 145'],['Tue 1 December','Joshua 14–15; Psalms 146–147'],['Wed 2 December','Joshua 16–17; Psalms 148'],['Thu 3 December','Joshua 18–19; Psalms 149–150'],['Fri 4 December','Joshua 20–21; Acts 1'],['Mon 7 December','Joshua 22; Acts 2'],['Tue 8 December','Joshua 23; Acts 3'],['Wed 9 December','Joshua 24; Acts 4'],['Thu 10 December','Judges 1; Acts 5'],['Fri 11 December','Judges 2; Acts 6'],['Mon 14 December','Judges 3; Acts 7'],['Tue 15 December','Judges 4; Acts 8'],['Wed 16 December','Judges 5; Acts 9'],['Thu 17 December','Judges 6; Acts 10'],['Fri 18 December','Judges 7; Acts 11'],['Mon 21 December','Judges 8; Acts 12'],['Tue 22 December','Judges 9; Acts 13'],['Wed 23 December','Judges 10; 11:1–11; Acts 14'],['Thu 24 December','Judges 11:12–40; Acts 15'],['Fri 25 December','Judges 12; Acts 16'],['Mon 28 December','Judges 13; Acts 17'],['Tue 29 December','Judges 14; Acts 18'],['Wed 30 December','Judges 15; Acts 19'],['Thu 31 December','Judges 16; Acts 20']];
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
