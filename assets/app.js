@@ -31,7 +31,6 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
  </div>
  <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span><svg class="sign-plaque-inset" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M.8 1 L56.4 .7 M58 .7 L141.1 1.1 M142.7 1.1 L230.3 .8 M231.9 .8 L299.1 1 M299.1 1 L299.3 12 M299.3 13.3 L299 25 M299 25 L235.5 25.3 M233.9 25.3 L153.8 24.9 M152.2 24.9 L64.2 25.2 M62.6 25.2 L.9 25 M.9 25 L.7 13.7 M.7 12.4 L.8 1"/></svg></div>
- <button type="button" class="sign-meadow" aria-label="Stir the grass around the sign posts"><svg viewBox="0 0 350 96" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg></button>
  </div></section>`;
 const calendarRows=[["September","Tue 1","Session"],["September","Wed 2","Bible Study"],["September","Tue 8","CoM"],["September","Wed 9","Bible Study"],["September","Fri 11","Youth Group"],["September","Sat 12","Working Bee"],["September","Wed 16","Bible Study"],["September","Sun 20","Catechism term 3 ends"],["September","Wed 23","Bible Study"],["September","Sun 27","Roseville Cares Sunday"],["October","Sun 4","The Lord’s Supper"],["October","Sun 4","Church Lunch"],["October","Sun 4","Daylight Saving Starts"],["October","Tue 6","Session"],["October","Tue 13","CoM"],["October","Wed 14","Bible Study"],["October","Sun 18","Catechism term 4 begins"],["October","Tue 20","Presbytery Meeting"],["October","Wed 21","Bible Study"],["October","Sat 24","Fête"],["October","Sun 25","Roseville Cares Sunday"],["October","Wed 28","Bible Study"],["November","Tue 3","Session"],["November","Wed 4","Bible Study"],["November","Tue 10","CoM"],["November","Wed 11","Bible Study"],["November","Wed 18","Bible Study"],["November","Wed 25","Bible Study"],["November","Sun 29","Roseville Cares Sunday"],["December","Tue 1","Session"],["December","Wed 2","Bible Study"],["December","Sat 5","Working Bee"],["December","Sun 6","The Lord’s Supper"],["December","Tue 8","CoM"],["December","Wed 9","Bible Study"],["December","Tue 15","Presbytery Meeting"],["December","Wed 16","Bible Study"],["December","Fri 25","Christmas Day service · 9am"],["December","Sun 27","Roseville Cares Sunday"]];
 const careRows=[["25 January","Jericho Road"],["22 February","Allowah Children’s Hospital"],["29 March","PresAid Easter Appeal 2026"],["26 April","APWM (Australian Presbyterian World Mission)"],["31 May","PIM (Presbyterian Inland Mission)"],["28 June","Jericho Road"],["26 July","Chasefu Theological College"],["30 August","Bible League"],["27 September","APWM"],["25 October","PIM"],["29 November","PresAID Christmas Appeal"],["27 December","To be confirmed"]];
@@ -461,100 +460,6 @@ document.addEventListener('click',event=>{
 },true);
 
 
-function setupSignGrass(){
- const field=document.querySelector('.sign-meadow');
- if(!field||field.dataset.grassReady)return;
- field.dataset.grassReady='true';
- const svg=field.querySelector('svg'),ns='http://www.w3.org/2000/svg';
- const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
- let seed=137;
- const random=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};
- const make=(tag,attrs,parent=svg)=>{
-  const el=document.createElementNS(ns,tag);
-  Object.entries(attrs).forEach(([key,value])=>el.setAttribute(key,String(value)));
-  parent.appendChild(el);return el;
- };
-
- // Render selected sections of the user's actual drawing, keeping its ink texture.
- const defs=make('defs',{});
- const fadeSvg='<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="604"><defs><linearGradient id="f" x2="0" y2="1"><stop offset="0" stop-color="white"/><stop offset=".72" stop-color="white"/><stop offset=".99" stop-color="white" stop-opacity="0"/></linearGradient></defs><rect width="1056" height="604" fill="url(#f)"/></svg>';
- const mask=make('mask',{id:'grass-art-clean',maskUnits:'userSpaceOnUse',x:0,y:0,width:1056,height:604},defs);
- make('rect',{x:0,y:0,width:1056,height:604,fill:'white'},mask);
- make('rect',{x:466,y:247,width:130,height:32,fill:'black'},mask);
- const displacements=[];
- for(let i=0;i<3;i++){
-  const filter=make('filter',{id:'grass-art-ink-'+i,x:'-12%',y:'-12%',width:'124%',height:'124%','color-interpolation-filters':'sRGB'},defs);
-  make('feColorMatrix',{in:'SourceGraphic',type:'matrix',values:'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.2 -1.2 -1.2 0 2.88',result:'inkAlpha'},filter);
-  make('feFlood',{'flood-color':'currentColor',result:'inkColor'},filter);
-  make('feComposite',{in:'inkColor',in2:'inkAlpha',operator:'in',result:'ink'},filter);
-  make('feTurbulence',{type:'fractalNoise',baseFrequency:(.006+i*.002)+' .007',numOctaves:2,seed:9+i*13,result:'rawNoise'},filter);
-  make('feColorMatrix',{in:'rawNoise',type:'matrix',values:'1 0 0 0 0 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0',result:'windNoise'},filter);
-  make('feImage',{href:'data:image/svg+xml,'+encodeURIComponent(fadeSvg),x:0,y:0,width:1056,height:604,result:'rootFade'},filter);
-  make('feComposite',{in:'windNoise',in2:'rootFade',operator:'in',result:'fadedNoise'},filter);
-  make('feFlood',{'flood-color':'#808080',result:'neutral'},filter);
-  make('feBlend',{in:'fadedNoise',in2:'neutral',mode:'normal',result:'wind'},filter);
-  displacements.push(make('feDisplacementMap',{in:'ink',in2:'wind',scale:0,xChannelSelector:'R',yChannelSelector:'G'},filter));
- }
- const sections=[
-  {x:2,y:24,width:118,height:67,viewBox:'240 100 510 504'},
-  {x:225,y:29,width:112,height:62,viewBox:'730 210 326 394'},
-  {x:158,y:70,width:42,height:21,viewBox:'55 495 200 109'}
- ];
- sections.forEach((part,i)=>{
-  const crop=make('svg',{...part,preserveAspectRatio:'xMidYMax meet',overflow:'hidden'});
-  make('image',{href:'assets/sign-grass-reference.jpeg',x:0,y:0,width:1056,height:604,filter:'url(#grass-art-ink-'+i+')',mask:'url(#grass-art-clean)'},crop);
- });
- const flower=make('g',{class:'wildflower'});
- let bloomPending=false,taps=0,frame=0,start=0,gustX=70,gustStrength=1;
- const bloom=()=>{
-  if(!field.isConnected||field.classList.contains('has-bloomed'))return;
-  const x=[114,208,314][Math.floor(Math.random()*3)];
-  make('path',{d:'M'+x+' 87 Q'+(x+1)+' 64 '+(x-12)+' 45 M'+(x-1)+' 73 Q'+(x+7)+' 67 '+(x+9)+' 63 Q'+(x+3)+' 65 '+(x-1)+' 73 M'+(x-3)+' 66 Q'+(x-11)+' 64 '+(x-12)+' 60','stroke-width':.7},flower);
-  const head=make('g',{class:'daisy-head'},flower);
-  // Slender, uneven daisy petals and an angled seed disc, as in the reference.
-  const cx=x-13,cy=43;
-  for(let i=0;i<15;i++){
-   const angle=i/15*Math.PI*2;
-   const length=5+random()*3.6;
-   const rx=3.2,ry=2.1;
-   const bx=cx+Math.cos(angle)*rx,by=cy+Math.sin(angle)*ry;
-   const ex=cx+Math.cos(angle)*(rx+length),ey=cy+Math.sin(angle)*(ry+length*.72);
-   const side=1.1+random()*.65;
-   const px=-Math.sin(angle)*side,py=Math.cos(angle)*side*.7;
-   make('path',{d:'M'+bx+' '+by+' Q'+(ex+px)+' '+(ey+py)+' '+ex+' '+ey+' Q'+(ex-px)+' '+(ey-py)+' '+bx+' '+by,'stroke-width':.55},head);
-  }
-  make('ellipse',{cx,cy,rx:3.3,ry:2.2,transform:'rotate(-18 '+cx+' '+cy+')','stroke-width':.7},head);
-  make('path',{d:'M'+(cx-1.6)+' '+cy+' l1 -.8 M'+cx+' '+(cy+1)+' l1.2 -1.3 M'+(cx+1)+' '+(cy-1)+' l.5 .6','stroke-width':.45},head);
-  field.classList.add('has-bloomed');
- };
-
- const tick=now=>{
-  if(!field.isConnected){cancelAnimationFrame(frame);return}
-  const t=(now-start)/1000;
-  if(t>5){displacements.forEach(node=>node.setAttribute('scale','0'));frame=0;return}
-  const envelope=Math.pow(1-t/5,1.6)*Math.min(1,t*3);
-  displacements.forEach((node,i)=>{
-   const center=[70,280,175][i];
-   const reach=.3+.7*Math.exp(-Math.abs(center-gustX)/120);
-   const wave=Math.sin(t*(2.9+i*.39))*.75+Math.sin(t*(5.1+i*.21))*.25;
-   node.setAttribute('scale',String(wave*envelope*reach*gustStrength*(i===2?11:23)));
-  });
-  frame=requestAnimationFrame(tick);
- };
- field.addEventListener('click',event=>{
-  taps++;
-  const rect=field.getBoundingClientRect();
-  gustX=event.detail===0?175:(event.clientX-rect.left)/rect.width*350;
-  gustStrength=.8+Math.random()*.45;
-  if(frame)cancelAnimationFrame(frame);
-  if(!reduced.matches){start=performance.now();frame=requestAnimationFrame(tick)}
-  // A rare single bloom across the whole sign, never a matching flower at each post.
-  if(!bloomPending&&taps>=2&&Math.random()<.16){
-   bloomPending=true;
-   setTimeout(bloom,9000+Math.random()*6000);
-  }
- });
-}
 
 function render(){
  const page=pageFromPath(),section=decodeURIComponent(location.hash.slice(1));
@@ -573,7 +478,7 @@ function render(){
   document.querySelector('link[rel=canonical]')?.setAttribute('href',location.origin+routePath(page));
   setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive();refreshDirectionalArrows()
  }
- setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();setupSignGrass();
+ setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();
  if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:'instant'}));
  else if(restoreY!==null)requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:'instant'}));
  else window.scrollTo({top:0,behavior:'instant'});
