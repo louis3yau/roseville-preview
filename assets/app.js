@@ -230,7 +230,7 @@ function setupGuideArchive(){
  const previousKey=new Date(Date.parse(currentKey+'T12:00:00Z')-7*86400000).toISOString().slice(0,10);
  target.innerHTML=entries.map(item=>{
   const lastWeek=item.date===previousKey;
-  const title=formatDate(item.date).replace(/^[A-Za-z]{3}\s+/,'');
+  const title=new Intl.DateTimeFormat('en-AU',{timeZone:'UTC',day:'numeric',month:'long',year:'numeric'}).format(new Date(item.date+'T12:00:00Z'));
   const heading='<span><span class="reading-date">'+esc(title)+'</span><span class="reading-summary">Worship Guide</span></span>';
   const label=lastWeek?'<span class="row-tag">Last week</span>':'';
   const description=String(item.passage_description||'').trim();
