@@ -10,6 +10,16 @@
       "use_expiry_date": false,
       "expiry_date": "",
       "updated_at": ""
+    },
+    {
+      "title": "I am a sign",
+      "description": "",
+      "show_event_date": true,
+      "event_date": "2026-11-15",
+      "use_expiry_date": true,
+      "expiry_date": "2026-11-16",
+      "published": true,
+      "order": 10
     }
   ],
   "board": {
