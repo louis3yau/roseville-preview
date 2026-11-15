@@ -707,27 +707,21 @@ body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archi
  outline-offset:-3px;
 }
 
-/* A small hand-etched top-left corner, independent of the grass artwork.
-   The rest of the sign remains deliberately straight and unchanged. */
-.sign-corner-etch{
+/* Precision vector tracing of the reference sign's thin inset frame.
+   Very slight slope and tiny breaks, not a decorative double border. */
+.sign-reference-lines{
  position:absolute;
- z-index:4;
- left:3px;
- top:3px;
- width:clamp(56px,18%,83px);
- height:58px;
- overflow:visible;
+ inset:0;
+ width:100%;
+ height:100%;
+ z-index:5;
  pointer-events:none;
- fill:none;
- stroke:var(--paper);
- stroke-width:1.1;
- stroke-linecap:round;
- stroke-linejoin:round;
- opacity:.68;
+ overflow:visible;
+ mix-blend-mode:difference;
+ opacity:.62;
 }
-.sign-corner-etch .sign-corner-etch-light{stroke-width:.65;opacity:.55}
-body.night .sign-corner-etch{stroke:#fff;opacity:.72}
-@media(max-width:700px){.sign-corner-etch{width:58px;height:44px;left:2px;top:2px;stroke-width:.95}}
+body.night .sign-reference-lines{opacity:.7}
+@media(max-width:700px){.sign-reference-lines{opacity:.7}}
 </style><script type="application/ld+json">{"@context":"https://schema.org","@type":"Church","name":"Roseville Presbyterian Church","address":{"@type":"PostalAddress","streetAddress":"28 Lord Street","addressLocality":"Roseville","addressRegion":"NSW","postalCode":"2069","addressCountry":"AU"},"telephone":"+61 2 9416 5054","email":"administrator@rosevillechurch.com.au"}</script><base href="/roseville-preview/"><script type="text/javascript">if(location.hostname==='raw.githack.com')document.querySelector('base').href='/louis3yau/roseville-preview/dev/';else if(location.hostname.endsWith('.pages.dev')){document.querySelector('base').href='/';var noindex=document.createElement('meta');noindex.name='robots';noindex.content='noindex,nofollow';document.head.appendChild(noindex)}</script><meta name="theme-color" content="#f5f3eb"><meta property="og:type" content="website"><meta property="og:site_name" content="Roseville Presbyterian Church"><meta property="og:title" content="Roseville Presbyterian Church"><meta property="og:description" content="Sunday worship at 9:30am, 28 Lord Street, Roseville NSW."><meta property="og:url" content="https://louis3yau.github.io/roseville-preview/"><link rel="canonical" href="https://louis3yau.github.io/roseville-preview/"><link rel="preload" as="image" href="assets/church-night-unlit.png" fetchpriority="high"><link rel="preload" as="image" href="assets/church-night-lit.png" fetchpriority="high"><link rel="preload" as="image" href="assets/hero-about.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-community.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-resources.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-visit.webp" fetchpriority="low"></head><body><a class="skip-to-content" href="#content">Skip to content</a><svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><filter id="sign-handcut-edge" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.065" numOctaves="2" seed="7" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale="0.7" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="window-glow-filter" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 .945  0 0 0 0 .81  0 8 -8 0 -.6" result="warm-pixels"/><feGaussianBlur in="warm-pixels" stdDeviation="8"/></filter></svg><header><a class="brand" href="#home"><img class="menu-logo" src="assets/menu-logo.png" alt="Roseville Presbyterian Church"><span><span class="brand-name">Roseville</span><small>PRESBYTERIAN CHURCH</small></span></a><button class="menu" aria-expanded="false" aria-controls="nav" aria-label="Open menu"><span class="menu-bars" aria-hidden="true"></span></button><nav id="nav" aria-label="Main navigation"><a href="#about">About</a><a href="#resources">Worship &amp; Bible</a><a href="#community">Community</a><a href="#calendar">Calendar</a><a class="outline" href="#visit">Visit us →</a></nav></header><main id="main" tabindex="-1"><section class="section"><h1>Roseville Presbyterian Church</h1><p>Sunday morning worship at 9:30am, 28 Lord Street, Roseville NSW 2069.</p><p><a href="visit/">Plan your visit</a></p></section></main><footer><div class="footer-icon"><a class="footer-home" href="#home" aria-label="Roseville Presbyterian Church — back to top"><span class="footer-mark" aria-hidden="true"></span><span class="footer-name"><strong>Roseville</strong><span class="footer-denom">Presbyterian Church</span></span><span class="footer-region">Roseville, Lindfield and Killara</span></a><div class="footer-socials" aria-label="Follow and contact us"><a href="https://www.facebook.com/RosePresChurch" target="_blank" rel="noopener" aria-label="Find us on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M13.7 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5H17V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.5V13h2.8v8z"/></svg></a><a href="https://m.youtube.com/@slpcrau/streams" target="_blank" rel="noopener" aria-label="Roseville Presbyterian Church on YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8ZM10 15.7V8.3l6.4 3.7z"/></svg></a><a href="mailto:administrator@rosevillechurch.com.au" aria-label="Email Roseville Presbyterian Church"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5.5" width="18.4" height="13" rx="1.5" fill="none" stroke-width="1.6"/><path d="m3.5 6.5 8.5 7 8.5-7" fill="none" stroke-width="1.6" stroke-linejoin="round"/></svg></a></div></div><div class="footer-contact-col"><div class="contact-details"><p><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">28 Lord Street, Roseville, NSW 2069</a></p><p><a href="mailto:administrator@rosevillechurch.com.au">administrator@rosevillechurch.com.au</a></p><p><a href="tel:+61294165054">(02) 9416 5054</a></p></div><p class="mission">To love God and to love his own;<br>to know Christ and to make him known.</p></div></footer><script>
 const arrow=`<svg class="scribble" viewBox="0 0 150 120" aria-hidden="true"><text x="7" y="22">come on in</text><path d="M38 35 C22 75 64 98 119 68 M105 68 L121 66 117 83"/></svg>`;
 const photo=(title,button,extra='')=>`<section class="photoband photohero ${extra}"><div class="photo-text"><h1>${title}</h1><a class="outline" href="#content">${button}<svg class="down-arrow-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5v6 M3.5 6.5 6 9l2.5-2.5"/></svg></a></div></section>`;
@@ -756,10 +750,13 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
  <div class="sign-legs" aria-hidden="true"><span></span><span></span></div>
  <div class="sign-frame">
   <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""></div></div>
-  <svg class="sign-corner-etch" viewBox="0 0 112 74" aria-hidden="true" focusable="false">
-   <path d="M9 65 Q8 44 9.5 26 Q9 15 12 11 Q37 8.5 60 9.7 Q79 10.3 101 8"/>
-   <path d="M14 51 Q13 34 15 17 Q35 14.5 54 15.2 Q68 15 80 13.8"/>
-   <path class="sign-corner-etch-light" d="M8.5 39 L10 21 M29 9.4 L44 8.9"/>
+  <svg class="sign-reference-lines" viewBox="0 0 500 250" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+   <g fill="none" stroke="#fff" stroke-width=".85" stroke-linecap="butt" stroke-linejoin="miter">
+    <path d="M23.8 10.8 L24.1 19.1 M24.1 21.4 L24.8 71.6 M24.8 74.1 L25.1 147.3 M25.1 150.4 L25.6 233.5 L25.7 241.3"/>
+    <path d="M475.3 7.5 L475.5 12.1 M475.5 14.5 L476.1 82.2 M476.1 84.4 L476.7 177.6 M476.7 181.0 L477.0 239.5"/>
+    <path d="M24.0 17.5 L91.0 17.1 M94.7 17.1 L156.5 16.5 M158.9 16.5 L295.0 15.4 M297.1 15.4 L387.0 14.7 M390.0 14.7 L475.6 13.7"/>
+    <path d="M25.3 233.3 L85.0 233.4 M88.5 233.4 L161.0 232.9 M164.3 232.9 L291.5 231.5 M295.1 231.5 L403.7 230.9 M407.0 230.9 L477.0 230.4"/>
+   </g>
   </svg>
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
   <svg class="sign-ink" viewBox="0 0 560 382" preserveAspectRatio="none" aria-hidden="true"><path d="M4 5 Q94 1 175 5 L554 3 558 378 Q439 381 334 377 L5 380 Z M9 11 Q118 8 232 11 L550 9 M12 115 Q209 112 352 116 L547 112 M12 120 Q278 118 546 121 M11 374 Q258 371 548 374"/></svg>

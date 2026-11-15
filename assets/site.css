@@ -707,24 +707,18 @@ body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archi
  outline-offset:-3px;
 }
 
-/* A small hand-etched top-left corner, independent of the grass artwork.
-   The rest of the sign remains deliberately straight and unchanged. */
-.sign-corner-etch{
+/* Precision vector tracing of the reference sign's thin inset frame.
+   Very slight slope and tiny breaks, not a decorative double border. */
+.sign-reference-lines{
  position:absolute;
- z-index:4;
- left:3px;
- top:3px;
- width:clamp(56px,18%,83px);
- height:58px;
- overflow:visible;
+ inset:0;
+ width:100%;
+ height:100%;
+ z-index:5;
  pointer-events:none;
- fill:none;
- stroke:var(--paper);
- stroke-width:1.1;
- stroke-linecap:round;
- stroke-linejoin:round;
- opacity:.68;
+ overflow:visible;
+ mix-blend-mode:difference;
+ opacity:.62;
 }
-.sign-corner-etch .sign-corner-etch-light{stroke-width:.65;opacity:.55}
-body.night .sign-corner-etch{stroke:#fff;opacity:.72}
-@media(max-width:700px){.sign-corner-etch{width:58px;height:44px;left:2px;top:2px;stroke-width:.95}}
+body.night .sign-reference-lines{opacity:.7}
+@media(max-width:700px){.sign-reference-lines{opacity:.7}}
