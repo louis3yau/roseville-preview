@@ -138,7 +138,7 @@ let doorOpened=false;
 let entryTimer=null;
 function applyNightMode(){
  document.body.classList.toggle('night',nightMode);
- const art=document.querySelector('.church-art');if(art)art.src=nightMode?'assets/church-night-unlit.png':'assets/church-day-unlit.png';const lit=document.querySelector('.church-lit');if(lit)lit.src=nightMode?'assets/church-night-lit.png':'assets/church-day-lit.png';
+ const art=document.querySelector('.church-art');const artSource=nightMode?'assets/church-night-unlit.png':'assets/church-day-unlit.png';if(art&&art.getAttribute('src')!==artSource)art.src=artSource;const lit=document.querySelector('.church-lit');const litSource=nightMode?'assets/church-night-lit.png':'assets/church-day-lit.png';if(lit&&lit.getAttribute('src')!==litSource)lit.src=litSource;
  const opened=document.querySelector('.church-open');if(opened)opened.src='assets/church-day-open.png';const drawing=document.querySelector('.drawing');if(drawing){drawing.classList.toggle('lights-on',doorLightsOn);drawing.classList.toggle('door-open',doorOpened&&!nightMode)}
  const heading=document.querySelector('.homehero h1');if(heading)heading.title=nightMode?'Double tap to return to daytime':'Double tap to see the church at night';if(nightMode)fitSkyToChurch();
 }
