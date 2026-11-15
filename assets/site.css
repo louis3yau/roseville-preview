@@ -479,3 +479,11 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
 .inner-page .guide-archive-list .guide-day .cares-static{display:flex;gap:18px}
 .inner-page .guide-archive-list .guide-day .cares-static>span:first-child{flex:1}
 @media(max-width:700px){.inner-page .guide-archive-list .guide-day summary{min-height:58px}.inner-page .guide-archive-list .guide-day .reading-summary{font-size:14px}}
+
+/* Announcement sign: invisible left/right touch zones, no decorative arrows. */
+.sign-letters .sign-side-hit{position:absolute;z-index:6;top:0;bottom:0;width:23%;min-width:44px;border:0;padding:0;background:transparent;color:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.sign-letters .sign-side-previous{left:0}
+.sign-letters .sign-side-next{right:0}
+.sign-letters .sign-side-hit[hidden]{display:none}
+.sign-letters .sign-side-hit:focus:not(:focus-visible){outline:none}
+.sign-letters .sign-side-hit:focus-visible{outline:2px solid var(--olive);outline-offset:-4px}
