@@ -176,7 +176,7 @@ footer .mission{grid-column:2;justify-self:end;text-align:right;font:italic 20px
 body.night .contact-details a:not(.map-address){color:#aeb8c5}
 @media(max-width:700px){footer{grid-template-columns:65px minmax(0,1fr);column-gap:17px;row-gap:0}.contact-details{font-size:11px;line-height:1.5}footer .mission{grid-column:1/-1;justify-self:start;text-align:left;font-size:19px;white-space:normal;margin:28px 0 0}}
 .scripture{max-width:650px;margin:38px 0 32px;padding:4px 0 4px 22px;border-left:2px solid #435267}.scripture p{font:italic clamp(17px,2vw,21px)/1.55 Georgia,serif;margin:0 0 12px}.scripture cite{font:italic clamp(17px,1.8vw,20px)/1.55 Georgia,'Times New Roman',serif;color:#697589;display:block}body.night .scripture cite{color:#bbc5d2}
-.footer-home{display:inline-flex;flex-direction:column;align-items:flex-start;gap:9px;line-height:1.25}.footer-name{display:block;max-width:145px;font-size:12px}.footer-home:hover .footer-name{text-decoration:underline;text-decoration-color:var(--olive);text-underline-offset:3px}footer .scripture-credit{grid-column:1/-1;font:10px/1.45 Arial,sans-serif;color:#697589;margin-top:18px;max-width:780px}body.night .scripture-credit{color:#aeb8c5}body:not(.page-reading):not(.page-worship) .scripture-credit{display:none}@media(max-width:700px){footer{grid-template-columns:110px minmax(0,1fr)}footer .scripture-credit{margin-top:5px}}
+.footer-mark{touch-action:manipulation;cursor:pointer}.footer-home{display:inline-flex;flex-direction:column;align-items:flex-start;gap:9px;line-height:1.25}.footer-name{display:block;max-width:145px;font-size:12px}.footer-home:hover .footer-name{text-decoration:underline;text-decoration-color:var(--olive);text-underline-offset:3px}footer .scripture-credit{grid-column:1/-1;font:10px/1.45 Arial,sans-serif;color:#697589;margin-top:18px;max-width:780px}body.night .scripture-credit{color:#aeb8c5}body:not(.page-reading):not(.page-worship) .scripture-credit{display:none}@media(max-width:700px){footer{grid-template-columns:110px minmax(0,1fr)}footer .scripture-credit{margin-top:5px}}
 
 /* Keep the ink layout aligned while the current row's blue field extends outward. */
 .row.compact.is-today,.row.compact.is-current-month{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px;padding-top:30px;padding-bottom:30px}
@@ -625,6 +625,14 @@ let nightMode=false;
 let doorLightsOn=false;
 let doorOpened=false;
 let entryTimer=null;
+function toggleDayNight(){
+ nightMode=!nightMode;
+ doorLightsOn=false;doorOpened=false;
+ if(entryTimer){clearTimeout(entryTimer);entryTimer=null}
+ document.querySelector('.entry-button')?.classList.remove('is-selected');
+ document.querySelectorAll('.night-sky .star').forEach(star=>star.classList.remove('launching','spent'));
+ applyNightMode();
+}
 function applyNightMode(){
  document.body.classList.toggle('night',nightMode);
  const art=document.querySelector('.church-art');const artSource=nightMode?'assets/church-night-unlit.png':'assets/church-day-unlit.png';if(art&&art.getAttribute('src')!==artSource)art.src=artSource;const lit=document.querySelector('.church-lit');const litSource=nightMode?'assets/church-night-lit.png':'assets/church-day-lit.png';if(lit&&lit.getAttribute('src')!==litSource)lit.src=litSource;
@@ -674,7 +682,7 @@ function setupInteractions(){
  });
 
  let lastTouch=0,lastTouchToggle=0;
- const toggle=()=>{nightMode=!nightMode;doorLightsOn=false;doorOpened=false;if(entryTimer){clearTimeout(entryTimer);entryTimer=null}entryButton?.classList.remove('is-selected');document.querySelectorAll('.night-sky .star').forEach(star=>star.classList.remove('launching','spent'));applyNightMode()};
+ const toggle=toggleDayNight;
  heading.addEventListener('dblclick',()=>{if(Date.now()-lastTouchToggle>700)toggle()});
  heading.addEventListener('pointerup',event=>{if(event.pointerType!=='touch')return;const now=Date.now();if(now-lastTouch<500){toggle();lastTouchToggle=now;lastTouch=0}else lastTouch=now});
  heading.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
@@ -939,7 +947,18 @@ document.querySelector('.menu').onclick=()=>{
 document.addEventListener('click',event=>{const button=event.target.closest('a.outline,button.outline');if(button)button.classList.add('is-selected')});
 window.addEventListener('popstate',()=>{render();requestAnimationFrame(focusPage)});
 window.addEventListener('hashchange',()=>{render();requestAnimationFrame(focusPage)});
-document.querySelectorAll('.brand,.footer-home').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();navigateToPage('home')}));
+document.querySelectorAll('.brand').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();navigateToPage('home')}));
+let lastFooterIconTap=0;
+document.querySelector('.footer-home')?.addEventListener('click',event=>{
+ event.preventDefault();
+ const iconTap=!!event.target.closest('.footer-mark');
+ const now=Date.now();
+ const doubleTap=iconTap&&now-lastFooterIconTap<500;
+ lastFooterIconTap=iconTap&&!doubleTap?now:0;
+ navigateToPage('home');
+ if(doubleTap)toggleDayNight();
+});
+document.querySelector('.footer-mark')?.addEventListener('dblclick',event=>event.preventDefault());
 if(location.pathname===SITE_ROOT&&/^#(?:home|about|resources|community|calendar|youth|study|cares|children|catechism|bsf|worship|reading|credits|visit)(?:\/|$)/.test(location.hash)){
  const [legacy,section]=location.hash.slice(1).split('/');
  history.replaceState(history.state,'',routePath(legacy)+(section?'#'+section:''));

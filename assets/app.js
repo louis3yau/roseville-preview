@@ -136,6 +136,14 @@ let nightMode=false;
 let doorLightsOn=false;
 let doorOpened=false;
 let entryTimer=null;
+function toggleDayNight(){
+ nightMode=!nightMode;
+ doorLightsOn=false;doorOpened=false;
+ if(entryTimer){clearTimeout(entryTimer);entryTimer=null}
+ document.querySelector('.entry-button')?.classList.remove('is-selected');
+ document.querySelectorAll('.night-sky .star').forEach(star=>star.classList.remove('launching','spent'));
+ applyNightMode();
+}
 function applyNightMode(){
  document.body.classList.toggle('night',nightMode);
  const art=document.querySelector('.church-art');const artSource=nightMode?'assets/church-night-unlit.png':'assets/church-day-unlit.png';if(art&&art.getAttribute('src')!==artSource)art.src=artSource;const lit=document.querySelector('.church-lit');const litSource=nightMode?'assets/church-night-lit.png':'assets/church-day-lit.png';if(lit&&lit.getAttribute('src')!==litSource)lit.src=litSource;
@@ -185,7 +193,7 @@ function setupInteractions(){
  });
 
  let lastTouch=0,lastTouchToggle=0;
- const toggle=()=>{nightMode=!nightMode;doorLightsOn=false;doorOpened=false;if(entryTimer){clearTimeout(entryTimer);entryTimer=null}entryButton?.classList.remove('is-selected');document.querySelectorAll('.night-sky .star').forEach(star=>star.classList.remove('launching','spent'));applyNightMode()};
+ const toggle=toggleDayNight;
  heading.addEventListener('dblclick',()=>{if(Date.now()-lastTouchToggle>700)toggle()});
  heading.addEventListener('pointerup',event=>{if(event.pointerType!=='touch')return;const now=Date.now();if(now-lastTouch<500){toggle();lastTouchToggle=now;lastTouch=0}else lastTouch=now});
  heading.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
@@ -450,7 +458,18 @@ document.querySelector('.menu').onclick=()=>{
 document.addEventListener('click',event=>{const button=event.target.closest('a.outline,button.outline');if(button)button.classList.add('is-selected')});
 window.addEventListener('popstate',()=>{render();requestAnimationFrame(focusPage)});
 window.addEventListener('hashchange',()=>{render();requestAnimationFrame(focusPage)});
-document.querySelectorAll('.brand,.footer-home').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();navigateToPage('home')}));
+document.querySelectorAll('.brand').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();navigateToPage('home')}));
+let lastFooterIconTap=0;
+document.querySelector('.footer-home')?.addEventListener('click',event=>{
+ event.preventDefault();
+ const iconTap=!!event.target.closest('.footer-mark');
+ const now=Date.now();
+ const doubleTap=iconTap&&now-lastFooterIconTap<500;
+ lastFooterIconTap=iconTap&&!doubleTap?now:0;
+ navigateToPage('home');
+ if(doubleTap)toggleDayNight();
+});
+document.querySelector('.footer-mark')?.addEventListener('dblclick',event=>event.preventDefault());
 if(location.pathname===SITE_ROOT&&/^#(?:home|about|resources|community|calendar|youth|study|cares|children|catechism|bsf|worship|reading|credits|visit)(?:\/|$)/.test(location.hash)){
  const [legacy,section]=location.hash.slice(1).split('/');
  history.replaceState(history.state,'',routePath(legacy)+(section?'#'+section:''));
