@@ -823,7 +823,7 @@ function refreshDirectionalArrows(){
   return null;
  };
  document.querySelectorAll('a,button').forEach(el=>{
-  if(el.matches('.parent-link,.footer-home,.brand,#guide-prev,#guide-next,.back-arrow'))return;
+  if(el.matches('.parent-link,.footer-home,.brand,#guide-prev,.back-arrow'))return;
   const node=lastTextNode(el);
   if(!node||!/[→›↗]\s*$/.test(node.nodeValue))return;
   const href=el.getAttribute('href')||'';
