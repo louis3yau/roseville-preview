@@ -26,7 +26,7 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
  <div class="sign-legs" aria-hidden="true"><span></span><span></span></div>
  <div class="sign-frame">
   <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""></div></div>
-  <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div></div>
+  <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
   <svg class="sign-ink" viewBox="0 0 560 382" preserveAspectRatio="none" aria-hidden="true"><path d="M4 5 Q94 1 175 5 L554 3 558 378 Q439 381 334 377 L5 380 Z M9 11 Q118 8 232 11 L550 9 M12 115 Q209 112 352 116 L547 112 M12 120 Q278 118 546 121 M11 374 Q258 371 548 374"/></svg>
  </div>
  <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span></div>
@@ -206,9 +206,49 @@ function setupInteractions(){
   });
  });
 }
-function loadSign(){const board=document.getElementById('sign-message');if(!board||!cmsData)return;const todaySydney=new Intl.DateTimeFormat('sv-SE',{timeZone:'Australia/Sydney',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const items=cmsData.announcements.filter(a=>a.published&&(!a.use_expiry_date||!a.expiry_date||String(a.expiry_date).slice(0,10)>=todaySydney)).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));let index=0;let timer;
- const display=()=>{const item=items[index];board.textContent=item?[item.title,item.description,item.show_event_date&&item.event_date?formatDate(item.event_date):''].filter(Boolean).join('\n'):cmsData.board.message;board.classList.toggle('sign-long',board.textContent.length>100);const stamp=document.getElementById('sign-updated');if(stamp){const updated=item?.updated_at||cmsData.board?.updated_at;if(updated&&/^\d{4}-\d{2}-\d{2}/.test(updated)){stamp.textContent='Last updated '+formatDate(updated.slice(0,10));stamp.hidden=false}else{stamp.textContent='';stamp.hidden=true}}const controls=document.getElementById('sign-controls');if(controls)controls.hidden=items.length<2;let more=document.getElementById('sign-more');if(more)more.remove();if(item&&/^(https:\/\/|#[a-z-]+$)/.test(item.link||'')){more=document.createElement('a');more.id='sign-more';more.className='sign-more';more.href=item.link;more.textContent='More →';if(item.link.startsWith('https://')){more.target='_blank';more.rel='noopener'}board.parentElement.append(more)}};
- if(items.length>1){let controls=document.getElementById('sign-controls');if(!controls){controls=document.createElement('div');controls.id='sign-controls';controls.className='sign-controls';controls.innerHTML='<button type="button" aria-label="Previous announcement">←</button><button type="button" aria-label="Next announcement">→</button>';board.closest('.noticeboard').append(controls)}controls.children[0].onclick=()=>{index=(index+items.length-1)%items.length;display()};controls.children[1].onclick=()=>{index=(index+1)%items.length;display()};const area=board.closest('.noticeboard');timer=setInterval(()=>{if(!area.matches(':hover,:focus-within')&&!document.hidden){index=(index+1)%items.length;display()}},7000);window.addEventListener('hashchange',()=>clearInterval(timer),{once:true})}display()}
+let signRotationTimer=null;
+function loadSign(){
+ if(signRotationTimer!==null){clearInterval(signRotationTimer);signRotationTimer=null}
+ const board=document.getElementById('sign-message');
+ if(!board||!cmsData)return;
+ const todaySydney=new Intl.DateTimeFormat('sv-SE',{timeZone:'Australia/Sydney',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const items=(cmsData.announcements||[]).filter(a=>a.published&&(!a.use_expiry_date||!a.expiry_date||String(a.expiry_date).slice(0,10)>=todaySydney)).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+ const area=board.closest('.noticeboard');
+ const previous=area?.querySelector('.sign-side-previous'),next=area?.querySelector('.sign-side-next');
+ let index=0;
+ const display=()=>{
+  const item=items[index];
+  board.textContent=item?[item.title,item.description,item.show_event_date&&item.event_date?formatDate(item.event_date):''].filter(Boolean).join('\n'):cmsData.board.message;
+  board.classList.toggle('sign-long',board.textContent.length>100);
+  const stamp=document.getElementById('sign-updated');
+  if(stamp){
+   const updated=item?.updated_at||cmsData.board?.updated_at;
+   if(updated&&/^\d{4}-\d{2}-\d{2}/.test(updated)){stamp.textContent='Last updated '+formatDate(updated.slice(0,10));stamp.hidden=false}
+   else{stamp.textContent='';stamp.hidden=true}
+  }
+  area?.querySelector('#sign-more')?.remove();
+  if(item&&/^(https:\/\/|#[a-z-]+$)/.test(item.link||'')){
+   const more=document.createElement('a');
+   more.id='sign-more';more.className='sign-more';more.href=item.link;more.textContent='More →';
+   if(item.link.startsWith('https://')){more.target='_blank';more.rel='noopener'}
+   board.parentElement.append(more)
+  }
+ };
+ const rotate=step=>{index=(index+step+items.length)%items.length;display()};
+ const restart=()=>{
+  if(signRotationTimer!==null)clearInterval(signRotationTimer);
+  signRotationTimer=setInterval(()=>{if(!document.hidden&&!area.matches(':hover'))rotate(1)},7000)
+ };
+ if(previous&&next){
+  previous.hidden=next.hidden=items.length<2;
+  if(items.length>1){
+   previous.onclick=()=>{rotate(-1);restart()};
+   next.onclick=()=>{rotate(1);restart()};
+   restart();
+  }
+ }
+ display();
+}
 function setupStaff(){const form=document.getElementById('staff-form');if(form)form.outerHTML='<p>Church editors sign in through <a class="textlink" href="https://app.pagescms.org" target="_blank" rel="noopener">Pages CMS →</a>.</p>'}
 async function loadCMS(){try{const response=await fetch('assets/site-content.json');if(!response.ok)return;cmsData=await response.json();const d=cmsData.details;document.querySelectorAll('.contact-details').forEach(el=>{const a=el.querySelectorAll('a');a[0].textContent=d.address;a[0].href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.address);a[1].textContent=d.email;a[1].href='mailto:'+d.email;a[2].textContent=d.phone;a[2].href='tel:'+d.phone.replace(/[^+\d]/g,'')});current='';render()}catch(error){console.warn('Editor content unavailable',error)}}
 function updateCMSPage(page){if(!cmsData)return;const data=cmsData;if(page==='worship'){const archive=document.getElementById('guide-archive');if(archive)archive.hidden=false}
