@@ -585,5 +585,17 @@
     "address": "28 Lord Street, Roseville, NSW 2069",
     "email": "administrator@rosevillechurch.com.au",
     "phone": "(02) 9416 5054"
-  }
+  },
+  "guide_archive": [
+    {
+      "date": "2026-11-08",
+      "passage_description": "",
+      "pdf": "https://rosevillechurch.com.au/wp-content/uploads/2026/11/Worship-Guide-8-Nov-2026.pdf"
+    },
+    {
+      "date": "2026-11-01",
+      "passage_description": "",
+      "pdf": "https://rosevillechurch.com.au/wp-content/uploads/2026/10/Worship-Guide-1-Nov-2026.pdf"
+    }
+  ]
 }
