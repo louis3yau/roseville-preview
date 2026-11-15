@@ -448,3 +448,23 @@ body.night .calendar-day .cares-description{color:inherit}
 .inner-page .row.compact p,.section .row p{font-size:clamp(14px,1.1vw,15px)}
 .parent-link,.section .textlink{min-height:32px}
 @media(max-width:700px){nav a{font-size:14px;min-height:44px;display:flex;align-items:center}.section p,.inner-page p{font-size:15px}.inner-page .row.compact h3{font-size:14px}.drawing .cross-guide-hit{left:34%;top:12%;width:10%;height:20%}}
+/* Archived worship guides share Roseville Cares' expandable rows and outlined PDF buttons. */
+.guide-archive-section{margin-top:42px}
+.guide-archive-section h2{font:400 22px/1.3 Georgia,serif;margin:0 0 13px}
+.inner-page .guide-archive-list .guide-day{display:block;grid-template-columns:none;gap:0}
+.inner-page .guide-archive-list .guide-day summary{display:flex;align-items:flex-start;gap:18px;min-height:60px;padding:3px 0;cursor:pointer;list-style:none}
+.inner-page .guide-archive-list .guide-day summary::-webkit-details-marker{display:none}
+.inner-page .guide-archive-list .guide-day summary>span:first-child{flex:1;min-width:0}
+.inner-page .guide-archive-list .guide-day .reading-summary{font-weight:400}
+.inner-page .guide-archive-list .guide-day .row-tag{margin:3px 5px 0 auto;white-space:nowrap;font-weight:400}
+.inner-page .guide-archive-list .guide-day summary:after{align-self:flex-start;margin-top:1px;flex:none}
+.inner-page .guide-archive-list .guide-day.is-past .reading-date,.inner-page .guide-archive-list .guide-day.is-past .reading-summary{color:#7c827d}
+body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body.night .inner-page .guide-archive-list .guide-day.is-past .reading-summary{color:#a8b0ba}
+.inner-page .guide-archive-list .guide-day .cares-details{padding:8px 0 16px}
+.inner-page .guide-archive-list .guide-day .cares-description{font:14px/1.65 Arial,sans-serif;max-width:650px;white-space:pre-line;margin:0 0 14px}
+.inner-page .guide-archive-list .guide-day .cares-links{border-top:1px solid currentColor;padding:13px 0 5px;display:flex}
+.inner-page .guide-archive-list .guide-day .reading-passage a{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid currentColor;color:var(--olive);font:14px/1.35 Arial,sans-serif;text-decoration:none}
+.inner-page .guide-archive-list .guide-day .reading-passage a:hover,.inner-page .guide-archive-list .guide-day .reading-passage a:focus-visible{background:var(--olive);color:var(--paper)}
+.inner-page .guide-archive-list .guide-day .cares-static{display:flex;gap:18px}
+.inner-page .guide-archive-list .guide-day .cares-static>span:first-child{flex:1}
+@media(max-width:700px){.inner-page .guide-archive-list .guide-day summary{min-height:58px}.inner-page .guide-archive-list .guide-day .reading-summary{font-size:14px}}
