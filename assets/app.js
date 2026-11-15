@@ -267,6 +267,11 @@ function updateCMSPage(page){
  if(page==='home'){
    const hero=document.querySelector('.hero-bottom > div:first-child .subtle');
    if(hero)hero.textContent=(details.morning_name||'Morning Worship')+' '+(details.morning_time||'9:30am');
+   const homeCopy=data.page_copy?.home;
+   if(homeCopy){
+     if(homeCopy.hero_subtitle)document.querySelector('.hero-bottom > div:first-child > p:first-child').textContent=homeCopy.hero_subtitle;
+     if(homeCopy.hero_button)document.querySelector('.entry-button').textContent=homeCopy.hero_button;
+   }
  }
  const copy=data.page_copy?.[page];if(!copy)return;
  // User-entered content is always inserted as text, never executed as HTML.
