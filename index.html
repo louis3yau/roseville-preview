@@ -66,7 +66,8 @@ html,body{overflow-x:clip}
 .sign-legs span{position:absolute;left:20%;width:16px;height:150px;background:#20231f;transform:rotate(-.7deg)}
 .sign-legs span+span{left:auto;right:20%;transform:rotate(.5deg)}
 .sign-plaque{position:relative;z-index:3;width:90%;height:49px;margin:6px auto 0;background:#20231f;display:flex;align-items:center;justify-content:center;color:var(--paper);font:11px/1 Arial,Helvetica,sans-serif;letter-spacing:.035em;transform:rotate(.55deg);box-shadow:0 0 0 1px #20231f}
-.sign-plaque:after{content:'';position:absolute;inset:3px;border:1px solid #f5f3eb55;pointer-events:none}
+.sign-plaque > .sign-plaque-inset{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none;overflow:hidden;color:inherit;opacity:.55}
+.sign-plaque > .sign-plaque-inset path{fill:none;stroke:currentColor;stroke-width:.55;vector-effect:non-scaling-stroke;stroke-linecap:butt;stroke-linejoin:miter}
 .sign-updated{margin-top:8px}
 @media(max-width:700px){.noticeboard{width:min(420px,100%);min-height:410px;padding:0 9px}.sign-frame{min-height:305px;border-width:4px}.sign-header{height:92px;grid-template-columns:54px 1fr;gap:10px;padding:7px 11px}.sign-logo{width:53px;height:60px}.sign-logo img{width:35px;height:50px}.sign-letters{min-height:208px;padding:8px 9px}.sign-site{font-size:clamp(14px,3.9vw,19px)}.sign-message{min-height:165px;margin-top:8px;font-size:clamp(17px,4.3vw,22px);line-height:48px;padding:0 5px}.sign-legs{height:115px}.sign-legs span{height:115px;width:12px}.sign-plaque{height:40px}}
 footer .footer-mark{width:65px;height:auto;margin:0 0 13px;filter:grayscale(1) contrast(4)}
@@ -95,8 +96,8 @@ body.night .menu-logo{filter:invert(1)}
 body.night .noticeboard{filter:none}
 body.night .sign-frame{border-color:#fff;background:#05070b;box-shadow:inset 0 0 0 3px #05070b,0 0 0 1px #fff}
 body.night .sign-header,body.night .sign-letters,body.night .sign-plaque{background:#05070b;color:#fff}
-body.night .sign-logo{background:#05070b;border-color:#fff}
-body.night .sign-logo img{filter:invert(1)}
+
+
 body.night .sign-site,body.night .sign-message{color:#fff}
 body.night .sign-message{background:repeating-linear-gradient(to bottom,#ffffff80 0 1px,transparent 1px 48px)}
 body.night .sign-ink path{stroke:#fff}
@@ -176,7 +177,7 @@ footer .mission{grid-column:2;justify-self:end;text-align:right;font:italic 20px
 body.night .contact-details a:not(.map-address){color:#aeb8c5}
 @media(max-width:700px){footer{grid-template-columns:65px minmax(0,1fr);column-gap:17px;row-gap:0}.contact-details{font-size:11px;line-height:1.5}footer .mission{grid-column:1/-1;justify-self:start;text-align:left;font-size:19px;white-space:normal;margin:28px 0 0}}
 .scripture{max-width:650px;margin:38px 0 32px;padding:4px 0 4px 22px;border-left:2px solid #435267}.scripture p{font:italic clamp(17px,2vw,21px)/1.55 Georgia,serif;margin:0 0 12px}.scripture cite{font:italic clamp(17px,1.8vw,20px)/1.55 Georgia,'Times New Roman',serif;color:#697589;display:block}body.night .scripture cite{color:#bbc5d2}
-.footer-home{display:inline-flex;flex-direction:column;align-items:flex-start;gap:9px;line-height:1.25}.footer-name{display:block;max-width:145px;font-size:12px}.footer-home:hover .footer-name{text-decoration:underline;text-decoration-color:var(--olive);text-underline-offset:3px}footer .scripture-credit{grid-column:1/-1;font:10px/1.45 Arial,sans-serif;color:#697589;margin-top:18px;max-width:780px}body.night .scripture-credit{color:#aeb8c5}body:not(.page-reading):not(.page-worship) .scripture-credit{display:none}@media(max-width:700px){footer{grid-template-columns:110px minmax(0,1fr)}footer .scripture-credit{margin-top:5px}}
+.down-arrow-icon{display:inline-block;width:12px;height:12px;margin-left:6px;vertical-align:-3px;overflow:visible;flex-shrink:0}.external-arrow-icon{display:inline-block;vertical-align:-1px;margin-left:6px;flex-shrink:0;overflow:visible}.parent-link .back-arrow{font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:.7;display:inline-block;vertical-align:-1px;margin-right:2px}.footer-mark{touch-action:manipulation;cursor:pointer}.footer-home{display:inline-flex;flex-direction:column;align-items:flex-start;gap:9px;line-height:1.25}.footer-name{display:block;max-width:145px;font-size:12px}.footer-home:hover .footer-name{text-decoration:underline;text-decoration-color:var(--olive);text-underline-offset:3px}footer .scripture-credit{grid-column:1/-1;font:10px/1.45 Arial,sans-serif;color:#697589;margin-top:18px;max-width:780px}body.night .scripture-credit{color:#aeb8c5}body:not(.page-reading):not(.page-worship) .scripture-credit{display:none}@media(max-width:700px){footer{grid-template-columns:110px minmax(0,1fr)}footer .scripture-credit{margin-top:5px}}
 
 /* Keep the ink layout aligned while the current row's blue field extends outward. */
 .row.compact.is-today,.row.compact.is-current-month{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px;padding-top:30px;padding-bottom:30px}
@@ -299,9 +300,9 @@ body.night .drawing.lights-on:before{opacity:.55}
 /* The hand-drawn SVG supplies the sign's fine outline; avoid a second heavy box. */
 body.night .sign-frame{border:0;box-shadow:none}
 body.night .sign-ink{inset:0;width:100%;height:100%}
-body.night .sign-logo{position:relative;background:transparent;border:0}
-body.night .sign-logo img{visibility:hidden;filter:none}
-body.night .sign-logo:after{content:'';position:absolute;inset:0;background:#fff;mask:url('assets/menu-logo.png') center/contain no-repeat;-webkit-mask:url('assets/menu-logo.png') center/contain no-repeat}
+
+
+
 
 /* Consistent columns across all editorial lists. */
 .row:not(.compact){grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,.85fr)}
@@ -487,9 +488,258 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
 .sign-letters .sign-side-hit[hidden]{display:none}
 .sign-letters .sign-side-hit:focus:not(:focus-visible){outline:none}
 .sign-letters .sign-side-hit:focus-visible{outline:2px solid var(--olive);outline-offset:-4px}
-</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"Church","name":"Roseville Presbyterian Church","address":{"@type":"PostalAddress","streetAddress":"28 Lord Street","addressLocality":"Roseville","addressRegion":"NSW","postalCode":"2069","addressCountry":"AU"},"telephone":"+61 2 9416 5054","email":"administrator@rosevillechurch.com.au"}</script><base href="/roseville-preview/"><script type="text/javascript">if(location.hostname==='raw.githack.com')document.querySelector('base').href='/louis3yau/roseville-preview/dev/';else if(location.hostname.endsWith('.pages.dev')){document.querySelector('base').href='/';var noindex=document.createElement('meta');noindex.name='robots';noindex.content='noindex,nofollow';document.head.appendChild(noindex)}</script><meta name="theme-color" content="#f5f3eb"><meta property="og:type" content="website"><meta property="og:site_name" content="Roseville Presbyterian Church"><meta property="og:title" content="Roseville Presbyterian Church"><meta property="og:description" content="Sunday worship at 9:30am, 28 Lord Street, Roseville NSW."><meta property="og:url" content="https://louis3yau.github.io/roseville-preview/"><link rel="canonical" href="https://louis3yau.github.io/roseville-preview/"><link rel="preload" as="image" href="assets/hero-about.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-community.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-resources.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-visit.webp" fetchpriority="low"></head><body><a class="skip-to-content" href="#content">Skip to content</a><svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><filter id="sign-handcut-edge" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.065" numOctaves="2" seed="7" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale="0.7" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="window-glow-filter" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 .945  0 0 0 0 .81  0 8 -8 0 -.6" result="warm-pixels"/><feGaussianBlur in="warm-pixels" stdDeviation="8"/></filter></svg><header><a class="brand" href="#home"><img class="menu-logo" src="assets/menu-logo.png" alt="Roseville Presbyterian Church"><span><span class="brand-name">Roseville</span><small>PRESBYTERIAN CHURCH</small></span></a><button class="menu" aria-expanded="false" aria-controls="nav" aria-label="Open menu"><span class="menu-bars" aria-hidden="true"></span></button><nav id="nav" aria-label="Main navigation"><a href="#about">About</a><a href="#resources">Worship &amp; Bible</a><a href="#community">Community</a><a href="#calendar">Calendar</a><a class="outline" href="#visit">Visit us →</a></nav></header><main id="main" tabindex="-1"><section class="section"><h1>Roseville Presbyterian Church</h1><p>Sunday morning worship at 9:30am, 28 Lord Street, Roseville NSW 2069.</p><p><a href="visit/">Plan your visit</a></p></section></main><footer><div class="footer-icon"><a class="footer-home" href="#home" aria-label="Roseville Presbyterian Church — back to top"><span class="footer-mark" aria-hidden="true"></span><span class="footer-name"><strong>Roseville</strong><span class="footer-denom">Presbyterian Church</span></span><span class="footer-region">Roseville, Lindfield and Killara</span></a><div class="footer-socials" aria-label="Follow and contact us"><a href="https://www.facebook.com/RosePresChurch" target="_blank" rel="noopener" aria-label="Find us on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M13.7 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5H17V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.5V13h2.8v8z"/></svg></a><a href="https://m.youtube.com/@slpcrau/streams" target="_blank" rel="noopener" aria-label="Roseville Presbyterian Church on YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8ZM10 15.7V8.3l6.4 3.7z"/></svg></a><a href="mailto:administrator@rosevillechurch.com.au" aria-label="Email Roseville Presbyterian Church"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5.5" width="18.4" height="13" rx="1.5" fill="none" stroke-width="1.6"/><path d="m3.5 6.5 8.5 7 8.5-7" fill="none" stroke-width="1.6" stroke-linejoin="round"/></svg></a></div></div><div class="footer-contact-col"><div class="contact-details"><p><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">28 Lord Street, Roseville, NSW 2069</a></p><p><a href="mailto:administrator@rosevillechurch.com.au">administrator@rosevillechurch.com.au</a></p><p><a href="tel:+61294165054">(02) 9416 5054</a></p></div><p class="mission">To love God and to love his own;<br>to know Christ and to make him known.</p></div></footer><script>
+
+/* Visit page: generous editorial service times and calm, unfilled FAQs. */
+.page-visit #content .service-times{margin:23px 0 34px}
+.page-visit #content .service-time{margin:0 0 25px}
+.page-visit #content .service-time strong{font:400 clamp(21px,2.4vw,26px)/1.3 Georgia,'Times New Roman',serif;letter-spacing:-.025em}
+.page-visit #content .service-link{text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent)}
+.page-visit #content .service-time .subtle{font-size:14px;line-height:1.6;margin-top:6px}
+.page-visit #content .visit-location{margin-top:38px}
+.page-visit #content .visit-location>p{margin:0 0 15px}
+.page-visit #content .visit-location .map-address{font:400 clamp(20px,2.3vw,25px)/1.35 Georgia,'Times New Roman',serif;letter-spacing:-.02em;text-decoration:none;overflow-wrap:anywhere}
+.page-visit #content .visit-faq{border-top:1px solid var(--line);align-self:start}
+.page-visit #content .visit-faq details{margin:0;padding:0;border:0;border-bottom:1px solid var(--line);background:transparent;color:inherit;box-shadow:none}
+.page-visit #content .visit-faq details[open],body.night.page-visit #content .visit-faq details[open]{background:transparent;color:inherit}
+.page-visit #content .visit-faq summary{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:72px;padding:19px 0;list-style:none;font:400 17px/1.45 Arial,Helvetica,sans-serif;color:inherit;background:transparent;cursor:pointer}
+.page-visit #content .visit-faq summary::-webkit-details-marker{display:none}
+.page-visit #content .visit-faq summary::marker{content:''}
+.page-visit #content .visit-faq summary:after{content:'+';font:400 22px/1 Arial,Helvetica,sans-serif;flex-shrink:0;color:currentColor}
+.page-visit #content .visit-faq details[open] summary:after{content:'−'}
+.page-visit #content .visit-faq details>p{font-size:14px;line-height:1.75;max-width:620px;margin:0 0 17px}
+.page-visit #content .visit-faq details>p:last-child{margin-bottom:24px}
+@media(max-width:700px){
+ .page-visit #content .service-time strong{font-size:22px}
+ .page-visit #content .visit-location .map-address{font-size:21px}
+ .page-visit #content .visit-faq{margin-top:22px}
+ .page-visit #content .visit-faq summary{min-height:66px;font-size:16px}
+}
+
+/* Aligned accordion master: outlined rows occupy the same horizontal footprint as highlighted rows. */
+.inner-page .rows > .row.reading-day,
+.inner-page .cares-list > .row.reading-day,
+.inner-page .guide-archive-list > .row.reading-day{
+  box-sizing:border-box;
+  width:auto;
+  margin-left:-15px;
+  margin-right:-15px;
+  padding-left:15px;
+  padding-right:15px;
+}
+@media(max-width:700px){
+  .inner-page .rows > .row.reading-day,
+  .inner-page .cares-list > .row.reading-day,
+  .inner-page .guide-archive-list > .row.reading-day{
+    margin-left:-15px;
+    margin-right:-15px;
+    padding-left:15px;
+    padding-right:15px;
+  }
+}
+
+
+/* Visit Us: Sunday schedule alongside map, with FAQs below both columns. */
+@media(min-width:701px){
+ body.page-visit #content.visit-layout{
+  max-width:1350px;
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  column-gap:clamp(36px,6vw,92px);
+  row-gap:clamp(36px,4.5vw,64px);
+  align-items:start;
+ }
+ body.page-visit #content .visit-services{
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+ }
+ body.page-visit #content .visit-location{
+  grid-column:2;
+  grid-row:1;
+  min-width:0;
+  margin-top:clamp(75px,6.3vw,90px);
+ }
+ body.page-visit #content .visit-map{
+  width:100%;
+  max-width:none;
+  aspect-ratio:4/3;
+ }
+ body.page-visit #content .visit-faq{
+  grid-column:1/-1;
+  grid-row:2;
+  width:100%;
+  margin:0;
+ }
+ body.page-visit #content .visit-faq details>p{max-width:900px}
+}
+@media(max-width:700px){
+ body.page-visit #content.visit-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:0;
+ }
+ body.page-visit #content .visit-services{grid-column:1;grid-row:1;min-width:0}
+ body.page-visit #content .visit-location{grid-column:1;grid-row:2;min-width:0;margin-top:25px}
+ body.page-visit #content .visit-faq{grid-column:1;grid-row:3;width:100%;margin-top:38px}
+}
+
+@media(min-width:701px){
+ body.page-visit #content .visit-location{
+  container-type:inline-size;
+ }
+ body.page-visit #content .visit-location .map-address{
+  display:inline-block;
+  max-width:100%;
+  font-size:clamp(18px,4.5cqw,25px);
+  letter-spacing:-.025em;
+ }
+}
+@media(min-width:900px){
+ body.page-visit #content .visit-location .map-address{
+  white-space:nowrap;
+  overflow-wrap:normal;
+ }
+}
+
+
+/* Keep the dynamic back-navigation in the first grid row, not after FAQs. */
+@media(min-width:701px){
+ body.page-visit #content.visit-layout > .parent-link{
+  grid-column:1/-1;
+  grid-row:1;
+  justify-self:start;
+  align-self:start;
+  margin:0 0 5px;
+ }
+ body.page-visit #content .visit-services{grid-column:1;grid-row:2}
+ body.page-visit #content .visit-location{grid-column:2;grid-row:2}
+ body.page-visit #content .visit-faq{grid-column:1/-1;grid-row:3}
+}
+@media(max-width:700px){
+ body.page-visit #content.visit-layout > .parent-link{
+  grid-column:1;
+  grid-row:1;
+  justify-self:start;
+  margin-bottom:22px;
+ }
+ body.page-visit #content .visit-services{grid-column:1;grid-row:2}
+ body.page-visit #content .visit-location{grid-column:1;grid-row:3}
+ body.page-visit #content .visit-faq{grid-column:1;grid-row:4}
+}
+/* Respect intentional line breaks in the CMS evening-service description. */
+body.page-visit #content .service-time:last-child .subtle{white-space:pre-line}
+/* Shared dated accordion geometry: the navy and outlined rows have exactly matching edges.
+   Inset borders cannot protrude, and selected rows must remain navy when expanded. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day{
+ box-sizing:border-box;
+ width:auto;
+ max-width:none;
+ margin-left:-15px;
+ margin-right:-15px;
+ padding-left:15px;
+ padding-right:15px;
+}
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open]{
+ border:0;
+ outline:0;
+ outline-offset:0;
+ box-shadow:inset 0 0 0 1px var(--olive);
+ background:color-mix(in srgb,var(--olive) 4%,var(--paper));
+ color:var(--ink);
+}
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open]:focus-within{
+ outline:0;
+ outline-offset:0;
+ box-shadow:inset 0 0 0 1px var(--olive);
+}
+/* Current and upcoming items retain the full navy fill, including while expanded. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide),
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide)[open],
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide)[open]{
+ background:var(--olive);
+ color:var(--paper);
+ border:0;
+ outline:0;
+ box-shadow:none;
+}
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ background:#273d56;
+ color:#fff;
+}
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open]:not(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ background:#202d3c;
+ color:inherit;
+}
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide) :is(.reading-date,.reading-summary,.row-tag){
+ color:inherit;
+}
+/* Keep a visible keyboard-focus indicator inside the selected row bounds. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open] > summary:focus-visible{
+ outline:2px solid currentColor;
+ outline-offset:-3px;
+}
+
+/* Closed dated accordions never retain panel borders after toggling. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]),
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]):focus-within{
+ border-top:0;
+ border-left:0;
+ border-right:0;
+ border-bottom:1px solid var(--line);
+ outline:none;
+ outline-offset:0;
+ box-shadow:none;
+ background:transparent;
+}
+/* Current and upcoming rows keep their navy fill, even when closed. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]):is(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ border:0;
+ background:var(--olive);
+ color:var(--paper);
+}
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]):is(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ background:#273d56;
+ color:#fff;
+}
+/* Focus belongs to the summary control, not the entire collapsed panel. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]) > summary:focus-visible{
+ outline:2px solid currentColor;
+ outline-offset:-3px;
+}
+
+/* Night sign: invert the complete header and its logo panel without changing geometry. */
+body.night .sign-header{background:#fff;color:#05070b}
+body.night .sign-logo{background:#05070b;border-color:#05070b}
+body.night .sign-logo img{filter:brightness(0) invert(1)}
+body.night .sign-logo > .sign-logo-inset{color:#fff}
+/* The sketch detail belongs only to the small logo panel. */
+.sign-logo{position:relative}
+.sign-logo > .sign-logo-inset{
+ position:absolute;
+ inset:2px;
+ width:calc(100% - 4px);
+ height:calc(100% - 4px);
+ z-index:1;
+ pointer-events:none;
+ overflow:hidden;
+ color:#20231f;
+ opacity:.62;
+}
+.sign-logo > .sign-logo-inset path{
+ fill:none;
+ stroke:currentColor;
+ stroke-width:.55;
+ vector-effect:non-scaling-stroke;
+ stroke-linecap:butt;
+ stroke-linejoin:miter;
+}
+
+
+
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"Church","name":"Roseville Presbyterian Church","address":{"@type":"PostalAddress","streetAddress":"28 Lord Street","addressLocality":"Roseville","addressRegion":"NSW","postalCode":"2069","addressCountry":"AU"},"telephone":"+61 2 9416 5054","email":"administrator@rosevillechurch.com.au"}</script><base href="/roseville-preview/"><script type="text/javascript">if(location.hostname==='raw.githack.com')document.querySelector('base').href='/louis3yau/roseville-preview/dev/';else if(location.hostname.endsWith('.pages.dev')){document.querySelector('base').href='/';var noindex=document.createElement('meta');noindex.name='robots';noindex.content='noindex,nofollow';document.head.appendChild(noindex)}</script><meta name="theme-color" content="#f5f3eb"><meta property="og:type" content="website"><meta property="og:site_name" content="Roseville Presbyterian Church"><meta property="og:title" content="Roseville Presbyterian Church"><meta property="og:description" content="Sunday worship at 9:30am, 28 Lord Street, Roseville NSW."><meta property="og:url" content="https://louis3yau.github.io/roseville-preview/"><link rel="canonical" href="https://louis3yau.github.io/roseville-preview/"><link rel="preload" as="image" href="assets/church-night-unlit.png" fetchpriority="high"><link rel="preload" as="image" href="assets/church-night-lit.png" fetchpriority="high"><link rel="preload" as="image" href="assets/hero-about.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-community.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-resources.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-visit.webp" fetchpriority="low"></head><body><a class="skip-to-content" href="#content">Skip to content</a><svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><filter id="sign-handcut-edge" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.065" numOctaves="2" seed="7" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale="0.7" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="window-glow-filter" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 .945  0 0 0 0 .81  0 8 -8 0 -.6" result="warm-pixels"/><feGaussianBlur in="warm-pixels" stdDeviation="8"/></filter></svg><header><a class="brand" href="#home"><img class="menu-logo" src="assets/menu-logo.png" alt="Roseville Presbyterian Church"><span><span class="brand-name">Roseville</span><small>PRESBYTERIAN CHURCH</small></span></a><button class="menu" aria-expanded="false" aria-controls="nav" aria-label="Open menu"><span class="menu-bars" aria-hidden="true"></span></button><nav id="nav" aria-label="Main navigation"><a href="#about">About</a><a href="#resources">Worship &amp; Bible</a><a href="#community">Community</a><a href="#calendar">Calendar</a><a class="outline" href="#visit">Visit us →</a></nav></header><main id="main" tabindex="-1"><section class="section"><h1>Roseville Presbyterian Church</h1><p>Sunday morning worship at 9:30am, 28 Lord Street, Roseville NSW 2069.</p><p><a href="visit/">Plan your visit</a></p></section></main><footer><div class="footer-icon"><a class="footer-home" href="#home" aria-label="Roseville Presbyterian Church — back to top"><span class="footer-mark" aria-hidden="true"></span><span class="footer-name"><strong>Roseville</strong><span class="footer-denom">Presbyterian Church</span></span><span class="footer-region">Roseville, Lindfield and Killara</span></a><div class="footer-socials" aria-label="Follow and contact us"><a href="https://www.facebook.com/RosePresChurch" target="_blank" rel="noopener" aria-label="Find us on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M13.7 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5H17V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.5V13h2.8v8z"/></svg></a><a href="https://m.youtube.com/@slpcrau/streams" target="_blank" rel="noopener" aria-label="Roseville Presbyterian Church on YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8ZM10 15.7V8.3l6.4 3.7z"/></svg></a><a href="mailto:administrator@rosevillechurch.com.au" aria-label="Email Roseville Presbyterian Church"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5.5" width="18.4" height="13" rx="1.5" fill="none" stroke-width="1.6"/><path d="m3.5 6.5 8.5 7 8.5-7" fill="none" stroke-width="1.6" stroke-linejoin="round"/></svg></a></div></div><div class="footer-contact-col"><div class="contact-details"><p><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">28 Lord Street, Roseville, NSW 2069</a></p><p><a href="mailto:administrator@rosevillechurch.com.au">administrator@rosevillechurch.com.au</a></p><p><a href="tel:+61294165054">(02) 9416 5054</a></p></div><p class="mission">To love God and to love his own;<br>to know Christ and to make him known.</p></div></footer><script>
 const arrow=`<svg class="scribble" viewBox="0 0 150 120" aria-hidden="true"><text x="7" y="22">come on in</text><path d="M38 35 C22 75 64 98 119 68 M105 68 L121 66 117 83"/></svg>`;
-const photo=(title,button,extra='')=>`<section class="photoband photohero ${extra}"><div class="photo-text"><h1>${title}</h1><a class="outline" href="#content">${button} ↓</a></div></section>`;
+const photo=(title,button,extra='')=>`<section class="photoband photohero ${extra}"><div class="photo-text"><h1>${title}</h1><a class="outline" href="#content">${button}<svg class="down-arrow-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5v6 M3.5 6.5 6 9l2.5-2.5"/></svg></a></div></section>`;
 // Seeded scattering keeps the sky calm but avoids a repeated grid on each visit.
 const random=(()=>{let seed=41527;return ()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296)})();
 const starPoints=[];
@@ -514,11 +764,12 @@ const clouds=cloudFills.map(([box,path],index)=>{const i=index+1;return `<button
 const noticeboard=`<section id="home-about" class="notice-section"><div class="noticeboard">
  <div class="sign-legs" aria-hidden="true"><span></span><span></span></div>
  <div class="sign-frame">
-  <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""></div></div>
+  <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""><svg class="sign-logo-inset" viewBox="0 0 100 130" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+   <path d="M1.6 1.8 L27.8 1.5 M29.2 1.5 L65.5 1.9 M66.8 1.9 L98.2 1.4 M98.2 1.4 L98.5 31.6 M98.5 33 L98.1 82.4 M98.1 83.8 L98.6 128.1 M98.6 128.1 L72.4 128.4 M71 128.4 L36.5 128 M35.1 128 L1.7 128.5 M1.7 128.5 L1.4 95.2 M1.4 93.8 L1.9 48.1 M1.9 46.7 L1.6 1.8"/>
+  </svg></div></div>
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
-  <svg class="sign-ink" viewBox="0 0 560 382" preserveAspectRatio="none" aria-hidden="true"><path d="M4 5 Q94 1 175 5 L554 3 558 378 Q439 381 334 377 L5 380 Z M9 11 Q118 8 232 11 L550 9 M12 115 Q209 112 352 116 L547 112 M12 120 Q278 118 546 121 M11 374 Q258 371 548 374"/></svg>
  </div>
- <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span></div>
+ <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span><svg class="sign-plaque-inset" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M.8 1 L56.4 .7 M58 .7 L141.1 1.1 M142.7 1.1 L230.3 .8 M231.9 .8 L299.1 1 M299.1 1 L299.3 12 M299.3 13.3 L299 25 M299 25 L235.5 25.3 M233.9 25.3 L153.8 24.9 M152.2 24.9 L64.2 25.2 M62.6 25.2 L.9 25 M.9 25 L.7 13.7 M.7 12.4 L.8 1"/></svg></div>
  </div></section>`;
 const calendarRows=[["September","Tue 1","Session"],["September","Wed 2","Bible Study"],["September","Tue 8","CoM"],["September","Wed 9","Bible Study"],["September","Fri 11","Youth Group"],["September","Sat 12","Working Bee"],["September","Wed 16","Bible Study"],["September","Sun 20","Catechism term 3 ends"],["September","Wed 23","Bible Study"],["September","Sun 27","Roseville Cares Sunday"],["October","Sun 4","The Lord’s Supper"],["October","Sun 4","Church Lunch"],["October","Sun 4","Daylight Saving Starts"],["October","Tue 6","Session"],["October","Tue 13","CoM"],["October","Wed 14","Bible Study"],["October","Sun 18","Catechism term 4 begins"],["October","Tue 20","Presbytery Meeting"],["October","Wed 21","Bible Study"],["October","Sat 24","Fête"],["October","Sun 25","Roseville Cares Sunday"],["October","Wed 28","Bible Study"],["November","Tue 3","Session"],["November","Wed 4","Bible Study"],["November","Tue 10","CoM"],["November","Wed 11","Bible Study"],["November","Wed 18","Bible Study"],["November","Wed 25","Bible Study"],["November","Sun 29","Roseville Cares Sunday"],["December","Tue 1","Session"],["December","Wed 2","Bible Study"],["December","Sat 5","Working Bee"],["December","Sun 6","The Lord’s Supper"],["December","Tue 8","CoM"],["December","Wed 9","Bible Study"],["December","Tue 15","Presbytery Meeting"],["December","Wed 16","Bible Study"],["December","Fri 25","Christmas Day service · 9am"],["December","Sun 27","Roseville Cares Sunday"]];
 const careRows=[["25 January","Jericho Road"],["22 February","Allowah Children’s Hospital"],["29 March","PresAid Easter Appeal 2026"],["26 April","APWM (Australian Presbyterian World Mission)"],["31 May","PIM (Presbyterian Inland Mission)"],["28 June","Jericho Road"],["26 July","Chasefu Theological College"],["30 August","Bible League"],["27 September","APWM"],["25 October","PIM"],["29 November","PresAID Christmas Appeal"],["27 December","To be confirmed"]];
@@ -604,8 +855,8 @@ function calendarList(rows){
 }
 const remainingCalendar=()=>cmsData?cmsData.events.filter(x=>x.public!==false&&dateKey(x.date)>=sydneyTodayKey()).sort((a,b)=>dateKey(a.date)-dateKey(b.date)).map(x=>[formatDate(x.date),x.title,x.external_link||x.link,x.date,x.description||'',x.link_label||'']):calendarRows.filter(([month,date])=>dateKey(`${date} ${month}`)>=sydneyTodayKey()).map(([month,date,title])=>[`${date} ${month}`,title,null,`${date} ${month}`]).sort((a,b)=>dateKey(a[3])-dateKey(b[3]));
 const pageSection=(title,body,parent)=>`<section id="content" class="section inner-page standalone">${parent?`<a class="parent-link" href="#${parent[0]}">← ${parent[1]}</a>`:''}<h1>${title}</h1>${body}</section>`;
-const pages={home:`<section class="homehero"><div class="night-sky">${stars}</div><div><h1 tabindex="0" title="Double tap to see the church at night" aria-label="Welcome to Roseville Presbyterian Church. Double tap to switch day and night">Welcome to <strong>Roseville</strong><em>Presbyterian Church</em></h1></div><div class="drawing">${clouds}<img class="church-art" src="assets/church-day-unlit.png" alt="Hand-drawn illustration of Roseville Presbyterian Church"><img class="church-lit" src="assets/church-day-lit.png" alt="" aria-hidden="true"><img class="church-open" src="assets/church-day-open.png" alt="" aria-hidden="true"><span class="window-spill" aria-hidden="true"></span><button class="art-hit main-door" type="button" aria-label="Light the entrance window"></button><button class="art-hit nearby-window" type="button" aria-label="Light the church window"></button><button class="art-hit second-door" type="button" aria-label="Toggle the entrance lights"></button><button class="art-hit side-windows" type="button" aria-label="Toggle the church windows"></button><button class="art-hit far-windows" type="button" aria-label="Toggle the far windows"></button><button class="art-hit admin-door" type="button" tabindex="-1" aria-hidden="true"></button><button class="art-hit cross-guide-hit" type="button" aria-label="Church cross — tap three times to open the Worship Guide" title="Church cross"></button></div><div class="hero-bottom"><div><p>Gather with us on Sundays</p><p class="subtle">Morning worship 9:30am</p></div><button class="entry-button outline" type="button">Come on in →</button><div><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener" aria-label="28 Lord Street, Roseville, NSW 2069 — open in Google Maps">28 Lord Street<br><span class="subtle">Roseville, NSW 2069</span></a></div></div><a class="down" href="#home/home-about">A little about us ↓</a></section>${noticeboard}<section id="content" class="section split"><div><h2>About Roseville</h2></div><div><p>The pattern of worship at Roseville is simple and warm. Our desire is that it be heartfelt, reverent, biblical and spiritual.</p><p>All who desire to draw near to the living God in worship—or just to visit and see—are warmly invited to join the congregation at Roseville Presbyterian.</p><a class="textlink" href="#about">Get to know us →</a></div></section><section class="photoband"><div><h2>Lord’s Day<span>Sundays</span></h2><a class="outline" href="#visit">Your first visit →</a></div></section><section class="section home-life"><h2>Life at Roseville</h2><div class="rows"><div class="row"><h3>Bible Study</h3><p>Explore the Bible with others in our midweek study.</p><a href="#study">Study together →</a></div><div class="row"><h3>Roseville Cares</h3><p>Supporting the work of Christian organisations through Roseville Cares.</p><a href="#cares">Find out more →</a></div><div class="row"><h3>Worship Guide</h3><p>Worship guides and Bible readings for the week ahead.</p><a href="#worship">Worship Guide →</a></div></div></section>`,
-visit:photo('Visit us','Come as you are')+`<section id="content" class="section split"><div><h2>Sunday worship</h2><div class="service-times"><div class="service-time"><strong><a class="service-link" href="#catechism">8:30am Catechism Club</a></strong><span class="subtle">During school terms. Open to all ages.</span></div><div class="service-time"><strong><a class="service-link" href="#worship">9:30am Morning Worship</a></strong><span class="subtle">A warm, simple service centred on God’s word.</span></div><div class="service-time"><strong><a class="service-link" href="#worship/latest-guide">5pm Guided Family Worship</a></strong><span class="subtle">Use the guide at home or gather with others. There is no organised 5pm service at the church.</span></div></div><div class="visit-location"><p><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">28 Lord Street, Roseville, NSW 2069</a></p><div class="visit-map"><iframe title="Map to Roseville Presbyterian Church, 28 Lord Street" src="https://www.google.com/maps?q=28+Lord+Street%2C+Roseville%2C+NSW+2069&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div><a class="textlink" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">Get directions →</a></div></div><div><details open><summary>What happens during worship?</summary><p>We read and hear the Bible taught, pray and sing praise to God, including the Psalms. You are welcome to visit and see.</p></details><details><summary>How long does the service last?</summary><p>Morning worship usually lasts 60–90 minutes. Please join us for morning tea afterwards.</p></details><details><summary>Can I bring my children?</summary><p>Children are encouraged to remain with the congregation throughout worship. For parents with babies or young children who need a little space, a separate parent room is available.</p><p>The service includes a special section for children, with teaching from the catechism.</p></details><details><summary>What is Catechism Club?</summary><p>An 8:30am Sunday gathering during school terms, open to all ages. <a href="#catechism">About the club →</a></p></details><details><summary>How do I get there and where can I park?</summary><p>Roseville Station is about a 5–10 minute walk away. Street parking is available on Lord Street and nearby streets; please check the signs for restrictions.</p></details><details><summary>Questions before you visit?</summary><p>For access or any other questions, contact the church at <a href="mailto:administrator@rosevillechurch.com.au">administrator@rosevillechurch.com.au</a> or <a href="tel:+61294165054">(02) 9416 5054</a>.</p></details></div></section>`,
+const pages={home:`<section class="homehero"><div class="night-sky">${stars}</div><div><h1 tabindex="0" title="Double tap to see the church at night" aria-label="Welcome to Roseville Presbyterian Church. Double tap to switch day and night">Welcome to <strong>Roseville</strong><em>Presbyterian Church</em></h1></div><div class="drawing">${clouds}<img class="church-art" src="assets/church-day-unlit.png" alt="Hand-drawn illustration of Roseville Presbyterian Church"><img class="church-lit" src="assets/church-day-lit.png" alt="" aria-hidden="true"><img class="church-open" src="assets/church-day-open.png" alt="" aria-hidden="true"><span class="window-spill" aria-hidden="true"></span><button class="art-hit main-door" type="button" aria-label="Light the entrance window"></button><button class="art-hit nearby-window" type="button" aria-label="Light the church window"></button><button class="art-hit second-door" type="button" aria-label="Toggle the entrance lights"></button><button class="art-hit side-windows" type="button" aria-label="Toggle the church windows"></button><button class="art-hit far-windows" type="button" aria-label="Toggle the far windows"></button><button class="art-hit admin-door" type="button" tabindex="-1" aria-hidden="true"></button><button class="art-hit cross-guide-hit" type="button" aria-label="Church cross — tap three times to open the Worship Guide" title="Church cross"></button></div><div class="hero-bottom"><div><p>Gather with us on Sundays</p><p class="subtle">Morning worship 9:30am</p></div><button class="entry-button outline" type="button">Come on in →</button><div><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener" aria-label="28 Lord Street, Roseville, NSW 2069 — open in Google Maps">28 Lord Street<br><span class="subtle">Roseville, NSW 2069</span></a></div></div><a class="down" href="#home/home-about">A little about us<svg class="down-arrow-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5v6 M3.5 6.5 6 9l2.5-2.5"/></svg></a></section>${noticeboard}<section id="content" class="section split"><div><h2>About Roseville</h2></div><div><p>The pattern of worship at Roseville is simple and warm. Our desire is that it be heartfelt, reverent, biblical and spiritual.</p><p>All who desire to draw near to the living God in worship—or just to visit and see—are warmly invited to join the congregation at Roseville Presbyterian.</p><a class="textlink" href="#about">Get to know us →</a></div></section><section class="photoband"><div><h2>Lord’s Day<span>Sundays</span></h2><a class="outline" href="#visit">Your first visit →</a></div></section><section class="section home-life"><h2>Life at Roseville</h2><div class="rows"><div class="row"><h3>Bible Study</h3><p>Explore the Bible with others in our midweek study.</p><a href="#study">Study together →</a></div><div class="row"><h3>Roseville Cares</h3><p>Supporting the work of Christian organisations through Roseville Cares.</p><a href="#cares">Find out more →</a></div><div class="row"><h3>Worship Guide</h3><p>Worship guides and Bible readings for the week ahead.</p><a href="#worship">Worship Guide →</a></div></div></section>`,
+visit:photo('Visit us','Come as you are')+`<section id="content" class="section split visit-layout"><div class="visit-services"><h2>Join us on Sundays</h2><div class="service-times"><div class="service-time"><strong><a class="service-link" href="#catechism">8:30am Catechism Club</a></strong><span class="subtle">During school terms. Open to all ages.</span></div><div class="service-time"><strong><a class="service-link" href="#worship">9:30am Morning Worship</a></strong><span class="subtle">A warm, simple service centred on God’s word.</span></div><div class="service-time"><strong><a class="service-link" href="#worship/latest-guide">5pm Guided Family Worship</a></strong><span class="subtle">Use the guide at home or gather with others.\nThere is no organised 5pm service at the church.</span></div></div></div><div class="visit-location"><p><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">28 Lord Street, Roseville, NSW 2069</a></p><div class="visit-map"><iframe title="Map to Roseville Presbyterian Church, 28 Lord Street" src="https://www.google.com/maps?q=28+Lord+Street%2C+Roseville%2C+NSW+2069&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div><a class="textlink" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">Get directions →</a></div><div class="visit-faq"><details><summary>What happens during worship?</summary><p>We read and hear the Bible taught, pray and sing praise to God, including the Psalms. You are welcome to visit and see.</p></details><details><summary>How long does the service last?</summary><p>Morning worship usually lasts 60–90 minutes. Please join us for morning tea afterwards.</p></details><details><summary>Can I bring my children?</summary><p>Children are encouraged to remain with the congregation throughout worship. For parents with babies or young children who need a little space, a separate parent room is available.</p><p>The service includes a special section for children, with teaching from the catechism.</p></details><details><summary>What is Catechism Club?</summary><p>An 8:30am Sunday gathering during school terms, open to all ages. <a href="#catechism">About the club →</a></p></details><details><summary>How do I get there and where can I park?</summary><p>Roseville Station is about a 5–10 minute walk away. Street parking is available on Lord Street and nearby streets; please check the signs for restrictions.</p></details><details><summary>Still have questions?</summary><p>For access or any other questions, contact the church at <a href="mailto:administrator@rosevillechurch.com.au">administrator@rosevillechurch.com.au</a> or <a href="tel:+61294165054">(02) 9416 5054</a>.</p></details></div></section>`,
 about:photo('About','Who we are','about-photo')+`<section id="content" class="section split"><div><h2>About</h2></div><div><p>The congregation at the Presbyterian Church of Roseville, Lindfield, and Killara is part of the <a class="inline-plan-link" href="https://pcnsw.org.au/" target="_blank" rel="noopener">PCNSW</a>, embracing the Bible as God’s inspired, infallible, and inerrant word.</p><p>The reading and preaching of God’s word occupies a prominent place in the worship services, including singing from the song book of Christ our Lord – the Psalms.</p><p>All who desire to draw near to the living God in worship – or just to visit and see – are warmly invited to join the congregation at Roseville Presbyterian.</p><a class="textlink" href="#visit">Visit us →</a></div></section>`,
 community:photo('Community','What’s happening')+`<section id="content" class="section"><h2>Community</h2><div class="rows"><div class="row"><h3>Bible study</h3><p>Wednesday evenings at 7:30pm during school terms, in Brice Hall and on Zoom.</p><a href="#study">Study together →</a></div><div class="row"><h3>Children & families</h3><p>Children join in congregational worship, with a section of the service especially for them.</p><a href="#children">For children →</a></div><div class="row"><h3>Catechism Club</h3><p>Working through the Westminster Shorter Catechism on Sunday mornings during school terms.</p><a href="#catechism">About the club →</a></div><div class="row"><h3>Roseville Cares</h3><p>Each month, dedicated offerings support selected Christian organisations and their work of care and mission.</p><a href="#cares">Current partners →</a></div><div class="row"><h3>Bible Study Fellowship</h3><p>A weekly Bible study for women, Tuesdays at 10:00am at Roseville.</p><a href="#bsf">About BSF →</a></div><div class="row"><h3>Youth Group</h3><p>Monthly Friday night youth group.</p><a href="#youth">For youth →</a></div><div class="row"><h3>Church calendar</h3><p>Find church lunches, working bees and other dates still to come.</p><a href="#calendar">View calendar →</a></div><div class="row"><h3>Church newsletter</h3><p>News for the congregation. The existing password is required.</p><a href="https://rosevillechurch.com.au/newsletter/" target="_blank" rel="noopener">Open newsletter →</a></div></div></section>`,
 youth:()=>pageSection('Youth Group',`<p>Youth Group meets monthly on Friday nights.</p><p>For further information, please contact the church.</p><a class="textlink" href="mailto:administrator@rosevillechurch.com.au?subject=Youth%20Group%20enquiry">Enquire about Youth Group →</a>`,['community','Community']),
@@ -625,9 +876,17 @@ let nightMode=false;
 let doorLightsOn=false;
 let doorOpened=false;
 let entryTimer=null;
+function toggleDayNight(){
+ nightMode=!nightMode;
+ doorLightsOn=false;doorOpened=false;
+ if(entryTimer){clearTimeout(entryTimer);entryTimer=null}
+ document.querySelector('.entry-button')?.classList.remove('is-selected');
+ document.querySelectorAll('.night-sky .star').forEach(star=>star.classList.remove('launching','spent'));
+ applyNightMode();
+}
 function applyNightMode(){
  document.body.classList.toggle('night',nightMode);
- const art=document.querySelector('.church-art');if(art)art.src=nightMode?'assets/church-night-unlit.png':'assets/church-day-unlit.png';const lit=document.querySelector('.church-lit');if(lit)lit.src=nightMode?'assets/church-night-lit.png':'assets/church-day-lit.png';
+ const art=document.querySelector('.church-art');const artSource=nightMode?'assets/church-night-unlit.png':'assets/church-day-unlit.png';if(art&&art.getAttribute('src')!==artSource)art.src=artSource;const lit=document.querySelector('.church-lit');const litSource=nightMode?'assets/church-night-lit.png':'assets/church-day-lit.png';if(lit&&lit.getAttribute('src')!==litSource)lit.src=litSource;
  const opened=document.querySelector('.church-open');if(opened)opened.src='assets/church-day-open.png';const drawing=document.querySelector('.drawing');if(drawing){drawing.classList.toggle('lights-on',doorLightsOn);drawing.classList.toggle('door-open',doorOpened&&!nightMode)}
  const heading=document.querySelector('.homehero h1');if(heading)heading.title=nightMode?'Double tap to return to daytime':'Double tap to see the church at night';if(nightMode)fitSkyToChurch();
 }
@@ -674,7 +933,7 @@ function setupInteractions(){
  });
 
  let lastTouch=0,lastTouchToggle=0;
- const toggle=()=>{nightMode=!nightMode;doorLightsOn=false;doorOpened=false;if(entryTimer){clearTimeout(entryTimer);entryTimer=null}entryButton?.classList.remove('is-selected');document.querySelectorAll('.night-sky .star').forEach(star=>star.classList.remove('launching','spent'));applyNightMode()};
+ const toggle=toggleDayNight;
  heading.addEventListener('dblclick',()=>{if(Date.now()-lastTouchToggle>700)toggle()});
  heading.addEventListener('pointerup',event=>{if(event.pointerType!=='touch')return;const now=Date.now();if(now-lastTouch<500){toggle();lastTouchToggle=now;lastTouch=0}else lastTouch=now});
  heading.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
@@ -721,7 +980,7 @@ function loadSign(){
    const more=document.createElement('a');
    more.id='sign-more';more.className='sign-more';more.href=item.link;more.textContent='More →';
    if(item.link.startsWith('https://')){more.target='_blank';more.rel='noopener'}
-   board.parentElement.append(more)
+   board.parentElement.append(more);refreshDirectionalArrows()
   }
  };
  const rotate=step=>{index=(index+step+items.length)%items.length;display()};
@@ -763,6 +1022,7 @@ function updateCMSPage(page){
    }
  }
  const copy=data.page_copy?.[page];if(!copy)return;
+ if(page==='visit'&&copy.heading)document.querySelector('#content .service-times')?.closest('div')?.querySelector('h2')?.replaceChildren(document.createTextNode(copy.heading));
  // User-entered content is always inserted as text, never executed as HTML.
  const setText=(element,value)=>{if(element&&typeof value==='string'&&value.trim())element.textContent=value};
  const setLink=(element,value)=>{if(!element||!value)return;const link=String(value).trim();if(/^#[a-z-]+(?:\/[a-z-]+)?$/.test(link)||/^https:\/\/[^\s/@]+[^\s]*$/i.test(link)||/^mailto:[^\s<>]+$/i.test(link))element.href=link};
@@ -803,6 +1063,42 @@ function updateCMSPage(page){
  }else if(selector){
    document.querySelectorAll(selector).forEach((row,i)=>{const item=copy.sections?.[i];if(!item)return;setText(row.querySelector('h3'),item.title);setText(row.querySelector('p'),item.description);const a=row.querySelector('a');setText(a,item.link_label);setLink(a,item.link)});
  }
+}
+// Compact chevrons for internal actions, diagonal arrows for external links.
+function refreshDirectionalArrows(){
+ const lastTextNode=el=>{
+  for(let i=el.childNodes.length-1;i>=0;i--){
+   const node=el.childNodes[i];
+   if(node.nodeType===3&&node.nodeValue.trim())return node;
+   if(node.nodeType===1){const inner=lastTextNode(node);if(inner)return inner}
+  }
+  return null;
+ };
+ document.querySelectorAll('a,button').forEach(el=>{
+  if(el.matches('.parent-link,.footer-home,.brand,#guide-prev,.back-arrow'))return;
+  const node=lastTextNode(el);
+  if(!node)return;
+  const href=el.getAttribute('href')||'';
+  const external=/^(https?:\/\/|mailto:|tel:)/i.test(href);
+  if(!/[→›↗]\s*$/.test(node.nodeValue))return;
+  // An SVG arrow cannot turn into an emoji on iOS.
+  if(external){
+   node.nodeValue=node.nodeValue.replace(/[→›↗]\s*$/,'').replace(/\s*$/,'');
+   el.querySelector(':scope > .external-arrow-icon')?.remove();
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('class','external-arrow-icon');
+   svg.setAttribute('viewBox','0 0 16 16');
+   svg.setAttribute('width','13');svg.setAttribute('height','13');
+   svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+   svg.setAttribute('stroke-width','1.45');svg.setAttribute('stroke-linecap','round');
+   svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+   const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+   path.setAttribute('d','M4 12 12 4 M5.5 4H12v6.5');
+   svg.append(path);el.append(svg);
+  }else{
+   node.nodeValue=node.nodeValue.replace(/[→›↗](\s*)$/,(_,space)=>'›'+space);
+  }
+ });
 }
 function setupClickableRows(){document.querySelectorAll('.row:not(details):has(a[href])').forEach(row=>{row.addEventListener('click',event=>{if(event.target.closest('a'))return;row.querySelector('a[href]').click()})})}
 const defaultGuideArchive=[
@@ -875,7 +1171,7 @@ function setupBackLink(){
  link.href=routePath(targetPage);
  if(previous)link.dataset.historyBack=String(steps);else delete link.dataset.historyBack;
  const label=routeNames[targetPage]||'Home';
- link.innerHTML='<span class="back-arrow" aria-hidden="true">←</span><span>'+esc(label)+'</span>';
+ link.innerHTML='<span class="back-arrow" aria-hidden="true">‹</span><span>'+esc(label)+'</span>';
  link.setAttribute('aria-label','Return to '+label);
 }
 function localizeLinks(){
@@ -901,6 +1197,9 @@ document.addEventListener('click',event=>{
   }
  }
 },true);
+
+
+
 function render(){
  const page=pageFromPath(),section=decodeURIComponent(location.hash.slice(1));
  const restoreY=enterRoute(page);
@@ -916,7 +1215,7 @@ function render(){
   document.querySelector('meta[property="og:description"]')?.setAttribute('content',desc);
   document.querySelector('meta[property="og:url"]')?.setAttribute('content',PRODUCTION_ROOT+(page==='home'?'':page+'/'));
   document.querySelector('link[rel=canonical]')?.setAttribute('href',location.origin+routePath(page));
-  setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive()
+  setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive();refreshDirectionalArrows()
  }
  setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();
  if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:'instant'}));
@@ -939,7 +1238,18 @@ document.querySelector('.menu').onclick=()=>{
 document.addEventListener('click',event=>{const button=event.target.closest('a.outline,button.outline');if(button)button.classList.add('is-selected')});
 window.addEventListener('popstate',()=>{render();requestAnimationFrame(focusPage)});
 window.addEventListener('hashchange',()=>{render();requestAnimationFrame(focusPage)});
-document.querySelectorAll('.brand,.footer-home').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();navigateToPage('home')}));
+document.querySelectorAll('.brand').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();navigateToPage('home')}));
+let lastFooterIconTap=0;
+document.querySelector('.footer-home')?.addEventListener('click',event=>{
+ event.preventDefault();
+ const iconTap=!!event.target.closest('.footer-mark');
+ const now=Date.now();
+ const doubleTap=iconTap&&now-lastFooterIconTap<500;
+ lastFooterIconTap=iconTap&&!doubleTap?now:0;
+ navigateToPage('home');
+ if(doubleTap)toggleDayNight();
+});
+document.querySelector('.footer-mark')?.addEventListener('dblclick',event=>event.preventDefault());
 if(location.pathname===SITE_ROOT&&/^#(?:home|about|resources|community|calendar|youth|study|cares|children|catechism|bsf|worship|reading|credits|visit)(?:\/|$)/.test(location.hash)){
  const [legacy,section]=location.hash.slice(1).split('/');
  history.replaceState(history.state,'',routePath(legacy)+(section?'#'+section:''));
