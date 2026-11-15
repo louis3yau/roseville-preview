@@ -735,6 +735,26 @@ body.night .sign-logo > .sign-logo-inset{color:#fff}
  stroke-linejoin:miter;
 }
 
+
+/* Sparse pen-drawn grass anchored only to the two post bases. */
+.sign-grass{position:absolute;z-index:4;top:calc(var(--sign-height) + 51px);width:76px;height:64px;padding:0;border:0;border-radius:0;background:transparent;color:#30342d;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.sign-grass-left{left:calc(20% - 32px)}
+.sign-grass-right{right:calc(20% - 32px);width:69px;top:calc(var(--sign-height) + 54px)}
+.sign-grass svg{display:block;width:100%;height:100%;overflow:visible}
+.sign-grass path,.sign-grass ellipse{fill:none;stroke:currentColor;stroke-width:.85;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.sign-grass .grass-fine{stroke-width:.55;opacity:.72}
+.sign-grass .grass-sway{transform-box:view-box;transform-origin:50% 94%}
+.sign-grass.is-swaying .grass-sway{animation:sign-grass-sway 1.9s ease-in-out}
+.sign-grass.is-swaying .grass-sway-late{animation-delay:.1s;animation-duration:2.1s}
+.sign-grass .grass-flower{opacity:0;transform:scaleY(0);transform-box:view-box;transform-origin:50% 94%;transition:transform 2s cubic-bezier(.22,.65,.3,1),opacity 1s}
+.sign-grass.has-bloomed .grass-flower{opacity:1;transform:scaleY(1)}
+.sign-grass .flower-head{transform-box:fill-box;transform-origin:center;transform:scale(0);transition:transform 1.3s ease-out 1.1s}
+.sign-grass.has-bloomed .flower-head{transform:scale(1)}
+.sign-grass:focus-visible{outline:1px dashed currentColor;outline-offset:3px}
+body.night .sign-grass{color:#f5f3eb}
+@keyframes sign-grass-sway{0%,100%{transform:rotate(0)}22%{transform:rotate(7deg)}49%{transform:rotate(-5deg)}73%{transform:rotate(2.5deg)}}
+@media(max-width:700px){.sign-grass{width:66px}.sign-grass-left{left:calc(20% - 27px)}.sign-grass-right{right:calc(20% - 27px);width:61px}}
+@media(prefers-reduced-motion:reduce){.sign-grass.is-swaying .grass-sway{animation:none}.sign-grass .grass-flower,.sign-grass .flower-head{transition:none}}
 </style><script type="application/ld+json">{"@context":"https://schema.org","@type":"Church","name":"Roseville Presbyterian Church","address":{"@type":"PostalAddress","streetAddress":"28 Lord Street","addressLocality":"Roseville","addressRegion":"NSW","postalCode":"2069","addressCountry":"AU"},"telephone":"+61 2 9416 5054","email":"administrator@rosevillechurch.com.au"}</script><base href="/roseville-preview/"><script type="text/javascript">if(location.hostname==='raw.githack.com')document.querySelector('base').href='/louis3yau/roseville-preview/dev/';else if(location.hostname.endsWith('.pages.dev')){document.querySelector('base').href='/';var noindex=document.createElement('meta');noindex.name='robots';noindex.content='noindex,nofollow';document.head.appendChild(noindex)}</script><meta name="theme-color" content="#f5f3eb"><meta property="og:type" content="website"><meta property="og:site_name" content="Roseville Presbyterian Church"><meta property="og:title" content="Roseville Presbyterian Church"><meta property="og:description" content="Sunday worship at 9:30am, 28 Lord Street, Roseville NSW."><meta property="og:url" content="https://louis3yau.github.io/roseville-preview/"><link rel="canonical" href="https://louis3yau.github.io/roseville-preview/"><link rel="preload" as="image" href="assets/church-night-unlit.png" fetchpriority="high"><link rel="preload" as="image" href="assets/church-night-lit.png" fetchpriority="high"><link rel="preload" as="image" href="assets/hero-about.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-community.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-resources.webp" fetchpriority="low"><link rel="preload" as="image" href="assets/hero-visit.webp" fetchpriority="low"></head><body><a class="skip-to-content" href="#content">Skip to content</a><svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><filter id="sign-handcut-edge" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.065" numOctaves="2" seed="7" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale="0.7" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="window-glow-filter" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 .945  0 0 0 0 .81  0 8 -8 0 -.6" result="warm-pixels"/><feGaussianBlur in="warm-pixels" stdDeviation="8"/></filter></svg><header><a class="brand" href="#home"><img class="menu-logo" src="assets/menu-logo.png" alt="Roseville Presbyterian Church"><span><span class="brand-name">Roseville</span><small>PRESBYTERIAN CHURCH</small></span></a><button class="menu" aria-expanded="false" aria-controls="nav" aria-label="Open menu"><span class="menu-bars" aria-hidden="true"></span></button><nav id="nav" aria-label="Main navigation"><a href="#about">About</a><a href="#resources">Worship &amp; Bible</a><a href="#community">Community</a><a href="#calendar">Calendar</a><a class="outline" href="#visit">Visit us →</a></nav></header><main id="main" tabindex="-1"><section class="section"><h1>Roseville Presbyterian Church</h1><p>Sunday morning worship at 9:30am, 28 Lord Street, Roseville NSW 2069.</p><p><a href="visit/">Plan your visit</a></p></section></main><footer><div class="footer-icon"><a class="footer-home" href="#home" aria-label="Roseville Presbyterian Church — back to top"><span class="footer-mark" aria-hidden="true"></span><span class="footer-name"><strong>Roseville</strong><span class="footer-denom">Presbyterian Church</span></span><span class="footer-region">Roseville, Lindfield and Killara</span></a><div class="footer-socials" aria-label="Follow and contact us"><a href="https://www.facebook.com/RosePresChurch" target="_blank" rel="noopener" aria-label="Find us on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M13.7 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5H17V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.5V13h2.8v8z"/></svg></a><a href="https://m.youtube.com/@slpcrau/streams" target="_blank" rel="noopener" aria-label="Roseville Presbyterian Church on YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8ZM10 15.7V8.3l6.4 3.7z"/></svg></a><a href="mailto:administrator@rosevillechurch.com.au" aria-label="Email Roseville Presbyterian Church"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="5.5" width="18.4" height="13" rx="1.5" fill="none" stroke-width="1.6"/><path d="m3.5 6.5 8.5 7 8.5-7" fill="none" stroke-width="1.6" stroke-linejoin="round"/></svg></a></div></div><div class="footer-contact-col"><div class="contact-details"><p><a class="map-address" href="https://www.google.com/maps/search/?api=1&amp;query=28+Lord+Street%2C+Roseville%2C+NSW+2069" target="_blank" rel="noopener">28 Lord Street, Roseville, NSW 2069</a></p><p><a href="mailto:administrator@rosevillechurch.com.au">administrator@rosevillechurch.com.au</a></p><p><a href="tel:+61294165054">(02) 9416 5054</a></p></div><p class="mission">To love God and to love his own;<br>to know Christ and to make him known.</p></div></footer><script>
 const arrow=`<svg class="scribble" viewBox="0 0 150 120" aria-hidden="true"><text x="7" y="22">come on in</text><path d="M38 35 C22 75 64 98 119 68 M105 68 L121 66 117 83"/></svg>`;
 const photo=(title,button,extra='')=>`<section class="photoband photohero ${extra}"><div class="photo-text"><h1>${title}</h1><a class="outline" href="#content">${button}<svg class="down-arrow-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5v6 M3.5 6.5 6 9l2.5-2.5"/></svg></a></div></section>`;
@@ -768,6 +788,37 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
  </div>
  <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span><svg class="sign-plaque-inset" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M.8 1 L56.4 .7 M58 .7 L141.1 1.1 M142.7 1.1 L230.3 .8 M231.9 .8 L299.1 1 M299.1 1 L299.3 12 M299.3 13.3 L299 25 M299 25 L235.5 25.3 M233.9 25.3 L153.8 24.9 M152.2 24.9 L64.2 25.2 M62.6 25.2 L.9 25 M.9 25 L.7 13.7 M.7 12.4 L.8 1"/></svg></div>
+ <button type="button" class="sign-grass sign-grass-left" aria-label="Make the grass sway and grow flowers">
+  <svg viewBox="0 0 84 70" aria-hidden="true" focusable="false">
+   <g class="grass-sway">
+    <path d="M9 65 Q8 59 5 55 L12 64 Q11 49 7 43 Q16 53 17 64 M20 65 Q18 50 21 35 Q24 48 23 61 M26 65 Q27 46 38 34 Q32 48 30 63 M33 65 Q36 54 43 49 Q38 59 38 65"/>
+    <path d="M42 65 Q45 48 42 35 Q49 47 47 62 M49 65 Q51 52 60 43 Q55 55 54 65 M58 65 Q63 53 69 52 L63 64 M67 65 L72 58 L71 65 L77 61"/>
+    <path class="grass-fine" d="M3 65 L5 62 M15 65 L16 59 M24 66 L25 61 M39 66 L40 62 M56 66 L58 61 M75 66 L80 65"/>
+   </g>
+   <g class="grass-sway grass-sway-late">
+    <path d="M31 64 Q29 41 23 25 M23 25 Q18 21 19 17 Q23 19 23 25 Q25 20 24 16 Q27 19 23 25"/>
+    <path class="grass-fine" d="M23 25 L21 19 M31 52 Q26 45 23 45"/>
+   </g>
+   <g class="grass-flower">
+    <path d="M48 65 Q47 42 56 25 M49 48 Q56 42 59 43 Q54 48 49 49"/>
+    <g class="flower-head"><path d="M56 23 C50 23 50 18 54 18 C51 14 55 11 58 15 C60 10 64 14 61 18 C67 17 67 22 62 22 C64 27 59 29 58 24 C55 28 51 25 56 23 Z"/><ellipse cx="58" cy="20" rx="1.6" ry="1.8"/></g>
+   </g>
+  </svg>
+ </button>
+ <button type="button" class="sign-grass sign-grass-right" aria-label="Make the grass sway and grow flowers">
+  <svg viewBox="0 0 84 70" aria-hidden="true" focusable="false">
+   <g class="grass-sway">
+    <path d="M7 65 L6 59 L12 65 Q11 53 8 48 Q17 56 17 64 M21 65 Q24 49 20 38 Q29 51 27 64 M30 65 Q33 44 42 36 Q36 50 35 64 M39 65 Q45 51 51 48 Q46 57 44 65"/>
+    <path d="M47 65 Q50 53 47 44 Q56 52 53 65 M58 65 Q60 57 67 51 L63 64 L71 58 L69 65 L76 62"/>
+    <path class="grass-fine" d="M3 66 L7 65 M17 66 L19 61 M37 66 L39 61 M55 66 L57 62 M74 66 L79 65"/>
+   </g>
+   <g class="grass-sway grass-sway-late"><path d="M54 63 Q58 42 69 32 Q69 26 73 24 Q75 29 69 32 M69 32 L72 27"/><path class="grass-fine" d="M59 47 Q64 43 67 44"/></g>
+   <g class="grass-flower">
+    <path d="M25 65 Q24 40 17 24 M24 48 Q17 43 14 43 Q17 48 24 50"/>
+    <g class="flower-head"><path d="M16 22 C11 24 8 20 12 17 C7 15 10 10 14 13 C14 7 19 8 19 13 C23 9 27 13 23 17 C29 18 26 23 22 21 C22 27 17 27 17 22 Z"/><ellipse cx="17.5" cy="17.5" rx="1.6" ry="1.5"/></g>
+   </g>
+  </svg>
+ </button>
  </div></section>`;
 const calendarRows=[["September","Tue 1","Session"],["September","Wed 2","Bible Study"],["September","Tue 8","CoM"],["September","Wed 9","Bible Study"],["September","Fri 11","Youth Group"],["September","Sat 12","Working Bee"],["September","Wed 16","Bible Study"],["September","Sun 20","Catechism term 3 ends"],["September","Wed 23","Bible Study"],["September","Sun 27","Roseville Cares Sunday"],["October","Sun 4","The Lord’s Supper"],["October","Sun 4","Church Lunch"],["October","Sun 4","Daylight Saving Starts"],["October","Tue 6","Session"],["October","Tue 13","CoM"],["October","Wed 14","Bible Study"],["October","Sun 18","Catechism term 4 begins"],["October","Tue 20","Presbytery Meeting"],["October","Wed 21","Bible Study"],["October","Sat 24","Fête"],["October","Sun 25","Roseville Cares Sunday"],["October","Wed 28","Bible Study"],["November","Tue 3","Session"],["November","Wed 4","Bible Study"],["November","Tue 10","CoM"],["November","Wed 11","Bible Study"],["November","Wed 18","Bible Study"],["November","Wed 25","Bible Study"],["November","Sun 29","Roseville Cares Sunday"],["December","Tue 1","Session"],["December","Wed 2","Bible Study"],["December","Sat 5","Working Bee"],["December","Sun 6","The Lord’s Supper"],["December","Tue 8","CoM"],["December","Wed 9","Bible Study"],["December","Tue 15","Presbytery Meeting"],["December","Wed 16","Bible Study"],["December","Fri 25","Christmas Day service · 9am"],["December","Sun 27","Roseville Cares Sunday"]];
 const careRows=[["25 January","Jericho Road"],["22 February","Allowah Children’s Hospital"],["29 March","PresAid Easter Appeal 2026"],["26 April","APWM (Australian Presbyterian World Mission)"],["31 May","PIM (Presbyterian Inland Mission)"],["28 June","Jericho Road"],["26 July","Chasefu Theological College"],["30 August","Bible League"],["27 September","APWM"],["25 October","PIM"],["29 November","PresAID Christmas Appeal"],["27 December","To be confirmed"]];
@@ -1195,6 +1246,29 @@ document.addEventListener('click',event=>{
   }
  }
 },true);
+
+function setupSignGrass(){
+ document.querySelectorAll('.sign-grass').forEach(patch=>{
+  if(patch.dataset.grassReady)return;
+  patch.dataset.grassReady='true';
+  patch.addEventListener('animationend',event=>{
+   if(event.target.classList.contains('grass-sway-late'))patch.classList.remove('is-swaying');
+  });
+  patch.addEventListener('click',()=>{
+   patch.classList.remove('is-swaying');
+   void patch.offsetWidth;
+   patch.classList.add('is-swaying');
+   if(patch.dataset.planted)return;
+   patch.dataset.planted='true';
+   setTimeout(()=>{
+    if(!patch.isConnected)return;
+    patch.classList.add('has-bloomed');
+    patch.setAttribute('aria-label','Make the flowering grass sway');
+   },4200);
+  });
+ });
+}
+
 function render(){
  const page=pageFromPath(),section=decodeURIComponent(location.hash.slice(1));
  const restoreY=enterRoute(page);
@@ -1212,7 +1286,7 @@ function render(){
   document.querySelector('link[rel=canonical]')?.setAttribute('href',location.origin+routePath(page));
   setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive();refreshDirectionalArrows()
  }
- setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();
+ setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();setupSignGrass();
  if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:'instant'}));
  else if(restoreY!==null)requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:'instant'}));
  else window.scrollTo({top:0,behavior:'instant'});

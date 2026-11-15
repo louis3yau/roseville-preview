@@ -31,6 +31,37 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
  </div>
  <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span><svg class="sign-plaque-inset" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M.8 1 L56.4 .7 M58 .7 L141.1 1.1 M142.7 1.1 L230.3 .8 M231.9 .8 L299.1 1 M299.1 1 L299.3 12 M299.3 13.3 L299 25 M299 25 L235.5 25.3 M233.9 25.3 L153.8 24.9 M152.2 24.9 L64.2 25.2 M62.6 25.2 L.9 25 M.9 25 L.7 13.7 M.7 12.4 L.8 1"/></svg></div>
+ <button type="button" class="sign-grass sign-grass-left" aria-label="Make the grass sway and grow flowers">
+  <svg viewBox="0 0 84 70" aria-hidden="true" focusable="false">
+   <g class="grass-sway">
+    <path d="M9 65 Q8 59 5 55 L12 64 Q11 49 7 43 Q16 53 17 64 M20 65 Q18 50 21 35 Q24 48 23 61 M26 65 Q27 46 38 34 Q32 48 30 63 M33 65 Q36 54 43 49 Q38 59 38 65"/>
+    <path d="M42 65 Q45 48 42 35 Q49 47 47 62 M49 65 Q51 52 60 43 Q55 55 54 65 M58 65 Q63 53 69 52 L63 64 M67 65 L72 58 L71 65 L77 61"/>
+    <path class="grass-fine" d="M3 65 L5 62 M15 65 L16 59 M24 66 L25 61 M39 66 L40 62 M56 66 L58 61 M75 66 L80 65"/>
+   </g>
+   <g class="grass-sway grass-sway-late">
+    <path d="M31 64 Q29 41 23 25 M23 25 Q18 21 19 17 Q23 19 23 25 Q25 20 24 16 Q27 19 23 25"/>
+    <path class="grass-fine" d="M23 25 L21 19 M31 52 Q26 45 23 45"/>
+   </g>
+   <g class="grass-flower">
+    <path d="M48 65 Q47 42 56 25 M49 48 Q56 42 59 43 Q54 48 49 49"/>
+    <g class="flower-head"><path d="M56 23 C50 23 50 18 54 18 C51 14 55 11 58 15 C60 10 64 14 61 18 C67 17 67 22 62 22 C64 27 59 29 58 24 C55 28 51 25 56 23 Z"/><ellipse cx="58" cy="20" rx="1.6" ry="1.8"/></g>
+   </g>
+  </svg>
+ </button>
+ <button type="button" class="sign-grass sign-grass-right" aria-label="Make the grass sway and grow flowers">
+  <svg viewBox="0 0 84 70" aria-hidden="true" focusable="false">
+   <g class="grass-sway">
+    <path d="M7 65 L6 59 L12 65 Q11 53 8 48 Q17 56 17 64 M21 65 Q24 49 20 38 Q29 51 27 64 M30 65 Q33 44 42 36 Q36 50 35 64 M39 65 Q45 51 51 48 Q46 57 44 65"/>
+    <path d="M47 65 Q50 53 47 44 Q56 52 53 65 M58 65 Q60 57 67 51 L63 64 L71 58 L69 65 L76 62"/>
+    <path class="grass-fine" d="M3 66 L7 65 M17 66 L19 61 M37 66 L39 61 M55 66 L57 62 M74 66 L79 65"/>
+   </g>
+   <g class="grass-sway grass-sway-late"><path d="M54 63 Q58 42 69 32 Q69 26 73 24 Q75 29 69 32 M69 32 L72 27"/><path class="grass-fine" d="M59 47 Q64 43 67 44"/></g>
+   <g class="grass-flower">
+    <path d="M25 65 Q24 40 17 24 M24 48 Q17 43 14 43 Q17 48 24 50"/>
+    <g class="flower-head"><path d="M16 22 C11 24 8 20 12 17 C7 15 10 10 14 13 C14 7 19 8 19 13 C23 9 27 13 23 17 C29 18 26 23 22 21 C22 27 17 27 17 22 Z"/><ellipse cx="17.5" cy="17.5" rx="1.6" ry="1.5"/></g>
+   </g>
+  </svg>
+ </button>
  </div></section>`;
 const calendarRows=[["September","Tue 1","Session"],["September","Wed 2","Bible Study"],["September","Tue 8","CoM"],["September","Wed 9","Bible Study"],["September","Fri 11","Youth Group"],["September","Sat 12","Working Bee"],["September","Wed 16","Bible Study"],["September","Sun 20","Catechism term 3 ends"],["September","Wed 23","Bible Study"],["September","Sun 27","Roseville Cares Sunday"],["October","Sun 4","The Lord’s Supper"],["October","Sun 4","Church Lunch"],["October","Sun 4","Daylight Saving Starts"],["October","Tue 6","Session"],["October","Tue 13","CoM"],["October","Wed 14","Bible Study"],["October","Sun 18","Catechism term 4 begins"],["October","Tue 20","Presbytery Meeting"],["October","Wed 21","Bible Study"],["October","Sat 24","Fête"],["October","Sun 25","Roseville Cares Sunday"],["October","Wed 28","Bible Study"],["November","Tue 3","Session"],["November","Wed 4","Bible Study"],["November","Tue 10","CoM"],["November","Wed 11","Bible Study"],["November","Wed 18","Bible Study"],["November","Wed 25","Bible Study"],["November","Sun 29","Roseville Cares Sunday"],["December","Tue 1","Session"],["December","Wed 2","Bible Study"],["December","Sat 5","Working Bee"],["December","Sun 6","The Lord’s Supper"],["December","Tue 8","CoM"],["December","Wed 9","Bible Study"],["December","Tue 15","Presbytery Meeting"],["December","Wed 16","Bible Study"],["December","Fri 25","Christmas Day service · 9am"],["December","Sun 27","Roseville Cares Sunday"]];
 const careRows=[["25 January","Jericho Road"],["22 February","Allowah Children’s Hospital"],["29 March","PresAid Easter Appeal 2026"],["26 April","APWM (Australian Presbyterian World Mission)"],["31 May","PIM (Presbyterian Inland Mission)"],["28 June","Jericho Road"],["26 July","Chasefu Theological College"],["30 August","Bible League"],["27 September","APWM"],["25 October","PIM"],["29 November","PresAID Christmas Appeal"],["27 December","To be confirmed"]];
@@ -458,6 +489,29 @@ document.addEventListener('click',event=>{
   }
  }
 },true);
+
+function setupSignGrass(){
+ document.querySelectorAll('.sign-grass').forEach(patch=>{
+  if(patch.dataset.grassReady)return;
+  patch.dataset.grassReady='true';
+  patch.addEventListener('animationend',event=>{
+   if(event.target.classList.contains('grass-sway-late'))patch.classList.remove('is-swaying');
+  });
+  patch.addEventListener('click',()=>{
+   patch.classList.remove('is-swaying');
+   void patch.offsetWidth;
+   patch.classList.add('is-swaying');
+   if(patch.dataset.planted)return;
+   patch.dataset.planted='true';
+   setTimeout(()=>{
+    if(!patch.isConnected)return;
+    patch.classList.add('has-bloomed');
+    patch.setAttribute('aria-label','Make the flowering grass sway');
+   },4200);
+  });
+ });
+}
+
 function render(){
  const page=pageFromPath(),section=decodeURIComponent(location.hash.slice(1));
  const restoreY=enterRoute(page);
@@ -475,7 +529,7 @@ function render(){
   document.querySelector('link[rel=canonical]')?.setAttribute('href',location.origin+routePath(page));
   setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive();refreshDirectionalArrows()
  }
- setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();
+ setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();setupSignGrass();
  if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:'instant'}));
  else if(restoreY!==null)requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:'instant'}));
  else window.scrollTo({top:0,behavior:'instant'});
