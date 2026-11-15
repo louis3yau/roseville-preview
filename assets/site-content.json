@@ -221,6 +221,14 @@
       "public": true
     },
     {
+      "title": "Test",
+      "date": "2026-11-15",
+      "link": "#visit",
+      "description": "",
+      "link_label": "",
+      "public": true
+    },
+    {
       "title": "Bible Study",
       "date": "2026-11-18",
       "link": "#study",
