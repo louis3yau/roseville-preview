@@ -579,3 +579,37 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
  .page-visit #content .visit-location{order:2;width:100%}
  .page-visit #content .visit-faq{order:3;width:100%}
 }
+
+/* Visit Us desktop: override the generic 900px inner-page cap. */
+@media(min-width:701px){
+ body.page-visit #content.visit-layout{
+  max-width:none;
+  width:100%;
+  padding-left:clamp(42px,6vw,112px);
+  padding-right:clamp(42px,6vw,112px);
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  column-gap:clamp(48px,6vw,108px);
+  row-gap:48px;
+ }
+ body.page-visit #content .visit-services>h2{
+  font-size:clamp(32px,2.6vw,43px);
+  line-height:1.2;
+ }
+ body.page-visit #content .visit-faq{
+  margin-top:clamp(74px,5.5vw,102px);
+ }
+ body.page-visit #content .visit-faq summary{
+  font-size:clamp(15px,1.1vw,18px);
+  padding:10px 0;
+  min-height:53px;
+ }
+ body.page-visit #content .visit-location{
+  width:100%;
+  margin-top:0;
+ }
+ body.page-visit #content .visit-map{
+  max-width:none;
+  width:100%;
+  height:clamp(420px,42vw,680px);
+ }
+}
