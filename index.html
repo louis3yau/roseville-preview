@@ -739,7 +739,7 @@ body.night .sign-logo > .sign-logo-inset{color:#fff}
 
 /* Loose botanical pen strokes, with roots fixed at the post bases. */
 .sign-meadow{position:absolute;z-index:4;left:0;top:calc(var(--sign-height) + 20px);width:100%;height:96px;padding:0;border:0;border-radius:0;background:transparent;color:#30342d;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.sign-meadow svg{display:block;width:100%;height:100%;overflow:visible}
+.sign-meadow > svg{display:block;width:100%;height:100%;overflow:visible}
 .sign-meadow path,.sign-meadow ellipse{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .sign-meadow:focus-visible{outline:1px dashed currentColor;outline-offset:3px}
 body.night .sign-meadow{color:#f5f3eb}
@@ -1224,44 +1224,36 @@ function setupSignGrass(){
   Object.entries(attrs).forEach(([key,value])=>el.setAttribute(key,String(value)));
   parent.appendChild(el);return el;
  };
- // Unequal little islands of grass, with open ground between them.
- const roots=[20,26,32,37,43,49,55,61,66,72,79,86,94,143,150,159,238,247,254,261,268,275,283,291,300,322,331];
- const blades=roots.map((root,i)=>{
-  const x=root+(random()-.5)*3,base=86+random()*2.2;
-  const height=9+random()*24+(i===5||i===20?15:0);
-  const lean=(random()-.48)*height*.9;
-  const blade={x,base,height,lean,phase:random()*6.28,frequency:1.6+random()*1.4,softness:.6+random()*.85,width:.45+random()*.45,paired:i%3!==0};
-  blade.path=make('path',{'stroke-width':blade.width,opacity:.72+random()*.28});
-  if(i===4||i===21||i===25){
-   blade.seed=make('path',{'stroke-width':.55});
-   blade.seedLength=5+random()*3;
-  }
-  return blade;
+
+ // Render selected sections of the user's actual drawing, keeping its ink texture.
+ const defs=make('defs',{});
+ const fadeSvg='<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="604"><defs><linearGradient id="f" x2="0" y2="1"><stop offset="0" stop-color="white"/><stop offset=".72" stop-color="white"/><stop offset=".99" stop-color="white" stop-opacity="0"/></linearGradient></defs><rect width="1056" height="604" fill="url(#f)"/></svg>';
+ const mask=make('mask',{id:'grass-art-clean',maskUnits:'userSpaceOnUse',x:0,y:0,width:1056,height:604},defs);
+ make('rect',{x:0,y:0,width:1056,height:604,fill:'white'},mask);
+ make('rect',{x:466,y:247,width:130,height:32,fill:'black'},mask);
+ const displacements=[];
+ for(let i=0;i<3;i++){
+  const filter=make('filter',{id:'grass-art-ink-'+i,x:'-12%',y:'-12%',width:'124%',height:'124%','color-interpolation-filters':'sRGB'},defs);
+  make('feColorMatrix',{in:'SourceGraphic',type:'matrix',values:'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.2 -1.2 -1.2 0 2.88',result:'inkAlpha'},filter);
+  make('feFlood',{'flood-color':'currentColor',result:'inkColor'},filter);
+  make('feComposite',{in:'inkColor',in2:'inkAlpha',operator:'in',result:'ink'},filter);
+  make('feTurbulence',{type:'fractalNoise',baseFrequency:(.006+i*.002)+' .007',numOctaves:2,seed:9+i*13,result:'rawNoise'},filter);
+  make('feColorMatrix',{in:'rawNoise',type:'matrix',values:'1 0 0 0 0 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0',result:'windNoise'},filter);
+  make('feImage',{href:'data:image/svg+xml,'+encodeURIComponent(fadeSvg),x:0,y:0,width:1056,height:604,result:'rootFade'},filter);
+  make('feComposite',{in:'windNoise',in2:'rootFade',operator:'in',result:'fadedNoise'},filter);
+  make('feFlood',{'flood-color':'#808080',result:'neutral'},filter);
+  make('feBlend',{in:'fadedNoise',in2:'neutral',mode:'normal',result:'wind'},filter);
+  displacements.push(make('feDisplacementMap',{in:'ink',in2:'wind',scale:0,xChannelSelector:'R',yChannelSelector:'G'},filter));
+ }
+ const sections=[
+  {x:2,y:24,width:118,height:67,viewBox:'240 100 510 504'},
+  {x:225,y:29,width:112,height:62,viewBox:'730 210 326 394'},
+  {x:158,y:70,width:42,height:21,viewBox:'55 495 200 109'}
+ ];
+ sections.forEach((part,i)=>{
+  const crop=make('svg',{...part,preserveAspectRatio:'xMidYMax meet',overflow:'hidden'});
+  make('image',{href:'assets/sign-grass-reference.jpeg',x:0,y:0,width:1056,height:604,filter:'url(#grass-art-ink-'+i+')',mask:'url(#grass-art-clean)'},crop);
  });
- const draw=(blade,bend=0)=>{
-  const {x,base,height:h,lean}=blade;
-  const tx=x+lean+bend,ty=base-h;
-  let d='M'+x+' '+base+' C'+(x+lean*.08+bend*.02)+' '+(base-h*.31)+' '+(x+lean*.52+bend*.5)+' '+(base-h*.79)+' '+tx+' '+ty;
-  if(blade.paired)d+=' Q'+(x+lean*.51+bend*.48+1.1)+' '+(base-h*.57)+' '+(x+.45)+' '+base;
-  blade.path.setAttribute('d',d);
-  if(blade.seed){
-   let head='';
-   for(let j=0;j<5;j++){
-    const yy=ty+j*1.5,xx=tx-j*.18,len=2.2+(4-j)*.23;
-    head+='M'+xx+' '+yy+' l'+(-len)+' -1.8 M'+xx+' '+(yy+.6)+' l'+(len*.7)+' -2.1 ';
-   }
-   blade.seed.setAttribute('d',head);
-  }
- };
- // Tiny low shoots gather unevenly around the taller stems.
- [24,29,40,46,57,64,77,82,92,146,155,242,251,265,279,287,297,326].forEach(root=>{
-  const blade={x:root+(random()-.5)*3,base:87+random(),height:3+random()*7,lean:(random()-.5)*10,phase:random()*6.28,frequency:2+random(),softness:.7+random()*.5,paired:false};
-  blade.path=make('path',{'stroke-width':.45+random()*.2,opacity:.65+random()*.25});
-  blades.push(blade);
- });
- blades.forEach(blade=>draw(blade));
- // A few interrupted ground marks; no continuous border or lawn.
- make('path',{d:'M15 88 l3 -.3 M34 89 l5 -.4 M83 89 l4 -.1 M97 88 l3 .2 M141 89 l2 -.4 M157 89 l5 .2 M235 89 l4 -.3 M285 89 l6 -.2 M304 89 l3 .3 M329 89 l5 -.5','stroke-width':.5,opacity:.6});
  const flower=make('g',{class:'wildflower'});
  let bloomPending=false,taps=0,frame=0,start=0,gustX=70,gustStrength=1;
  const bloom=()=>{
@@ -1285,18 +1277,17 @@ function setupSignGrass(){
   make('path',{d:'M'+(cx-1.6)+' '+cy+' l1 -.8 M'+cx+' '+(cy+1)+' l1.2 -1.3 M'+(cx+1)+' '+(cy-1)+' l.5 .6','stroke-width':.45},head);
   field.classList.add('has-bloomed');
  };
+
  const tick=now=>{
   if(!field.isConnected){cancelAnimationFrame(frame);return}
   const t=(now-start)/1000;
-  if(t>4.5){blades.forEach(blade=>draw(blade));frame=0;return}
-  const envelope=Math.pow(1-t/4.5,1.8);
-  blades.forEach(blade=>{
-   const distance=Math.abs(blade.x-gustX);
-   const reach=.22+.78*Math.exp(-distance/100);
-   const wave=Math.sin(t*blade.frequency*3.2+blade.phase)*.7+Math.sin(t*4.1+blade.phase*.43)*.3;
-   const ramp=Math.min(1,t*5);
-   const bend=wave*envelope*ramp*reach*blade.height*.24*blade.softness*gustStrength;
-   draw(blade,bend);
+  if(t>5){displacements.forEach(node=>node.setAttribute('scale','0'));frame=0;return}
+  const envelope=Math.pow(1-t/5,1.6)*Math.min(1,t*3);
+  displacements.forEach((node,i)=>{
+   const center=[70,280,175][i];
+   const reach=.3+.7*Math.exp(-Math.abs(center-gustX)/120);
+   const wave=Math.sin(t*(2.9+i*.39))*.75+Math.sin(t*(5.1+i*.21))*.25;
+   node.setAttribute('scale',String(wave*envelope*reach*gustStrength*(i===2?11:23)));
   });
   frame=requestAnimationFrame(tick);
  };

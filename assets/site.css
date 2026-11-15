@@ -739,7 +739,7 @@ body.night .sign-logo > .sign-logo-inset{color:#fff}
 
 /* Loose botanical pen strokes, with roots fixed at the post bases. */
 .sign-meadow{position:absolute;z-index:4;left:0;top:calc(var(--sign-height) + 20px);width:100%;height:96px;padding:0;border:0;border-radius:0;background:transparent;color:#30342d;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.sign-meadow svg{display:block;width:100%;height:100%;overflow:visible}
+.sign-meadow > svg{display:block;width:100%;height:100%;overflow:visible}
 .sign-meadow path,.sign-meadow ellipse{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .sign-meadow:focus-visible{outline:1px dashed currentColor;outline-offset:3px}
 body.night .sign-meadow{color:#f5f3eb}
