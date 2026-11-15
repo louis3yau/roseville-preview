@@ -736,22 +736,15 @@ body.night .sign-logo > .sign-logo-inset{color:#fff}
 }
 
 
-/* Sparse pen-drawn grass anchored only to the two post bases. */
-.sign-grass{position:absolute;z-index:4;top:calc(var(--sign-height) + 51px);width:76px;height:64px;padding:0;border:0;border-radius:0;background:transparent;color:#30342d;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.sign-grass-left{left:calc(20% - 32px)}
-.sign-grass-right{right:calc(20% - 32px);width:69px;top:calc(var(--sign-height) + 54px)}
-.sign-grass svg{display:block;width:100%;height:100%;overflow:visible}
-.sign-grass path,.sign-grass ellipse{fill:none;stroke:currentColor;stroke-width:.85;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.sign-grass .grass-fine{stroke-width:.55;opacity:.72}
-.sign-grass .grass-sway{transform-box:view-box;transform-origin:50% 94%}
-.sign-grass.is-swaying .grass-sway{animation:sign-grass-sway 1.9s ease-in-out}
-.sign-grass.is-swaying .grass-sway-late{animation-delay:.1s;animation-duration:2.1s}
-.sign-grass .grass-flower{opacity:0;transform:scaleY(0);transform-box:view-box;transform-origin:50% 94%;transition:transform 2s cubic-bezier(.22,.65,.3,1),opacity 1s}
-.sign-grass.has-bloomed .grass-flower{opacity:1;transform:scaleY(1)}
-.sign-grass .flower-head{transform-box:fill-box;transform-origin:center;transform:scale(0);transition:transform 1.3s ease-out 1.1s}
-.sign-grass.has-bloomed .flower-head{transform:scale(1)}
-.sign-grass:focus-visible{outline:1px dashed currentColor;outline-offset:3px}
-body.night .sign-grass{color:#f5f3eb}
-@keyframes sign-grass-sway{0%,100%{transform:rotate(0)}22%{transform:rotate(7deg)}49%{transform:rotate(-5deg)}73%{transform:rotate(2.5deg)}}
-@media(max-width:700px){.sign-grass{width:66px}.sign-grass-left{left:calc(20% - 27px)}.sign-grass-right{right:calc(20% - 27px);width:61px}}
-@media(prefers-reduced-motion:reduce){.sign-grass.is-swaying .grass-sway{animation:none}.sign-grass .grass-flower,.sign-grass .flower-head{transition:none}}
+
+/* Loose botanical pen strokes, with roots fixed at the post bases. */
+.sign-meadow{position:absolute;z-index:4;left:0;top:calc(var(--sign-height) + 20px);width:100%;height:96px;padding:0;border:0;border-radius:0;background:transparent;color:#30342d;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.sign-meadow svg{display:block;width:100%;height:100%;overflow:visible}
+.sign-meadow path,.sign-meadow ellipse{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.sign-meadow:focus-visible{outline:1px dashed currentColor;outline-offset:3px}
+body.night .sign-meadow{color:#f5f3eb}
+.sign-meadow .wildflower{opacity:0;transform:scaleY(0);transform-box:view-box;transform-origin:50% 90.625%;transition:transform 3.2s cubic-bezier(.2,.6,.3,1),opacity 1.5s}
+.sign-meadow.has-bloomed .wildflower{opacity:1;transform:scaleY(1)}
+.sign-meadow .daisy-head{transform-box:fill-box;transform-origin:center;transform:scale(.05);transition:transform 2s ease-out 1.8s}
+.sign-meadow.has-bloomed .daisy-head{transform:scale(1)}
+@media(prefers-reduced-motion:reduce){.sign-meadow .wildflower,.sign-meadow .daisy-head{transition:none}}
