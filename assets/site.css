@@ -535,3 +535,47 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
     padding-right:15px;
   }
 }
+
+/* Desktop visit layout: schedule and compact FAQs share a row; map spans the full section. */
+@media(min-width:701px){
+ .page-visit #content.visit-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);
+  column-gap:clamp(44px,5vw,94px);
+  row-gap:36px;
+  align-items:start;
+ }
+ .page-visit #content .visit-services{min-width:0;grid-column:1;grid-row:1}
+ .page-visit #content .visit-faq{
+  grid-column:2;grid-row:1;min-width:0;
+  margin-top:clamp(72px,5.7vw,91px);
+ }
+ .page-visit #content .visit-faq summary{
+  font-size:clamp(14px,1.15vw,16px);
+  min-height:55px;
+  padding:11px 0;
+  gap:12px;
+  line-height:1.35;
+ }
+ .page-visit #content .visit-faq summary:after{font-size:20px}
+ .page-visit #content .visit-faq details>p{font-size:13px;line-height:1.65}
+ .page-visit #content .visit-location{
+  grid-column:1/-1;
+  grid-row:2;
+  width:100%;
+  min-width:0;
+  margin-top:12px;
+ }
+ .page-visit #content .visit-map{
+  width:100%;
+  max-width:none;
+  aspect-ratio:auto;
+  height:clamp(350px,38vw,550px);
+ }
+}
+@media(max-width:700px){
+ .page-visit #content.visit-layout{display:flex;flex-direction:column;gap:0}
+ .page-visit #content .visit-services{order:1;width:100%}
+ .page-visit #content .visit-location{order:2;width:100%}
+ .page-visit #content .visit-faq{order:3;width:100%}
+}
