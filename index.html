@@ -576,10 +576,11 @@ function readingList(){const now=sydneyTodayKey();const rows=cmsData?cmsData.rea
 const remainingReadings=()=>cmsData?cmsData.readings.filter(x=>dateKey(x.date)>=sydneyTodayKey()).map(x=>[formatDate(x.date),x.passages]):readingRows.filter(x=>dateKey(x[0])>=sydneyTodayKey());
 function calendarList(rows){
  const now=sydneyTodayKey();
+ const todayIndex=rows.findIndex(r=>dateKey(r[3]||r[0])===now);
  const next=rows.findIndex(r=>dateKey(r[3]||r[0])>now);
  const validLink=url=>typeof url==='string'&&(/^#[a-z-]+$/.test(url)||/^https:\/\/[^\s/@]+[^\s]*$/i.test(url));
  return '<div class="rows calendar-list">'+rows.map(([date,title,href,sourceDate,description,customLabel],index)=>{
-  const key=dateKey(sourceDate||date),isToday=key===now,isNext=index===next;
+  const key=dateKey(sourceDate||date),isToday=index===todayIndex,isNext=index===next;
   const status=isToday?'Today':isNext?'Coming up':'';
   const link=validLink(href)?href:(href?'':(calendarLink(title)||''));
   const safe=validLink(link)?link:'';
@@ -588,7 +589,7 @@ function calendarList(rows){
   const detail=(description||'').trim();
   const heading='<span><span class="reading-date">'+esc(date)+'</span><span class="reading-summary">'+esc(title)+'</span></span>';
   const tag=status?'<span class="row-tag">'+status+'</span>':'';
-  const classes='row compact reading-day calendar-day'+(isToday?' is-today':isNext?' is-coming':'');
+  const classes='row compact reading-day calendar-day'+(isToday?' is-today':(isNext&&todayIndex===-1)?' is-coming':'');
   if(!detail&&!linkHtml)return '<div class="'+classes+' calendar-static"><div class="cares-static">'+heading+tag+'</div></div>';
   return '<details class="'+classes+'"><summary>'+heading+tag+'</summary><div class="cares-details">'+(detail?'<p class="cares-description">'+esc(detail)+'</p>':'')+linkHtml+'</div></details>';
  }).join('')+'</div>';
