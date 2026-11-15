@@ -584,12 +584,21 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
 }
 
 @media(min-width:701px){
+ body.page-visit #content .visit-location{
+  container-type:inline-size;
+ }
  body.page-visit #content .visit-location .map-address{
-  font-size:clamp(15px,1.55vw,22px);
+  display:inline-block;
+  max-width:100%;
+  font-size:clamp(18px,4.5cqw,25px);
+  letter-spacing:-.025em;
  }
 }
 @media(min-width:900px){
- body.page-visit #content .visit-location .map-address{white-space:nowrap;overflow-wrap:normal}
+ body.page-visit #content .visit-location .map-address{
+  white-space:nowrap;
+  overflow-wrap:normal;
+ }
 }
 
 /* Shared dated accordion geometry: the navy and outlined rows have exactly matching edges.
