@@ -190,7 +190,7 @@ function setupInteractions(){
  drawing.querySelector('.nearby-window')?.addEventListener('click',toggleLights);
  drawing.querySelectorAll('.side-windows,.far-windows').forEach(target=>target.addEventListener('click',()=>{if(nightMode)toggleLights()}));
  let adminClicks=[];
- drawing.querySelector('.admin-door')?.addEventListener('click',event=>{if(nightMode)toggleLights();const now=performance.now();adminClicks=adminClicks.filter(t=>now-t<2000);adminClicks.push(now);if(adminClicks.length>=3||event.detail>=3){adminClicks=[];window.open('https://app.pagescms.org','_blank','noopener,noreferrer')}});
+ drawing.querySelector('.admin-door')?.addEventListener('click',event=>{if(nightMode)toggleLights();const now=performance.now();adminClicks=adminClicks.filter(t=>now-t<2000);adminClicks.push(now);if(adminClicks.length>=3||event.detail>=3){adminClicks=[];window.open('https://app.pagescms.org/louis3yau/roseville-presbyterian-church/main/collection/page_copy','_blank','noopener,noreferrer')}});
  if(entryButton)entryButton.addEventListener('click',()=>{
   if(entryTimer)return;
   entryButton.classList.add('is-selected');
