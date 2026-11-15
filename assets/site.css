@@ -78,7 +78,7 @@ footer .footer-mark{width:65px;height:auto;margin:0 0 13px;filter:grayscale(1) c
 .night .night-sky{display:block}
 .night-sky .star{position:absolute;width:30px;height:30px;left:var(--x);top:var(--y);transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
 .night-sky .star:after{content:'';position:absolute;width:var(--s);height:var(--s);left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:48% 57% 41% 55%;opacity:var(--o);box-shadow:0 0 3px #ffffff55}
-.night-sky .star:before{content:'';position:absolute;left:50%;top:50%;width:0;height:2px;transform:rotate(var(--tail-angle)) translateY(-50%);transform-origin:left center;background:linear-gradient(90deg,#fff 0%,#ffffffa0 40%,transparent 100%);pointer-events:none}
+.night-sky .star:before{content:'';position:absolute;left:50%;top:calc(50% - .6px);width:0;height:1.2px;transform:rotate(var(--tail-angle));transform-origin:0 50%;background:linear-gradient(90deg,#fff 0%,#ffffffa0 40%,transparent 100%);pointer-events:none}
 .night-sky .star.launching{animation:star-flight .9s ease-in forwards;pointer-events:none}
 .night-sky .star.launching:before{animation:star-tail .9s ease-in forwards}
 .night-sky .star.spent{visibility:hidden;pointer-events:none}
@@ -752,3 +752,8 @@ body.night{--tap-link:#a9bdd7}
 .drawing:has(> .art-hit:active){filter:opacity(.85)}
 .drawing .cloud-ink,.footer-home .footer-mark,.brand .menu-logo{transition:opacity .18s ease}
 .drawing .cloud:active .cloud-ink,.footer-home:active .footer-mark,.brand:active .menu-logo{opacity:.85}
+
+/* Keep text above the star hit areas; anchor the tail exactly to the bright head. */
+.homehero > div:nth-child(2){z-index:6}
+.night-sky .star.near-heading{width:26px;height:26px}
+.night-sky .star.launching:after{animation:none;opacity:1;z-index:1}

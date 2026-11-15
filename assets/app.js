@@ -162,7 +162,14 @@ function fitSkyToChurch(){
  const points=tops.concat(bottoms.reverse());
  const hole=points.map((p,i)=>(i?'L':'M')+p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' ')+'Z';
  sky.style.clipPath='path(evenodd, "M0 0H'+sr.width+'V'+sr.height+'H0Z '+hole+'")';
- sky.querySelectorAll('.star').forEach(star=>{const r=star.getBoundingClientRect(),cx=r.left+r.width/2-ar.left,cy=r.top+r.height/2-ar.top;const bin=Math.floor(cx/ar.width*96),b=churchSilhouette[bin];star.classList.toggle('occluded',!!b&&cy>=b[0]*ar.height-pad&&cy<=b[1]*ar.height+pad)});
+ const headingBounds=document.querySelector('.homehero h1')?.getBoundingClientRect();
+ sky.querySelectorAll('.star').forEach(star=>{
+  const r=star.getBoundingClientRect(),screenX=r.left+r.width/2,screenY=r.top+r.height/2,cx=screenX-ar.left,cy=screenY-ar.top;
+  const bin=Math.floor(cx/ar.width*96),b=churchSilhouette[bin];
+  star.classList.toggle('occluded',!!b&&cy>=b[0]*ar.height-pad&&cy<=b[1]*ar.height+pad);
+  const near=!!headingBounds&&screenX>=headingBounds.left-38&&screenX<=headingBounds.right+38&&screenY>=headingBounds.top-38&&screenY<=headingBounds.bottom+48;
+  star.classList.toggle('near-heading',near);
+ });
 }
 const skyResizeObserver=new ResizeObserver(()=>fitSkyToChurch());
 
@@ -208,7 +215,20 @@ function setupInteractions(){
   star.classList.add('launching');
   star.addEventListener('animationend',event=>{if(event.animationName==='star-flight'){star.classList.remove('launching');star.classList.add('spent')}},{once:true});
  };
- document.querySelectorAll('.night-sky .star').forEach(star=>star.addEventListener('click',()=>shoot(star)));
+ document.querySelectorAll('.night-sky .star').forEach((star,index)=>{
+  const baseTaps=[1,2,1,3,2][index%5];
+  let taps=0,lastTap=0;
+  star.addEventListener('click',event=>{
+   if(star.classList.contains('launching')||star.classList.contains('spent'))return;
+   // Keyboard activation stays direct; touch/clicks need a short, deliberate sequence.
+   if(event.detail===0){taps=0;shoot(star);return}
+   const required=star.classList.contains('near-heading')?3+index%2:baseTaps;
+   const now=performance.now();
+   taps=now-lastTap>1800?1:taps+1;lastTap=now;
+   if(taps<required)return;
+   taps=0;shoot(star);
+  });
+ });
  drawing.querySelectorAll('.cloud').forEach(cloud=>{
   cloud.addEventListener('click',()=>{
    const image=cloud.querySelector('.cloud-ink');
