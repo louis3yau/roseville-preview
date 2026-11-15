@@ -552,7 +552,7 @@ function calendarList(rows){
   const status=isToday?'Today':isNext?'Coming up':'';
   const link=validLink(href)?href:(href?'':(calendarLink(title)||''));
   const safe=validLink(link)?link:'';
-  const aboutLabel=(customLabel||'About '+title).trim();
+  const aboutLabel=(customLabel||'About '+(title==='Roseville Cares Sunday'?'Roseville Cares':title)).trim();
   const linkHtml=safe?'<div class="reading-links cares-links"><span class="reading-passage"><a href="'+esc(safe)+'"'+(safe.startsWith('https://')?' target="_blank" rel="noopener noreferrer"':'')+'>'+esc(aboutLabel)+'</a></span></div>':'';
   const detail=(description||'').trim();
   const heading='<span><span class="reading-date">'+esc(date)+'</span><span class="reading-summary">'+esc(title)+'</span></span>';
