@@ -737,3 +737,18 @@ body.night .sign-logo > .sign-logo-inset{color:#fff}
 
 
 
+
+/* Quiet interaction feedback: no browser tap flash or click-only focus box. */
+html{-webkit-tap-highlight-color:transparent}
+:root{--tap-link:#435267}
+body.night{--tap-link:#a9bdd7}
+:where(a:not(.outline):not(.brand):not(.footer-home):not(.entry-button)){transition:color .18s ease}
+:where(a:not(.outline):not(.brand):not(.footer-home):not(.entry-button)):active{color:var(--tap-link)}
+@media(hover:hover){
+ :where(a:not(.outline):not(.brand):not(.footer-home):not(.entry-button)):hover{color:var(--tap-link)}
+}
+:where(a,button,summary,[role="button"]):focus:not(:focus-visible){outline:none}
+.drawing{transition:filter .18s ease}
+.drawing:has(> .art-hit:active){filter:opacity(.85)}
+.drawing .cloud-ink,.footer-home .footer-mark,.brand .menu-logo{transition:opacity .18s ease}
+.drawing .cloud:active .cloud-ink,.footer-home:active .footer-mark,.brand:active .menu-logo{opacity:.85}
