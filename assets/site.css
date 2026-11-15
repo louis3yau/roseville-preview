@@ -601,6 +601,33 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
  }
 }
 
+
+/* Keep the dynamic back-navigation in the first grid row, not after FAQs. */
+@media(min-width:701px){
+ body.page-visit #content.visit-layout > .parent-link{
+  grid-column:1/-1;
+  grid-row:1;
+  justify-self:start;
+  align-self:start;
+  margin:0 0 5px;
+ }
+ body.page-visit #content .visit-services{grid-column:1;grid-row:2}
+ body.page-visit #content .visit-location{grid-column:2;grid-row:2}
+ body.page-visit #content .visit-faq{grid-column:1/-1;grid-row:3}
+}
+@media(max-width:700px){
+ body.page-visit #content.visit-layout > .parent-link{
+  grid-column:1;
+  grid-row:1;
+  justify-self:start;
+  margin-bottom:22px;
+ }
+ body.page-visit #content .visit-services{grid-column:1;grid-row:2}
+ body.page-visit #content .visit-location{grid-column:1;grid-row:3}
+ body.page-visit #content .visit-faq{grid-column:1;grid-row:4}
+}
+/* Respect intentional line breaks in the CMS evening-service description. */
+body.page-visit #content .service-time:last-child .subtle{white-space:pre-line}
 /* Shared dated accordion geometry: the navy and outlined rows have exactly matching edges.
    Inset borders cannot protrude, and selected rows must remain navy when expanded. */
 .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day{
