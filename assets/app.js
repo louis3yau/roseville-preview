@@ -240,7 +240,7 @@ function loadSign(){
    const more=document.createElement('a');
    more.id='sign-more';more.className='sign-more';more.href=item.link;more.textContent='More →';
    if(item.link.startsWith('https://')){more.target='_blank';more.rel='noopener'}
-   board.parentElement.append(more)
+   board.parentElement.append(more);refreshDirectionalArrows()
   }
  };
  const rotate=step=>{index=(index+step+items.length)%items.length;display()};
@@ -322,6 +322,25 @@ function updateCMSPage(page){
  }else if(selector){
    document.querySelectorAll(selector).forEach((row,i)=>{const item=copy.sections?.[i];if(!item)return;setText(row.querySelector('h3'),item.title);setText(row.querySelector('p'),item.description);const a=row.querySelector('a');setText(a,item.link_label);setLink(a,item.link)});
  }
+}
+// Compact chevrons for internal actions, diagonal arrows for external links.
+function refreshDirectionalArrows(){
+ const lastTextNode=el=>{
+  for(let i=el.childNodes.length-1;i>=0;i--){
+   const node=el.childNodes[i];
+   if(node.nodeType===3&&node.nodeValue.trim())return node;
+   if(node.nodeType===1){const inner=lastTextNode(node);if(inner)return inner}
+  }
+  return null;
+ };
+ document.querySelectorAll('a,button').forEach(el=>{
+  if(el.matches('.parent-link,.footer-home,.brand,#guide-prev,#guide-next,.back-arrow'))return;
+  const node=lastTextNode(el);
+  if(!node||!/[→›↗]\s*$/.test(node.nodeValue))return;
+  const href=el.getAttribute('href')||'';
+  const external=/^(https?:\/\/|mailto:|tel:)/i.test(href);
+  node.nodeValue=node.nodeValue.replace(/[→›↗](\s*)$/,(_,space)=>(external?'↗':'›')+space);
+ });
 }
 function setupClickableRows(){document.querySelectorAll('.row:not(details):has(a[href])').forEach(row=>{row.addEventListener('click',event=>{if(event.target.closest('a'))return;row.querySelector('a[href]').click()})})}
 const defaultGuideArchive=[
@@ -435,7 +454,7 @@ function render(){
   document.querySelector('meta[property="og:description"]')?.setAttribute('content',desc);
   document.querySelector('meta[property="og:url"]')?.setAttribute('content',PRODUCTION_ROOT+(page==='home'?'':page+'/'));
   document.querySelector('link[rel=canonical]')?.setAttribute('href',location.origin+routePath(page));
-  setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive()
+  setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive();refreshDirectionalArrows()
  }
  setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();
  if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:'instant'}));
