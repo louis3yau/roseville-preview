@@ -26,6 +26,11 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
  <div class="sign-legs" aria-hidden="true"><span></span><span></span></div>
  <div class="sign-frame">
   <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""></div></div>
+  <svg class="sign-corner-etch" viewBox="0 0 112 74" aria-hidden="true" focusable="false">
+   <path d="M9 65 Q8 44 9.5 26 Q9 15 12 11 Q37 8.5 60 9.7 Q79 10.3 101 8"/>
+   <path d="M14 51 Q13 34 15 17 Q35 14.5 54 15.2 Q68 15 80 13.8"/>
+   <path class="sign-corner-etch-light" d="M8.5 39 L10 21 M29 9.4 L44 8.9"/>
+  </svg>
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
   <svg class="sign-ink" viewBox="0 0 560 382" preserveAspectRatio="none" aria-hidden="true"><path d="M4 5 Q94 1 175 5 L554 3 558 378 Q439 381 334 377 L5 380 Z M9 11 Q118 8 232 11 L550 9 M12 115 Q209 112 352 116 L547 112 M12 120 Q278 118 546 121 M11 374 Q258 371 548 374"/></svg>
  </div>
