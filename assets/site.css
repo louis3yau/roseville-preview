@@ -708,10 +708,11 @@ body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archi
  outline-offset:-3px;
 }
 
-/* Invert the complete day panel so its image, border and inset retain identical geometry. */
-body.night .sign-logo{filter:invert(1)}
-/* Counter-invert the image only, keeping the logo black on the pale night panel. */
-body.night .sign-logo img{filter:invert(1)}
+/* Night sign: invert the complete header and its logo panel without changing geometry. */
+body.night .sign-header{background:#fff;color:#05070b}
+body.night .sign-logo{background:#05070b;border-color:#05070b}
+body.night .sign-logo img{filter:brightness(0) invert(1)}
+body.night .sign-logo > .sign-logo-inset{color:#fff}
 /* The sketch detail belongs only to the small logo panel. */
 .sign-logo{position:relative}
 .sign-logo > .sign-logo-inset{
