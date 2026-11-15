@@ -220,8 +220,8 @@ function setupGuide(){const image=document.getElementById('guide-page');if(!imag
 // Real, crawlable page paths with History API routing and session scroll restoration.
 // Keep links, styling and CMS behaviour identical for visitors.
 const routeNames={home:'Home',about:'About',resources:'Worship & Bible',community:'Community',calendar:'Calendar',study:'Bible Study',cares:'Roseville Cares',children:'Children in worship',catechism:'Catechism Club',bsf:'Bible Study Fellowship',worship:'Worship Guide',reading:'Bible Reading Plan',credits:'Scripture credits',visit:'Visit us'};
-const SITE_ROOT='/roseville-preview/';
-const routePath=page=>SITE_ROOT+(page==='home'?'':page+'/');
+const SITE_ROOT=new URL(document.baseURI).pathname;const PREVIEW_HOST=location.hostname==='raw.githack.com';const PRODUCTION_ROOT='https://louis3yau.github.io/roseville-preview/';
+const routePath=page=>SITE_ROOT+(page==='home'?'':page+'/')+(PREVIEW_HOST?'index.html':'');
 const pageFromPath=()=>{const part=decodeURIComponent(location.pathname.slice(SITE_ROOT.length)).split('/')[0];return Object.hasOwn(pages,part)?part:'home'};
 let routeEntries={};try{routeEntries=JSON.parse(sessionStorage.getItem('roseville-path-history-v2')||'{}')}catch{}
 let activeEntry=null,requestedAnchor=null,current='';
@@ -295,7 +295,7 @@ function render(){
   document.title=title;
   document.querySelector('meta[property="og:title"]')?.setAttribute('content',title);
   document.querySelector('meta[property="og:description"]')?.setAttribute('content',desc);
-  document.querySelector('meta[property="og:url"]')?.setAttribute('content',location.origin+routePath(page));
+  document.querySelector('meta[property="og:url"]')?.setAttribute('content',PRODUCTION_ROOT+(page==='home'?'':page+'/'));
   document.querySelector('link[rel=canonical]')?.setAttribute('href',location.origin+routePath(page));
   setupClickableRows();updateCMSPage(page);setupGuide()
  }
