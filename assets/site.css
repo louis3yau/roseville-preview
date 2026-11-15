@@ -707,18 +707,25 @@ body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archi
  outline-offset:-3px;
 }
 
-/* Precision vector tracing of the reference sign's thin inset frame.
-   Very slight slope and tiny breaks, not a decorative double border. */
-.sign-reference-lines{
+/* The sketch detail belongs only to the small logo panel. */
+.sign-logo{position:relative}
+.sign-logo > .sign-logo-inset{
  position:absolute;
- inset:0;
- width:100%;
- height:100%;
- z-index:5;
+ inset:2px;
+ width:calc(100% - 4px);
+ height:calc(100% - 4px);
+ z-index:1;
  pointer-events:none;
- overflow:visible;
- mix-blend-mode:difference;
+ overflow:hidden;
+ color:#20231f;
  opacity:.62;
 }
-body.night .sign-reference-lines{opacity:.7}
-@media(max-width:700px){.sign-reference-lines{opacity:.7}}
+.sign-logo > .sign-logo-inset path{
+ fill:none;
+ stroke:currentColor;
+ stroke-width:.55;
+ vector-effect:non-scaling-stroke;
+ stroke-linecap:butt;
+ stroke-linejoin:miter;
+}
+body.night .sign-logo > .sign-logo-inset{color:#fff;opacity:.7}

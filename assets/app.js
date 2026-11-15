@@ -25,17 +25,10 @@ const clouds=cloudFills.map(([box,path],index)=>{const i=index+1;return `<button
 const noticeboard=`<section id="home-about" class="notice-section"><div class="noticeboard">
  <div class="sign-legs" aria-hidden="true"><span></span><span></span></div>
  <div class="sign-frame">
-  <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""></div></div>
-  <svg class="sign-reference-lines" viewBox="0 0 500 250" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-   <g fill="none" stroke="#fff" stroke-width=".85" stroke-linecap="butt" stroke-linejoin="miter">
-    <path d="M23.8 10.8 L24.1 19.1 M24.1 21.4 L24.8 71.6 M24.8 74.1 L25.1 147.3 M25.1 150.4 L25.6 233.5 L25.7 241.3"/>
-    <path d="M475.3 7.5 L475.5 12.1 M475.5 14.5 L476.1 82.2 M476.1 84.4 L476.7 177.6 M476.7 181.0 L477.0 239.5"/>
-    <path d="M24.0 17.5 L91.0 17.1 M94.7 17.1 L156.5 16.5 M158.9 16.5 L295.0 15.4 M297.1 15.4 L387.0 14.7 M390.0 14.7 L475.6 13.7"/>
-    <path d="M25.3 233.3 L85.0 233.4 M88.5 233.4 L161.0 232.9 M164.3 232.9 L291.5 231.5 M295.1 231.5 L403.7 230.9 M407.0 230.9 L477.0 230.4"/>
-   </g>
-  </svg>
+  <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""><svg class="sign-logo-inset" viewBox="0 0 100 130" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+   <path d="M1.6 1.8 L27.8 1.5 M29.2 1.5 L65.5 1.9 M66.8 1.9 L98.2 1.4 M98.2 1.4 L98.5 31.6 M98.5 33 L98.1 82.4 M98.1 83.8 L98.6 128.1 M98.6 128.1 L72.4 128.4 M71 128.4 L36.5 128 M35.1 128 L1.7 128.5 M1.7 128.5 L1.4 95.2 M1.4 93.8 L1.9 48.1 M1.9 46.7 L1.6 1.8"/>
+  </svg></div></div>
   <div class="sign-letters"><div class="sign-message" id="sign-message">SUNDAYS 9:30 AM<br>MORNING WORSHIP<br>ALL WELCOME</div><button type="button" class="sign-side-hit sign-side-previous" aria-label="Previous announcement" hidden></button><button type="button" class="sign-side-hit sign-side-next" aria-label="Next announcement" hidden></button></div>
-  <svg class="sign-ink" viewBox="0 0 560 382" preserveAspectRatio="none" aria-hidden="true"><path d="M4 5 Q94 1 175 5 L554 3 558 378 Q439 381 334 377 L5 380 Z M9 11 Q118 8 232 11 L550 9 M12 115 Q209 112 352 116 L547 112 M12 120 Q278 118 546 121 M11 374 Q258 371 548 374"/></svg>
  </div>
  <div class="sign-plaque"><span id="sign-updated">Last updated 12 November 2026</span></div>
  </div></section>`;
