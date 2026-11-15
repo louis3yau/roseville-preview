@@ -651,3 +651,31 @@ body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archi
  outline:2px solid currentColor;
  outline-offset:-3px;
 }
+
+/* Closed dated accordions never retain panel borders after toggling. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]),
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]):focus-within{
+ border-top:0;
+ border-left:0;
+ border-right:0;
+ border-bottom:1px solid var(--line);
+ outline:none;
+ outline-offset:0;
+ box-shadow:none;
+ background:transparent;
+}
+/* Current and upcoming rows keep their navy fill, even when closed. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]):is(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ border:0;
+ background:var(--olive);
+ color:var(--paper);
+}
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]):is(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ background:#273d56;
+ color:#fff;
+}
+/* Focus belongs to the summary control, not the entire collapsed panel. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:not([open]) > summary:focus-visible{
+ outline:2px solid currentColor;
+ outline-offset:-3px;
+}
