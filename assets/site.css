@@ -583,27 +583,6 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
  body.page-visit #content .visit-faq{grid-column:1;grid-row:3;width:100%;margin-top:38px}
 }
 
-/* Align outlined expanded dated panels with navy rows; focus ring stays inside. */
-.inner-page .rows > details.row.reading-day[open],
-.inner-page .cares-list > details.row.reading-day[open],
-.inner-page .guide-archive-list > details.row.reading-day[open]{
- margin-left:-7px;
- margin-right:-7px;
- padding-left:15px;
- padding-right:15px;
- border:0;
- outline:none;
- box-shadow:inset 0 0 0 1px var(--olive);
- background:color-mix(in srgb,var(--olive) 4%,var(--paper));
-}
-.inner-page .rows > details.row.reading-day[open]:focus-within,
-.inner-page .cares-list > details.row.reading-day[open]:focus-within,
-.inner-page .guide-archive-list > details.row.reading-day[open]:focus-within{
- outline:none;
- outline-offset:0;
- box-shadow:inset 0 0 0 1.5px var(--olive);
-}
-body.night .inner-page details.row.reading-day[open]{background:color-mix(in srgb,var(--olive) 10%,var(--paper))}
 @media(min-width:701px){
  body.page-visit #content .visit-location .map-address{
   font-size:clamp(15px,1.55vw,22px);
@@ -611,4 +590,55 @@ body.night .inner-page details.row.reading-day[open]{background:color-mix(in srg
 }
 @media(min-width:900px){
  body.page-visit #content .visit-location .map-address{white-space:nowrap;overflow-wrap:normal}
+}
+
+/* Shared dated accordion geometry: the navy and outlined rows have exactly matching edges.
+   Inset borders cannot protrude, and selected rows must remain navy when expanded. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day{
+ box-sizing:border-box;
+ width:auto;
+ max-width:none;
+ margin-left:-15px;
+ margin-right:-15px;
+ padding-left:15px;
+ padding-right:15px;
+}
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open]{
+ border:0;
+ outline:0;
+ outline-offset:0;
+ box-shadow:inset 0 0 0 1px var(--olive);
+ background:color-mix(in srgb,var(--olive) 4%,var(--paper));
+ color:var(--ink);
+}
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open]:focus-within{
+ outline:0;
+ outline-offset:0;
+ box-shadow:inset 0 0 0 1px var(--olive);
+}
+/* Current and upcoming items retain the full navy fill, including while expanded. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide),
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide)[open],
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide)[open]{
+ background:var(--olive);
+ color:var(--paper);
+ border:0;
+ outline:0;
+ box-shadow:none;
+}
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ background:#273d56;
+ color:#fff;
+}
+body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open]:not(.is-coming,.is-today,.is-current-month,.is-current-guide){
+ background:#202d3c;
+ color:inherit;
+}
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > .row.reading-day:is(.is-coming,.is-today,.is-current-month,.is-current-guide) :is(.reading-date,.reading-summary,.row-tag){
+ color:inherit;
+}
+/* Keep a visible keyboard-focus indicator inside the selected row bounds. */
+.inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archive-list) > details.row.reading-day[open] > summary:focus-visible{
+ outline:2px solid currentColor;
+ outline-offset:-3px;
 }
