@@ -282,6 +282,7 @@ function updateCMSPage(page){
    }
  }
  const copy=data.page_copy?.[page];if(!copy)return;
+ if(page==='visit'&&copy.heading)document.querySelector('#content .service-times')?.closest('div')?.querySelector('h2')?.replaceChildren(document.createTextNode(copy.heading));
  // User-entered content is always inserted as text, never executed as HTML.
  const setText=(element,value)=>{if(element&&typeof value==='string'&&value.trim())element.textContent=value};
  const setLink=(element,value)=>{if(!element||!value)return;const link=String(value).trim();if(/^#[a-z-]+(?:\/[a-z-]+)?$/.test(link)||/^https:\/\/[^\s/@]+[^\s]*$/i.test(link)||/^mailto:[^\s<>]+$/i.test(link))element.href=link};
