@@ -536,3 +536,49 @@ body.night .inner-page .guide-archive-list .guide-day.is-past .reading-date,body
   }
 }
 
+
+/* Visit Us: Sunday schedule alongside map, with FAQs below both columns. */
+@media(min-width:701px){
+ body.page-visit #content.visit-layout{
+  max-width:1350px;
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  column-gap:clamp(36px,6vw,92px);
+  row-gap:clamp(36px,4.5vw,64px);
+  align-items:start;
+ }
+ body.page-visit #content .visit-services{
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+ }
+ body.page-visit #content .visit-location{
+  grid-column:2;
+  grid-row:1;
+  min-width:0;
+  margin-top:clamp(75px,6.3vw,90px);
+ }
+ body.page-visit #content .visit-map{
+  width:100%;
+  max-width:none;
+  aspect-ratio:4/3;
+ }
+ body.page-visit #content .visit-faq{
+  grid-column:1/-1;
+  grid-row:2;
+  width:100%;
+  margin:0;
+ }
+ body.page-visit #content .visit-faq details>p{max-width:900px}
+}
+@media(max-width:700px){
+ body.page-visit #content.visit-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:0;
+ }
+ body.page-visit #content .visit-services{grid-column:1;grid-row:1;min-width:0}
+ body.page-visit #content .visit-location{grid-column:1;grid-row:2;min-width:0;margin-top:25px}
+ body.page-visit #content .visit-faq{grid-column:1;grid-row:3;width:100%;margin-top:38px}
+}
