@@ -754,6 +754,6 @@ body.night{--tap-link:#a9bdd7}
 .drawing .cloud:active .cloud-ink,.footer-home:active .footer-mark,.brand:active .menu-logo{opacity:.85}
 
 /* Keep text above the star hit areas; anchor the tail exactly to the bright head. */
-.homehero > div:nth-child(2){z-index:6}
+.homehero > div:nth-child(2){z-index:6;top:8px}
 .night-sky .star.near-heading{width:26px;height:26px}
 .night-sky .star.launching:after{animation:none;opacity:1;z-index:1}
