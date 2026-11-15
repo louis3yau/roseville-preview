@@ -449,6 +449,17 @@ body.night .calendar-day .cares-description{color:inherit}
 .parent-link,.section .textlink{min-height:32px}
 @media(max-width:700px){nav a{font-size:14px;min-height:44px;display:flex;align-items:center}.section p,.inner-page p{font-size:15px}.inner-page .row.compact h3{font-size:14px}.drawing .cross-guide-hit{left:34%;top:12%;width:10%;height:20%}}
 /* Archived worship guides share Roseville Cares' expandable rows and outlined PDF buttons. */
+/* The current Worship Guide mirrors the navy-highlighted current month in Roseville Cares. */
+.inner-page .guide-archive-list .guide-day.is-current-guide{background:var(--olive);color:var(--paper);margin-left:-15px;margin-right:-15px;padding:24px 15px;border:0}
+.inner-page .guide-archive-list .guide-day.is-current-guide .reading-date,.inner-page .guide-archive-list .guide-day.is-current-guide .reading-summary,.inner-page .guide-archive-list .guide-day.is-current-guide .row-tag{color:var(--paper)}
+.inner-page .guide-archive-list .guide-day.is-current-guide .cares-links{border-color:#ffffff80}
+.inner-page .guide-archive-list .guide-day.is-current-guide .reading-passage a{color:var(--paper);border-color:var(--paper)}
+.inner-page .guide-archive-list .guide-day.is-current-guide .reading-passage a:hover,.inner-page .guide-archive-list .guide-day.is-current-guide .reading-passage a:focus-visible{background:var(--paper);color:var(--olive)}
+body.night .inner-page .guide-archive-list .guide-day.is-current-guide{background:#273d56;color:#fff}
+.inner-page .guide-archive-list .guide-day.is-past .reading-date,.inner-page .guide-archive-list .guide-day.is-past .reading-summary{color:#7c827d}
+.inner-page .guide-archive-list .guide-day.is-past .reading-passage a{color:#7c827d;border-color:#7c827d}
+body.night .inner-page .guide-archive-list .guide-day.is-past .reading-passage a{color:#a8b0ba;border-color:#a8b0ba}
+
 .guide-archive-section{margin-top:42px}
 .guide-archive-section h2{font:400 22px/1.3 Georgia,serif;margin:0 0 13px}
 .inner-page .guide-archive-list .guide-day{display:block;grid-template-columns:none;gap:0}
