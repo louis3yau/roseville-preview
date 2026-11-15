@@ -336,10 +336,27 @@ function refreshDirectionalArrows(){
  document.querySelectorAll('a,button').forEach(el=>{
   if(el.matches('.parent-link,.footer-home,.brand,#guide-prev,.back-arrow'))return;
   const node=lastTextNode(el);
-  if(!node||!/[→›↗]\s*$/.test(node.nodeValue))return;
+  if(!node)return;
   const href=el.getAttribute('href')||'';
   const external=/^(https?:\/\/|mailto:|tel:)/i.test(href);
-  node.nodeValue=node.nodeValue.replace(/[→›↗](\s*)$/,(_,space)=>(external?'↗':'›')+space);
+  if(!/[→›↗]\s*$/.test(node.nodeValue))return;
+  // An SVG arrow cannot turn into an emoji on iOS.
+  if(external){
+   node.nodeValue=node.nodeValue.replace(/[→›↗]\s*$/,'').replace(/\s*$/,'');
+   el.querySelector(':scope > .external-arrow-icon')?.remove();
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('class','external-arrow-icon');
+   svg.setAttribute('viewBox','0 0 16 16');
+   svg.setAttribute('width','13');svg.setAttribute('height','13');
+   svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+   svg.setAttribute('stroke-width','1.45');svg.setAttribute('stroke-linecap','round');
+   svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+   const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+   path.setAttribute('d','M4 12 12 4 M5.5 4H12v6.5');
+   svg.append(path);el.append(svg);
+  }else{
+   node.nodeValue=node.nodeValue.replace(/[→›↗](\s*)$/,(_,space)=>'›'+space);
+  }
  });
 }
 function setupClickableRows(){document.querySelectorAll('.row:not(details):has(a[href])').forEach(row=>{row.addEventListener('click',event=>{if(event.target.closest('a'))return;row.querySelector('a[href]').click()})})}
@@ -413,7 +430,7 @@ function setupBackLink(){
  link.href=routePath(targetPage);
  if(previous)link.dataset.historyBack=String(steps);else delete link.dataset.historyBack;
  const label=routeNames[targetPage]||'Home';
- link.innerHTML='<span class="back-arrow" aria-hidden="true">←</span><span>'+esc(label)+'</span>';
+ link.innerHTML='<span class="back-arrow" aria-hidden="true">‹</span><span>'+esc(label)+'</span>';
  link.setAttribute('aria-label','Return to '+label);
 }
 function localizeLinks(){
