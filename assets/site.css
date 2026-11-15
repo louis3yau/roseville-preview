@@ -709,6 +709,8 @@ body.night .inner-page :is(.calendar-list,.reading-list,.cares-list,.guide-archi
 
 /* Invert the complete day panel so its image, border and inset retain identical geometry. */
 body.night .sign-logo{filter:invert(1)}
+/* Counter-invert the image only, keeping the logo black on the pale night panel. */
+body.night .sign-logo img{filter:invert(1)}
 /* The sketch detail belongs only to the small logo panel. */
 .sign-logo{position:relative}
 .sign-logo > .sign-logo-inset{
