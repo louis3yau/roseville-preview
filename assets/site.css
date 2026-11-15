@@ -443,8 +443,8 @@ body.night .calendar-day .cares-description{color:inherit}
 .event-description{display:block;color:#697589;font-size:13px;line-height:1.6;margin-top:3px}body.night .event-description{color:#aeb8c5}
 .skip-to-content{position:absolute;z-index:1000;left:16px;top:-100px;background:var(--paper);color:var(--ink);border:2px solid var(--olive);padding:10px 15px;font-size:14px}
 .skip-to-content:focus{top:12px}
-.drawing .cross-guide-hit{left:40.8%;top:16%;width:8%;height:17%;z-index:7;min-width:28px;min-height:34px}
+.drawing .cross-guide-hit{left:34%;top:12%;width:9%;height:20%;z-index:7;min-width:28px;min-height:34px}
 .inner-page .row.compact h3{font-size:14px}
 .inner-page .row.compact p,.section .row p{font-size:clamp(14px,1.1vw,15px)}
 .parent-link,.section .textlink{min-height:32px}
-@media(max-width:700px){nav a{font-size:14px;min-height:44px;display:flex;align-items:center}.section p,.inner-page p{font-size:15px}.inner-page .row.compact h3{font-size:14px}.drawing .cross-guide-hit{left:40.8%;top:16%;width:9%;height:18%}}
+@media(max-width:700px){nav a{font-size:14px;min-height:44px;display:flex;align-items:center}.section p,.inner-page p{font-size:15px}.inner-page .row.compact h3{font-size:14px}.drawing .cross-guide-hit{left:34%;top:12%;width:10%;height:20%}}
