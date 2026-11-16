@@ -173,18 +173,23 @@ function fitSkyToChurch(){
 }
 const skyResizeObserver=new ResizeObserver(()=>fitSkyToChurch());
 
+const crossGesture={count:0,last:-Infinity};
 function setupInteractions(){
  const drawing=document.querySelector('.drawing');if(!drawing||drawing.dataset.interactions)return;drawing.dataset.interactions='ready';skyResizeObserver.disconnect();skyResizeObserver.observe(drawing);skyResizeObserver.observe(document.querySelector('.homehero'));fitSkyToChurch();
  const heading=document.querySelector('.homehero h1');
  const entryButton=document.querySelector('.entry-button');
  const setLights=(on)=>{doorLightsOn=on;drawing.classList.toggle('lights-on',on)};
  const toggleLights=()=>{if(!nightMode&&doorOpened)return;setLights(!doorLightsOn)};
- // Quiet Easter egg: three cross taps inside two seconds, then the Worship Guide.
- let crossCount=0,crossLast=0;
- drawing.querySelector('.cross-guide-hit')?.addEventListener('click',()=>{
-  const now=performance.now();crossCount=(now-crossLast<=2000)?crossCount+1:1;crossLast=now;
-  if(crossCount===3){crossCount=0;navigateToPage('worship')}
+ // Quiet Easter egg: count deliberate taps, allowing a little extra time on touchscreens.
+ const cross=drawing.querySelector('.cross-guide-hit');
+ cross?.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  const now=performance.now();
+  crossGesture.count=now-crossGesture.last<=2500?crossGesture.count+1:1;
+  crossGesture.last=now;
+  if(crossGesture.count>=3){crossGesture.count=0;navigateToPage('worship')}
  });
+ cross?.addEventListener('dblclick',event=>{event.preventDefault();event.stopPropagation()});
  drawing.querySelector('.main-door')?.addEventListener('click',toggleLights);
  drawing.querySelector('.second-door')?.addEventListener('click',toggleLights);
  drawing.querySelector('.nearby-window')?.addEventListener('click',toggleLights);
