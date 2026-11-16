@@ -13,10 +13,10 @@
     footer .pulf-credit-row{position:absolute;width:220px;height:86px;min-width:0;pointer-events:none}
     footer #pulf-credit button,footer #pulf-credit a{pointer-events:auto}
     footer #pulf-credit{position:relative;width:220px;height:86px;isolation:isolate;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
-    footer #pulf-credit canvas{position:absolute;inset:0;width:220px;height:86px;pointer-events:none;z-index:1}
-    footer #pulf-credit .pulf-hole{position:absolute;inset:0;width:220px;height:86px;pointer-events:none;overflow:visible;z-index:0}
+    footer #pulf-credit canvas{position:absolute;inset:0;width:240px;height:86px;pointer-events:none;z-index:1}
+    footer #pulf-credit .pulf-hole{position:absolute;inset:0;width:240px;height:86px;pointer-events:none;overflow:visible;z-index:0}
     footer #pulf-credit .pulf-hole path{fill:#171915;stroke:#171915;stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
-    body.night footer #pulf-credit .pulf-hole path{fill:#060709;stroke:#f5f3eb;stroke-width:.8}
+    body.night footer #pulf-credit .pulf-hole path{fill:#f5f3ed;stroke:#f5f3ed;stroke-width:.8}
     footer #pulf-credit .pulf-hole[hidden]{display:none}
     footer #pulf-credit button,footer #pulf-credit a{position:absolute;display:block;box-sizing:border-box;margin:0;padding:0;border:0;background:transparent;box-shadow:none;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;cursor:pointer}
     footer #pulf-credit .pulf-credit-hit{left:34px;top:36px;width:152px;height:44px;font:12px Arial,Helvetica,sans-serif;opacity:1}
@@ -30,7 +30,7 @@
   document.head.append(style);
   const row = document.createElement('div');
   row.className = 'pulf-credit-row';
-  row.innerHTML = '<div id="pulf-credit"><svg class="pulf-hole" viewBox="0 0 220 86" aria-hidden="true" hidden><path/></svg><canvas width="440" height="172" aria-hidden="true"></canvas><button type="button" class="pulf-credit-hit" aria-label="© one or too 2026. Double tap to meet Pulf.">© one or too 2026</button><a class="pulf-character-hit" href="https://oneortoo.com/" target="_blank" rel="noopener noreferrer" aria-label="Pulf. Tap to squish; double tap to visit one or too. Press Enter to visit." hidden></a></div>';
+  row.innerHTML = '<div id="pulf-credit"><svg class="pulf-hole" viewBox="0 0 240 86" aria-hidden="true" hidden><path/></svg><canvas width="440" height="172" aria-hidden="true"></canvas><button type="button" class="pulf-credit-hit" aria-label="© one or too. Double tap to meet Pulf.">© one or too</button><a class="pulf-character-hit" href="https://oneortoo.com/" target="_blank" rel="noopener noreferrer" aria-label="Pulf. Tap to squish; double tap to visit one or too. Press Enter to visit." hidden></a></div>';
   footer.append(row);
   const host = row.firstElementChild, canvas = host.querySelector('canvas');
   const credit = host.querySelector('button'), pulf = host.querySelector('a');
@@ -46,18 +46,14 @@
   let petX=0,petY=0,petTilt=0,runTimer=0,runFrame=0,scurrying=false;
   let blinkTimer = 0, visible = false, atlas = null, nightAtlas = null, loading = null, motion = 0;
   const poses = { rest: [40,140,460,285], squish: [525,715,470,185] };
-  const label = '© one or too 2026', baseline = 58, width = 72;
+  const label = '© one or too', baseline = 58, width = 72;
   ctx.font='12px Arial,Helvetica,sans-serif';
-  // Match the year to the measured height of the t in too, keeping one shared baseline.
-  const lowerHeight=ctx.measureText('t').actualBoundingBoxAscent||8;
-  const digitHeight=ctx.measureText('2026').actualBoundingBoxAscent||9;
-  const yearSize=12*lowerHeight/digitHeight;
-  const chars=Array.from(label),yearStart=chars.length-4;
-  const fonts=chars.map((_,i)=>(i>=yearStart?yearSize:12)+'px Arial,Helvetica,sans-serif');
-  const glyphWidths=chars.map((ch,i)=>{ctx.font=fonts[i];return ctx.measureText(ch).width});
+  const chars=Array.from(label),fonts=chars.map(()=>'12px Arial,Helvetica,sans-serif');
+  const glyphWidths=chars.map(ch=>ctx.measureText(ch).width);
+  const lower=ctx.measureText('o'),symbol=ctx.measureText('©');
+  const copyrightOffset=((lower.actualBoundingBoxDescent||0)-(lower.actualBoundingBoxAscent||7))/2
+    -((symbol.actualBoundingBoxDescent||0)-(symbol.actualBoundingBoxAscent||9))/2;
   const textWidth=glyphWidths.reduce((a,b)=>a+b,0),center=220-textWidth/2;
-  host.dataset.yearSize=yearSize.toFixed(3);
-  host.dataset.lowercaseHeight=String(lowerHeight);
   credit.style.left=(220-textWidth-12)+'px';credit.style.width=(textWidth+12)+'px';
   pulf.style.left=(center-40)+'px';
   function position(){
@@ -143,32 +139,32 @@
     const points=[];let length=0,prev;
     for(let i=0;i<=300;i++){const x=(i/300*2-1)*half,y=-arch*(1-x*x/(half*half));if(prev)length+=Math.hypot(x-prev.x,y-prev.y);points.push({x,y,d:length});prev={x,y}}
     let advance=0;
-    chars.forEach((ch,i)=>{const target=(length-total)/2+advance+widths[i]/2;let j=1;while(j<300&&points[j].d<target)j++;const a=points[j-1],b=points[j],t=(target-a.d)/(b.d-a.d);ctx.save();ctx.translate(center+dx+a.x+(b.x-a.x)*t,baseline+dy+a.y+(b.y-a.y)*t);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));ctx.font=fonts[i];ctx.fillText(ch,-widths[i]/2,0);ctx.restore();advance+=widths[i]});
+    chars.forEach((ch,i)=>{const target=(length-total)/2+advance+widths[i]/2;let j=1;while(j<300&&points[j].d<target)j++;const a=points[j-1],b=points[j],t=(target-a.d)/(b.d-a.d);ctx.save();ctx.translate(center+dx+a.x+(b.x-a.x)*t,baseline+dy+a.y+(b.y-a.y)*t);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));ctx.font=fonts[i];ctx.fillText(ch,-widths[i]/2,i===0?copyrightOffset:0);ctx.restore();advance+=widths[i]});
     ctx.globalAlpha=1;
   }
   // A single, constant-size form travels through the surface; only eye pixels vary.
   function diveFrame(ms,startX,direction,height){
-    const clamp=t=>Math.max(0,Math.min(1,t));
-    const smooth=t=>{const p=clamp(t);return p*p*(3-2*p)};
-    const floor=83,holeX=Math.max(36,Math.min(184,startX+direction*18));
+    const smooth=t=>{const p=Math.max(0,Math.min(1,t));return p*p*(3-2*p)};
+    const floor=83,targetX=Math.max(64,Math.min(204,startX+direction*28));
     const initialY=floor-height/2;
     let x=startX,y=initialY,angle=0;
-    if(ms<=150){const p=smooth(ms/150);angle=direction*.20*p;x+=direction*2*p}
-    else if(ms<=550){
-      const p=clamp((ms-150)/400),q=1-p;
-      x=startX+direction*2+(holeX-startX-direction*2)*smooth(p);
-      y=q*q*q*initialY+3*q*q*p*(initialY-28)+3*q*p*p*(floor+6)+p*p*p*(floor+height/2-6);
-      angle=direction*(.20+(Math.PI-.20)*smooth(p));
-    }else{const p=smooth((ms-550)/200);x=holeX;y=floor+height/2-6+9*p;angle=direction*Math.PI}
-    const opening=smooth(ms/150),closing=smooth((ms-940)/100);
-    const rx=(34-31*closing)*opening,ry=2.4*(1-closing)*opening;
-    const alpha=ms<1140?opening:1-smooth((ms-1140)/100);
-    const phase=ms<150?'standing':ms<300?'lean':ms<550?'dive':ms<750?'feet':ms<940?'hole':ms<1040?'close':ms<1140?'line':'erase';
-    return {x,y,angle,floor,holeX,rx,ry,alpha,phase,bodyVisible:ms<750};
+    if(ms<180){const p=smooth(ms/180);x+=direction*3*p;y+=2*p;angle=direction*.16*p}
+    else if(ms<540){
+      const p=smooth((ms-180)/360);
+      x=startX+direction*3+(targetX-startX-direction*3)*p;
+      y=initialY+2+(floor+width/2-9-initialY-2)*p;
+      angle=direction*(.16+(Math.PI/2-.16)*p);
+    }else{const p=smooth((ms-540)/210);x=targetX;y=floor+width/2-9+12*p;angle=direction*Math.PI/2}
+    const opening=smooth((ms-30)/210),closing=smooth((ms-940)/100);
+    const rx=(36-33*closing)*opening,ry=3.4*(1-closing)*opening;
+    const alpha=ms<1140?1:1-smooth((ms-1140)/100);
+    const phase=ms<60?'standing':ms<180?'lean':ms<540?'dive':ms<750?'last-glimpse':ms<940?'hole':ms<1040?'close':ms<1140?'line':'erase';
+    // Extend the entrance beneath his trailing edge; mirror it when he faces left.
+    return {x,y,angle,floor,holeX:targetX-direction*12,rx,ry,alpha,phase,bodyVisible:ms<750};
   }
   function paintHole(frame){
-    if(!frame){hole.hidden=true;return}
-    hole.hidden=false;hole.style.opacity=String(frame.alpha);
+    if(!frame){hole.setAttribute('hidden','');return}
+    hole.removeAttribute('hidden');hole.style.opacity=String(frame.alpha);
     const {rx,ry,holeX:x,floor:y}=frame;
     // Slightly asymmetric ink contour; it becomes the same quiet 6px mark at closure.
     holePath.setAttribute('d',ry>.025
@@ -178,7 +174,7 @@
   }
   function character(now) {
     if(!shown||!atlas)return;
-    const pose=dive?(dive.elapsed<80?'rest':'lookDown'):bigEyes?'bigEyes':now<squishUntil?'squish':now<blinkUntil?'blink':'rest';
+    const pose=dive?(dive.elapsed<60?'rest':dive.elapsed<180?'lookDown':'bigEyes'):bigEyes?'bigEyes':now<squishUntil?'squish':now<blinkUntil?'blink':'rest';
     const night=document.body.classList.contains('night');
     const tile=(night?nightAtlas:atlas)[pose],height=width*tile.height/tile.width;
     host.dataset.palette=night?'night':'day';
@@ -187,7 +183,7 @@
       const frame=dive.frame;
       if(frame.bodyVisible){
         // The surface is a clipping plane aligned exactly with the separate oval opening.
-        ctx.beginPath();ctx.rect(0,0,220,frame.floor);ctx.clip();
+        ctx.beginPath();ctx.rect(0,0,240,frame.floor);ctx.clip();
         ctx.translate(frame.x,frame.y);ctx.rotate(frame.angle);ctx.scale(facing,1);
         ctx.drawImage(tile,-width/2,-height/2,width,height);
       }
@@ -207,8 +203,8 @@
 
   function draw(now=performance.now()) {
     const dpr=Math.min(devicePixelRatio||1,3);
-    if(canvas.width!==220*dpr||canvas.height!==86*dpr){canvas.width=220*dpr;canvas.height=86*dpr}
-    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,220,86);
+    if(canvas.width!==240*dpr||canvas.height!==86*dpr){canvas.width=240*dpr;canvas.height=86*dpr}
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,240,86);
     paintHole(dive?.frame);if(front===0)character(now);text();if(front>0)character(now);
     host.dataset.state=departing?'departing':revealing?'revealing':shown?'shown':'quiet';
   }
@@ -220,7 +216,7 @@
   function finishHide(){
     cancelAnimationFrame(motion);clearTimeout(idleTimer);clearTimeout(blinkTimer);
     dive=null;shown=departing=bigEyes=false;petX=petY=petTilt=0;rise=front=arch=0;opacity=1;
-    pulf.hidden=true;hole.hidden=true;credit.disabled=false;lastCredit=lastPulf=0;
+    pulf.hidden=true;hole.setAttribute('hidden','');credit.disabled=false;lastCredit=lastPulf=0;
     delete host.dataset.divePhase;delete host.dataset.diveTime;host.dataset.motion='rest';draw();
   }
   function busy(now=performance.now()){
