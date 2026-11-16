@@ -37,11 +37,20 @@
   let creditTimer = 0, lastCredit = 0, lastPulf = 0, squishUntil = 0, blinkUntil = 0;
   let idleTimer=0, departing=false, bigEyes=false, opacity=1, facing=1;
   let petX=0,petY=0,petTilt=0,runTimer=0,runFrame=0,scurrying=false;
-  let blinkTimer = 0, visible = false, atlas = null, loading = null, motion = 0;
+  let blinkTimer = 0, visible = false, atlas = null, nightAtlas = null, loading = null, motion = 0;
   const poses = { rest: [40,140,460,285], squish: [525,715,470,185] };
   const label = '© one or too 2026', baseline = 58, width = 72;
   ctx.font='12px Arial,Helvetica,sans-serif';
-  const textWidth=ctx.measureText(label).width, center=220-textWidth/2;
+  // Match the year to the measured lowercase x-height, keeping one shared baseline.
+  const lowerHeight=ctx.measureText('o').actualBoundingBoxAscent||6.5;
+  const digitHeight=ctx.measureText('2026').actualBoundingBoxAscent||9;
+  const yearSize=12*lowerHeight/digitHeight;
+  const chars=Array.from(label),yearStart=chars.length-4;
+  const fonts=chars.map((_,i)=>(i>=yearStart?yearSize:12)+'px Arial,Helvetica,sans-serif');
+  const glyphWidths=chars.map((ch,i)=>{ctx.font=fonts[i];return ctx.measureText(ch).width});
+  const textWidth=glyphWidths.reduce((a,b)=>a+b,0),center=220-textWidth/2;
+  host.dataset.yearSize=yearSize.toFixed(3);
+  host.dataset.lowercaseHeight=String(lowerHeight);
   credit.style.left=(220-textWidth-12)+'px';credit.style.width=(textWidth+12)+'px';
   pulf.style.left=(center-40)+'px';
   function position(){
@@ -70,6 +79,10 @@
       data[i+3]=edge?Math.round(Math.max(0,Math.min(255,(sum/total-35)*255/185))):alpha[p];
       if(edge)data[i]=data[i+1]=data[i+2]=0;
     }
+  }
+  function invertRGBA(data){
+    // Invert the artwork only; preserve every alpha value and all cutout edges.
+    for(let i=0;i<data.length;i+=4){data[i]=255-data[i];data[i+1]=255-data[i+1];data[i+2]=255-data[i+2]}
   }
   function loadArtwork() {
     if (loading) return loading;
@@ -100,6 +113,14 @@
             });
             atlas[state]=tile;
           }
+          // Each expression gets a matching white-body night frame with identical transparency.
+          nightAtlas={};
+          for(const [pose,day] of Object.entries(atlas)){
+            const tile=document.createElement('canvas');tile.width=day.width;tile.height=day.height;
+            const g=tile.getContext('2d',{willReadFrequently:true});g.drawImage(day,0,0);
+            const pixels=g.getImageData(0,0,tile.width,tile.height);invertRGBA(pixels.data);
+            g.putImageData(pixels,0,0);nightAtlas[pose]=tile;
+          }
           resolve();
         } catch(error){atlas=null;reject(error)}
       };
@@ -110,17 +131,19 @@
   }
   function text() {
     ctx.font='12px Arial,Helvetica,sans-serif';ctx.fillStyle=getComputedStyle(host).color;ctx.globalAlpha=.74;
-    const chars=Array.from(label), widths=chars.map(ch=>ctx.measureText(ch).width),total=widths.reduce((a,b)=>a+b,0),half=total/2;
+    const widths=glyphWidths,total=textWidth,half=total/2;
     const points=[];let length=0,prev;
     for(let i=0;i<=300;i++){const x=(i/300*2-1)*half,y=-arch*(1-x*x/(half*half));if(prev)length+=Math.hypot(x-prev.x,y-prev.y);points.push({x,y,d:length});prev={x,y}}
     let advance=0;
-    chars.forEach((ch,i)=>{const target=(length-total)/2+advance+widths[i]/2;let j=1;while(j<300&&points[j].d<target)j++;const a=points[j-1],b=points[j],t=(target-a.d)/(b.d-a.d);ctx.save();ctx.translate(center+dx+a.x+(b.x-a.x)*t,baseline+dy+a.y+(b.y-a.y)*t);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));ctx.fillText(ch,-widths[i]/2,0);ctx.restore();advance+=widths[i]});
+    chars.forEach((ch,i)=>{const target=(length-total)/2+advance+widths[i]/2;let j=1;while(j<300&&points[j].d<target)j++;const a=points[j-1],b=points[j],t=(target-a.d)/(b.d-a.d);ctx.save();ctx.translate(center+dx+a.x+(b.x-a.x)*t,baseline+dy+a.y+(b.y-a.y)*t);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));ctx.font=fonts[i];ctx.fillText(ch,-widths[i]/2,0);ctx.restore();advance+=widths[i]});
     ctx.globalAlpha=1;
   }
   function character(now) {
     if(!shown||!atlas)return;
     const pose=bigEyes?'bigEyes':now<squishUntil?'squish':now<blinkUntil?'blink':'rest';
-    const tile=atlas[pose],height=width*tile.height/tile.width;
+    const night=document.body.classList.contains('night');
+    const tile=(night?nightAtlas:atlas)[pose],height=width*tile.height/tile.width;
+    host.dataset.palette=night?'night':'day';
     // All poses use the same width; the squish frame alone has its original flattened anatomy.
     const bottom=baseline+25+(1-rise)*40;
     ctx.save();ctx.globalAlpha=opacity;ctx.translate(center+petX,bottom+petY);ctx.rotate(petTilt);
