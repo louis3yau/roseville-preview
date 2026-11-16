@@ -107,6 +107,8 @@ body.night footer .footer-mark{filter:none}
 body.night .dialog-actions button,body.night .staff-page select,body.night .staff-page textarea{color:var(--ink);background:#101824}
 @media(prefers-reduced-motion:reduce){.night-sky .star.launching{animation-duration:.01ms}.night-sky .star.launching:before{animation:none}}
 
+/* The hero address stays linked without a drawn underline, in both palettes. */
+.homehero .hero-bottom .map-address{border-bottom:0;text-decoration:none}
 /* Refinements to the sign and small-screen reading rhythm */
 .map-address{border-bottom-color:color-mix(in srgb,var(--olive) 38%,transparent);border-bottom-width:1px;padding-bottom:1px}
 .section h2,.row h3,.detail-grid h3,.photoband h2{font-family:Georgia,'Times New Roman',serif;letter-spacing:-.035em}
@@ -444,11 +446,11 @@ body.night .calendar-day .cares-description{color:inherit}
 .event-description{display:block;color:#697589;font-size:13px;line-height:1.6;margin-top:3px}body.night .event-description{color:#aeb8c5}
 .skip-to-content{position:absolute;z-index:1000;left:16px;top:-100px;background:var(--paper);color:var(--ink);border:2px solid var(--olive);padding:10px 15px;font-size:14px}
 .skip-to-content:focus{top:12px}
-.drawing .cross-guide-hit{left:34%;top:12%;width:9%;height:20%;z-index:7;min-width:28px;min-height:34px}
+.drawing .cross-guide-hit{left:43%;top:21%;transform:translate(-50%,-50%);width:10%;height:16%;z-index:7;min-width:44px;min-height:44px}
 .inner-page .row.compact h3{font-size:14px}
 .inner-page .row.compact p,.section .row p{font-size:clamp(14px,1.1vw,15px)}
 .parent-link,.section .textlink{min-height:32px}
-@media(max-width:700px){nav a{font-size:14px;min-height:44px;display:flex;align-items:center}.section p,.inner-page p{font-size:15px}.inner-page .row.compact h3{font-size:14px}.drawing .cross-guide-hit{left:34%;top:12%;width:10%;height:20%}}
+@media(max-width:700px){nav a{font-size:14px;min-height:44px;display:flex;align-items:center}.section p,.inner-page p{font-size:15px}.inner-page .row.compact h3{font-size:14px}.drawing .cross-guide-hit{left:43%;top:21%;width:10%;height:16%}}
 /* Archived worship guides share Roseville Cares' expandable rows and outlined PDF buttons. */
 /* The current Worship Guide mirrors the navy-highlighted current month in Roseville Cares. */
 .inner-page .guide-archive-list .guide-day.is-current-guide{background:var(--olive);color:var(--paper);margin-left:-15px;margin-right:-15px;padding:24px 15px;border:0}
@@ -932,18 +934,23 @@ function fitSkyToChurch(){
 }
 const skyResizeObserver=new ResizeObserver(()=>fitSkyToChurch());
 
+const crossGesture={count:0,last:-Infinity};
 function setupInteractions(){
  const drawing=document.querySelector('.drawing');if(!drawing||drawing.dataset.interactions)return;drawing.dataset.interactions='ready';skyResizeObserver.disconnect();skyResizeObserver.observe(drawing);skyResizeObserver.observe(document.querySelector('.homehero'));fitSkyToChurch();
  const heading=document.querySelector('.homehero h1');
  const entryButton=document.querySelector('.entry-button');
  const setLights=(on)=>{doorLightsOn=on;drawing.classList.toggle('lights-on',on)};
  const toggleLights=()=>{if(!nightMode&&doorOpened)return;setLights(!doorLightsOn)};
- // Quiet Easter egg: three cross taps inside two seconds, then the Worship Guide.
- let crossCount=0,crossLast=0;
- drawing.querySelector('.cross-guide-hit')?.addEventListener('click',()=>{
-  const now=performance.now();crossCount=(now-crossLast<=2000)?crossCount+1:1;crossLast=now;
-  if(crossCount===3){crossCount=0;navigateToPage('worship')}
+ // Quiet Easter egg: count deliberate taps, allowing a little extra time on touchscreens.
+ const cross=drawing.querySelector('.cross-guide-hit');
+ cross?.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  const now=performance.now();
+  crossGesture.count=now-crossGesture.last<=2500?crossGesture.count+1:1;
+  crossGesture.last=now;
+  if(crossGesture.count>=3){crossGesture.count=0;navigateToPage('worship')}
  });
+ cross?.addEventListener('dblclick',event=>{event.preventDefault();event.stopPropagation()});
  drawing.querySelector('.main-door')?.addEventListener('click',toggleLights);
  drawing.querySelector('.second-door')?.addEventListener('click',toggleLights);
  drawing.querySelector('.nearby-window')?.addEventListener('click',toggleLights);
