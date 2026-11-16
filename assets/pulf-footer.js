@@ -8,7 +8,10 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const style = document.createElement('style');
   style.textContent = `
-    footer .pulf-credit-row{grid-column:1/-1;justify-self:end;align-self:end;margin-top:0;min-width:0}
+    footer{position:relative}
+    footer .footer-socials{margin-top:37px}
+    footer .pulf-credit-row{position:absolute;width:220px;height:86px;min-width:0;pointer-events:none}
+    footer #pulf-credit button,footer #pulf-credit a{pointer-events:auto}
     footer #pulf-credit{position:relative;width:220px;height:86px;isolation:isolate;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
     footer #pulf-credit canvas{position:absolute;inset:0;width:220px;height:86px;pointer-events:none}
     footer #pulf-credit button,footer #pulf-credit a{position:absolute;display:block;box-sizing:border-box;margin:0;padding:0;border:0;background:transparent;box-shadow:none;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;cursor:pointer}
@@ -18,12 +21,12 @@
     footer #pulf-credit .pulf-character-hit[hidden]{display:none}
     footer #pulf-credit button:focus-visible,footer #pulf-credit a:focus-visible{outline:2px solid var(--olive);outline-offset:3px;border-radius:2px}
     footer #pulf-credit .pulf-credit-hit:focus-visible{outline-offset:-3px}
-    @media(max-width:700px){footer .pulf-credit-row{grid-column:1/-1;grid-row:3;margin-top:0}}
+    
   `;
   document.head.append(style);
   const row = document.createElement('div');
   row.className = 'pulf-credit-row';
-  row.innerHTML = '<div id="pulf-credit"><canvas width="440" height="172" aria-hidden="true"></canvas><button type="button" class="pulf-credit-hit" aria-label="© one or too 2026. Double tap to meet Pulf.">© one or too 2026</button><a class="pulf-character-hit" href="https://oneortoo.com/" aria-label="Pulf. Tap to squish; double tap to visit one or too. Press Enter to visit." hidden></a></div>';
+  row.innerHTML = '<div id="pulf-credit"><canvas width="440" height="172" aria-hidden="true"></canvas><button type="button" class="pulf-credit-hit" aria-label="© one or too 2026. Double tap to meet Pulf.">© one or too 2026</button><a class="pulf-character-hit" href="https://oneortoo.com/" target="_blank" rel="noopener noreferrer" aria-label="Pulf. Tap to squish; double tap to visit one or too. Press Enter to visit." hidden></a></div>';
   footer.append(row);
   const host = row.firstElementChild, canvas = host.querySelector('canvas');
   const credit = host.querySelector('button'), pulf = host.querySelector('a');
@@ -32,9 +35,23 @@
   host.classList.add('ready');
   let dx = 0, dy = 0, shown = false, revealing = false, front = 0, arch = 0, rise = 0;
   let creditTimer = 0, lastCredit = 0, lastPulf = 0, squishUntil = 0, blinkUntil = 0;
+  let idleTimer=0, departing=false, bigEyes=false, opacity=1, facing=1;
   let blinkTimer = 0, visible = false, atlas = null, loading = null, motion = 0;
-  const poses = { rest: [40,140,460,285], blink: [40,610,465,290], squish: [525,715,470,185] };
+  const poses = { rest: [40,140,460,285], blink: [40,610,465,290], squish: [525,715,470,185], bigEyes: [550,120,410,325] };
   const label = '© one or too 2026', baseline = 58, width = 72;
+  ctx.font='12px Arial,Helvetica,sans-serif';
+  const textWidth=ctx.measureText(label).width, center=220-textWidth/2;
+  credit.style.left=(220-textWidth-12)+'px';credit.style.width=(textWidth+12)+'px';
+  pulf.style.left=(center-40)+'px';
+  function position(){
+    const bounds=footer.getBoundingClientRect(), mission=footer.querySelector('.mission')?.getBoundingClientRect(),social=footer.querySelector('.footer-socials')?.getBoundingClientRect();
+    if(!mission||!social)return;
+    row.style.left=(mission.right-bounds.left-220)+'px';
+    row.style.top=(social.top+social.height/2+4-bounds.top-baseline)+'px';
+  }
+  const layoutObserver=new ResizeObserver(position);layoutObserver.observe(footer);
+  for(const el of footer.querySelectorAll('.mission,.footer-socials,.footer-contact-col'))layoutObserver.observe(el);
+  window.addEventListener('resize',position);position();
   const ease = t => 1 - (1 - Math.max(0, Math.min(1, t))) ** 3;
 
   // This is the original site's perimeter-paper cutout, preserving enclosed white ears and face.
@@ -79,16 +96,20 @@
     const points=[];let length=0,prev;
     for(let i=0;i<=300;i++){const x=(i/300*2-1)*half,y=-arch*(1-x*x/(half*half));if(prev)length+=Math.hypot(x-prev.x,y-prev.y);points.push({x,y,d:length});prev={x,y}}
     let advance=0;
-    chars.forEach((ch,i)=>{const target=(length-total)/2+advance+widths[i]/2;let j=1;while(j<300&&points[j].d<target)j++;const a=points[j-1],b=points[j],t=(target-a.d)/(b.d-a.d);ctx.save();ctx.translate(110+dx+a.x+(b.x-a.x)*t,baseline+dy+a.y+(b.y-a.y)*t);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));ctx.fillText(ch,-widths[i]/2,0);ctx.restore();advance+=widths[i]});
+    chars.forEach((ch,i)=>{const target=(length-total)/2+advance+widths[i]/2;let j=1;while(j<300&&points[j].d<target)j++;const a=points[j-1],b=points[j],t=(target-a.d)/(b.d-a.d);ctx.save();ctx.translate(center+dx+a.x+(b.x-a.x)*t,baseline+dy+a.y+(b.y-a.y)*t);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));ctx.fillText(ch,-widths[i]/2,0);ctx.restore();advance+=widths[i]});
     ctx.globalAlpha=1;
   }
   function character(now) {
     if(!shown||!atlas)return;
-    const pose=now<squishUntil?'squish':now<blinkUntil?'blink':'rest';
+    const pose=bigEyes?'bigEyes':now<squishUntil?'squish':now<blinkUntil?'blink':'rest';
     const tile=atlas[pose],height=width*tile.height/tile.width;
     // All poses use the same width; the squish frame alone has its original flattened anatomy.
     const bottom=baseline+25+(1-rise)*40;
-    ctx.drawImage(tile,110-width/2,bottom-height,width,height);
+    ctx.save();ctx.globalAlpha=opacity;ctx.translate(center,bottom);
+    // The landing master faces opposite to resting/blink; mirror it to preserve Pulf's facing.
+    const sourceFacing=pose==='squish'?-1:1;ctx.scale(facing*sourceFacing,1);
+    ctx.drawImage(tile,-width/2,-height,width,height);ctx.restore();
+    host.dataset.facing=String(facing);
     host.dataset.pose=pose;
   }
   function draw(now=performance.now()) {
@@ -96,18 +117,33 @@
     if(canvas.width!==220*dpr||canvas.height!==86*dpr){canvas.width=220*dpr;canvas.height=86*dpr}
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,220,86);
     if(front===0)character(now);text();if(front>0)character(now);
-    host.dataset.state=revealing?'revealing':shown?'shown':'quiet';
+    host.dataset.state=departing?'departing':revealing?'revealing':shown?'shown':'quiet';
   }
   function planBlink() {
     clearTimeout(blinkTimer);
-    if(!shown||!visible||document.hidden)return;
+    if(!shown||departing||!visible||document.hidden)return;
     blinkTimer=setTimeout(()=>{if(performance.now()>=squishUntil){blinkUntil=performance.now()+145;draw();setTimeout(()=>draw(),155)}planBlink()},3200+Math.random()*2600);
+  }
+  function scheduleIdle(){
+    clearTimeout(idleTimer);
+    if(!shown||revealing||departing||document.hidden)return;
+    idleTimer=setTimeout(()=>{
+      departing=true;bigEyes=true;blinkUntil=squishUntil=0;clearTimeout(blinkTimer);pulf.hidden=true;draw();
+      idleTimer=setTimeout(()=>{
+        const start=performance.now();
+        function tick(now){const p=reduced?1:ease((now-start)/500);rise=1-p;opacity=1-p;draw(now);
+          if(p<1)motion=requestAnimationFrame(tick);
+          else{shown=departing=bigEyes=false;rise=front=arch=0;opacity=1;credit.disabled=false;lastCredit=lastPulf=0;draw()}
+        }
+        motion=requestAnimationFrame(tick);
+      },700);
+    },12000);
   }
   async function reveal() {
     clearTimeout(creditTimer);if(shown||revealing)return;
     revealing=true;
     try {await loadArtwork()}catch{revealing=false;return}
-    dx=dy=0;credit.style.transform='';credit.disabled=true;shown=true;
+    departing=bigEyes=false;opacity=1;dx=dy=0;credit.style.transform='';credit.disabled=true;shown=true;
     const started=performance.now();
     function tick(now){const elapsed=reduced?1500:now-started;
       if(elapsed<650){const p=ease(elapsed/650);rise=p;arch=28*p;front=0}
@@ -115,15 +151,15 @@
       else{const p=ease((elapsed-950)/500);rise=1;front=p;arch=28*(1-p)}
       draw(now);
       if(elapsed<1450)motion=requestAnimationFrame(tick);
-      else{revealing=false;rise=front=1;arch=0;pulf.hidden=false;draw();planBlink()}
+      else{revealing=false;rise=front=1;arch=0;pulf.hidden=false;draw();planBlink();scheduleIdle()}
     }
     motion=requestAnimationFrame(tick);
   }
   function dodge(event) {
     const r=host.getBoundingClientRect(),px=event.clientX-r.left,py=event.clientY-r.top;
-    const a=Math.atan2(baseline+dy-py,110+dx-px)+(Math.random()-.5)*1.6;
+    const a=Math.atan2(baseline+dy-py,center+dx-px)+(Math.random()-.5)*1.6;
     const oldX=dx,oldY=dy;
-    const nx=Math.max(-32,Math.min(32,dx+Math.cos(a)*(25+Math.random()*18))),ny=Math.max(-8,Math.min(8,dy+Math.sin(a)*15));
+    const nx=Math.max(-32,Math.min(0,dx+Math.cos(a)*(25+Math.random()*18))),ny=Math.max(-8,Math.min(8,dy+Math.sin(a)*15));
     const start=performance.now();
     function tick(now){const p=reduced?1:ease((now-start)/240);dx=oldX+(nx-oldX)*p;dy=oldY+(ny-oldY)*p;credit.style.transform=`translate(${dx}px,${dy}px)`;draw();if(p<1)motion=requestAnimationFrame(tick)}
     cancelAnimationFrame(motion);motion=requestAnimationFrame(tick);
@@ -140,12 +176,14 @@
     if(event.detail===0)return; // Keyboard and assistive-technology activation follows the real link.
     if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
     event.preventDefault();const now=performance.now();
-    if(lastPulf&&now-lastPulf<380){lastPulf=0;location.assign(destination);return}
-    lastPulf=now;squishUntil=now+420;blinkUntil=0;draw(now);setTimeout(()=>draw(),430);
+    if(lastPulf&&now-lastPulf<380){lastPulf=0;window.open(destination,'_blank','noopener,noreferrer');scheduleIdle();return}
+    scheduleIdle();lastPulf=now;squishUntil=now+420;blinkUntil=0;draw(now);setTimeout(()=>draw(),430);
   });
   pulf.addEventListener('dblclick',event=>event.preventDefault());
-  document.addEventListener('visibilitychange',planBlink);
+  pulf.addEventListener('pointermove',scheduleIdle);
+  pulf.addEventListener('focus',scheduleIdle);
+  document.addEventListener('visibilitychange',()=>{planBlink();if(document.hidden)clearTimeout(idleTimer);else scheduleIdle()});
   new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;planBlink()}).observe(host);
-  new MutationObserver(()=>draw()).observe(document.body,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(()=>{draw();position()}).observe(document.body,{attributes:true,attributeFilter:['class']});
   draw();
 })();
