@@ -36,8 +36,9 @@
   let dx = 0, dy = 0, shown = false, revealing = false, front = 0, arch = 0, rise = 0;
   let creditTimer = 0, lastCredit = 0, lastPulf = 0, squishUntil = 0, blinkUntil = 0;
   let idleTimer=0, departing=false, bigEyes=false, opacity=1, facing=1;
+  let petX=0,petY=0,petTilt=0,runTimer=0,runFrame=0,scurrying=false;
   let blinkTimer = 0, visible = false, atlas = null, loading = null, motion = 0;
-  const poses = { rest: [40,140,460,285], blink: [40,610,465,290], squish: [525,715,470,185], bigEyes: [550,120,410,325] };
+  const poses = { rest: [40,140,460,285], squish: [525,715,470,185] };
   const label = '© one or too 2026', baseline = 58, width = 72;
   ctx.font='12px Arial,Helvetica,sans-serif';
   const textWidth=ctx.measureText(label).width, center=220-textWidth/2;
@@ -82,6 +83,23 @@
             const t=tile.getContext('2d',{willReadFrequently:true});t.drawImage(img,x,y,w,h,0,0,w,h);
             const pixels=t.getImageData(0,0,w,h);cutout(pixels.data,w,h);t.putImageData(pixels,0,0);atlas[pose]=tile;
           }
+          // Build both eye states from the SAME resting pixels. Body, mouth, ears and feet do not change.
+          const rest=atlas.rest;
+          for(const state of ['blink','bigEyes']){
+            const tile=document.createElement('canvas');tile.width=rest.width;tile.height=rest.height;
+            const g=tile.getContext('2d');g.drawImage(rest,0,0);
+            [243,327].forEach((x,i)=>{
+              const y=85;g.save();g.beginPath();g.arc(x,y,26,0,Math.PI*2);g.clip();
+              // Replace only the eye with neighbouring original ink texture, preserving the silhouette.
+              g.drawImage(rest,x-26,y+45,52,52,x-26,y-26,52,52);g.restore();
+              g.strokeStyle='#fff';g.lineWidth=state==='blink'?4.2:4;g.lineCap='round';
+              g.beginPath();
+              if(state==='blink'){g.moveTo(x-14,y+1);g.quadraticCurveTo(x,y+2,x+14,y)}
+              else g.ellipse(x,y,i?18:19,i?19:18,i?.08:-.08,0,Math.PI*2);
+              g.stroke();
+            });
+            atlas[state]=tile;
+          }
           resolve();
         } catch(error){atlas=null;reject(error)}
       };
@@ -105,11 +123,12 @@
     const tile=atlas[pose],height=width*tile.height/tile.width;
     // All poses use the same width; the squish frame alone has its original flattened anatomy.
     const bottom=baseline+25+(1-rise)*40;
-    ctx.save();ctx.globalAlpha=opacity;ctx.translate(center,bottom);
+    ctx.save();ctx.globalAlpha=opacity;ctx.translate(center+petX,bottom+petY);ctx.rotate(petTilt);
     // The landing master faces opposite to resting/blink; mirror it to preserve Pulf's facing.
     const sourceFacing=pose==='squish'?-1:1;ctx.scale(facing*sourceFacing,1);
     ctx.drawImage(tile,-width/2,-height,width,height);ctx.restore();
-    host.dataset.facing=String(facing);
+    pulf.style.left=(center+petX-40)+'px';pulf.style.top=(35+petY)+'px';
+    host.dataset.facing=String(facing);host.dataset.motion=scurrying?'scurry':'rest';
     host.dataset.pose=pose;
   }
   function draw(now=performance.now()) {
@@ -121,19 +140,19 @@
   }
   function planBlink() {
     clearTimeout(blinkTimer);
-    if(!shown||departing||!visible||document.hidden)return;
+    if(!shown||departing||scurrying||!visible||document.hidden)return;
     blinkTimer=setTimeout(()=>{if(performance.now()>=squishUntil){blinkUntil=performance.now()+145;draw();setTimeout(()=>draw(),155)}planBlink()},3200+Math.random()*2600);
   }
   function scheduleIdle(){
     clearTimeout(idleTimer);
     if(!shown||revealing||departing||document.hidden)return;
     idleTimer=setTimeout(()=>{
-      departing=true;bigEyes=true;blinkUntil=squishUntil=0;clearTimeout(blinkTimer);pulf.hidden=true;draw();
+      stopScurry();departing=true;bigEyes=true;blinkUntil=squishUntil=0;clearTimeout(blinkTimer);pulf.hidden=true;draw();
       idleTimer=setTimeout(()=>{
         const start=performance.now();
         function tick(now){const p=reduced?1:ease((now-start)/500);rise=1-p;opacity=1-p;draw(now);
           if(p<1)motion=requestAnimationFrame(tick);
-          else{shown=departing=bigEyes=false;rise=front=arch=0;opacity=1;credit.disabled=false;lastCredit=lastPulf=0;draw()}
+          else{shown=departing=bigEyes=false;petX=petY=petTilt=0;rise=front=arch=0;opacity=1;credit.disabled=false;lastCredit=lastPulf=0;draw()}
         }
         motion=requestAnimationFrame(tick);
       },700);
@@ -143,7 +162,7 @@
     clearTimeout(creditTimer);if(shown||revealing)return;
     revealing=true;
     try {await loadArtwork()}catch{revealing=false;return}
-    departing=bigEyes=false;opacity=1;dx=dy=0;credit.style.transform='';credit.disabled=true;shown=true;
+    stopScurry();petX=petY=petTilt=0;departing=bigEyes=false;opacity=1;dx=dy=0;credit.style.transform='';credit.disabled=true;shown=true;
     const started=performance.now();
     function tick(now){const elapsed=reduced?1500:now-started;
       if(elapsed<650){const p=ease(elapsed/650);rise=p;arch=28*p;front=0}
@@ -172,12 +191,48 @@
     else{lastCredit=now;clearTimeout(creditTimer);creditTimer=setTimeout(()=>dodge(event),360)}
   });
   credit.addEventListener('dblclick',event=>event.preventDefault());
+  function stopScurry(){
+    clearTimeout(runTimer);cancelAnimationFrame(runFrame);scurrying=false;petY=petTilt=0;
+  }
+  function scurry(clickX){
+    if(!shown||departing||revealing)return;
+    stopScurry();
+    const from=petX,actual=center+from;
+    // Pick a destination away from the touch, constrained to the existing footer canvas.
+    let direction=clickX>=actual?-1:1;
+    if(actual>160)direction=-1;else if(actual<62)direction=1;
+    const target=Math.max(40-center,Math.min(180-center,from+direction*(46+Math.random()*38)));
+    const distance=target-from;
+    if(reduced){petX=target;facing=distance<0?-1:1;draw();return}
+    scurrying=true;blinkUntil=0;clearTimeout(blinkTimer);
+    const start=performance.now();
+    function tick(now){
+      const elapsed=now-start;
+      if(elapsed<85){
+        // Tiny anticipation, then a quick series of short steps like the assistant's scurry.
+        petTilt=-direction*.035*Math.sin(elapsed/85*Math.PI);petY=0;
+      }else{
+        const p=Math.min(1,(elapsed-85)/620),travel=ease(p);facing=direction;
+        petX=from+distance*travel;
+        const envelope=Math.sin(Math.PI*p);
+        petY=-Math.abs(Math.sin(p*Math.PI*7))*2.2*envelope;
+        petTilt=direction*(.028+Math.sin(p*Math.PI*14)*.018)*envelope;
+      }
+      draw(now);
+      if(elapsed<705)runFrame=requestAnimationFrame(tick);
+      else{petX=target;petY=petTilt=0;scurrying=false;draw();planBlink();scheduleIdle()}
+    }
+    runFrame=requestAnimationFrame(tick);
+  }
   pulf.addEventListener('click',event=>{
     if(event.detail===0)return; // Keyboard and assistive-technology activation follows the real link.
     if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
     event.preventDefault();const now=performance.now();
-    if(lastPulf&&now-lastPulf<380){lastPulf=0;window.open(destination,'_blank','noopener,noreferrer');scheduleIdle();return}
-    scheduleIdle();lastPulf=now;squishUntil=now+420;blinkUntil=0;draw(now);setTimeout(()=>draw(),430);
+    if(lastPulf&&now-lastPulf<380){lastPulf=0;stopScurry();window.open(destination,'_blank','noopener,noreferrer');scheduleIdle();return}
+    stopScurry();scheduleIdle();lastPulf=now;squishUntil=now+260;blinkUntil=0;draw(now);setTimeout(()=>draw(),270);
+    const hitX=event.clientX-host.getBoundingClientRect().left;
+    // Keep him under the second tap until the double-tap window has passed.
+    runTimer=setTimeout(()=>scurry(hitX),430);
   });
   pulf.addEventListener('dblclick',event=>event.preventDefault());
   pulf.addEventListener('pointermove',scheduleIdle);
