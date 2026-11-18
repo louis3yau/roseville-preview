@@ -759,3 +759,13 @@ body.night{--tap-link:#a9bdd7}
 .homehero > div:nth-child(2){z-index:6;top:8px}
 .night-sky .star.near-heading{width:26px;height:26px}
 .night-sky .star.launching:after{animation:none;opacity:1;z-index:1}
+
+/* Three approved ink meadow patches around the announcement sign posts. */
+.sign-wildflowers{position:absolute;left:5%;top:calc(var(--sign-height) + 48px);width:90%;aspect-ratio:1840/405;z-index:4;color:#20231f;touch-action:manipulation;isolation:isolate}
+body.night .sign-wildflowers{color:#fff}
+.sign-wildflowers canvas{display:block;width:100%;height:100%;pointer-events:none}
+.sign-wildflower-targets{position:absolute;inset:0;display:flex}
+.sign-wildflower-targets button{flex:1;min-width:0;min-height:44px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;color:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:none}
+.sign-wildflower-targets button:hover,.sign-wildflower-targets button:active{background:transparent;box-shadow:none}
+.sign-wildflower-targets button:focus-visible{outline:1.5px solid currentColor;outline-offset:3px;border-radius:3px}
+.sign-wildflower-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
