@@ -168,6 +168,20 @@
     ctx.drawImage(m.work,0,y,m.width,sh,m.x+dx,m.y+y,m.width,sh);
    }
   });
+  // Recolour only pixels drawn directly over either sign post. Keep the
+  // remaining strokes in the normal ink colour against the page background.
+  const bounds=canvas.getBoundingClientRect();
+  if(bounds.width&&bounds.height){
+   ctx.save();ctx.globalCompositeOperation='source-atop';
+   ctx.fillStyle=isNight()?'#20231f':'#fff';
+   root.closest('.noticeboard')?.querySelectorAll('.sign-legs span').forEach(post=>{
+    const r=post.getBoundingClientRect();
+    ctx.fillRect((r.left-bounds.left)*scene.width/bounds.width,
+     (r.top-bounds.top)*scene.height/bounds.height,
+     r.width*scene.width/bounds.width,r.height*scene.height/bounds.height);
+   });
+   ctx.restore();
+  }
  }
  function tick(now){for(const [i,a] of active)if(now-a.start>=4200)active.delete(i);draw(now);for(const [i,a] of closing)if(now-a.start>=1900)closing.delete(i);frame=active.size||closing.size||[...blooms.values()].some(t=>now-t<2850)?requestAnimationFrame(tick):0;}
  root.querySelectorAll('button').forEach((button,i)=>button.addEventListener('click',e=>{

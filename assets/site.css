@@ -762,9 +762,9 @@ body.night{--tap-link:#a9bdd7}
 
 /* Three approved ink meadow patches around the announcement sign posts. */
 .noticeboard{background:var(--paper)}
-.sign-wildflowers{position:absolute;left:5%;top:calc(var(--sign-height) + 48px);width:90%;aspect-ratio:1840/405;z-index:4;color:#fff;touch-action:manipulation;isolation:auto}
+.sign-wildflowers{position:absolute;left:5%;top:calc(var(--sign-height) + 48px);width:90%;aspect-ratio:1840/405;z-index:4;color:#20231f;touch-action:manipulation;isolation:auto}
 body.night .sign-wildflowers{color:#fff}
-.sign-wildflowers canvas{mix-blend-mode:difference;display:block;width:100%;height:100%;pointer-events:none}
+.sign-wildflowers canvas{display:block;width:100%;height:100%;pointer-events:none}
 .sign-wildflower-targets{position:absolute;inset:0;display:flex}
 .sign-wildflower-targets button{flex:1;min-width:0;min-height:44px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;color:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:none}
 .sign-wildflower-targets button:hover,.sign-wildflower-targets button:active{background:transparent;box-shadow:none}
