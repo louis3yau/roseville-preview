@@ -8,12 +8,13 @@
  let destroyed=false;
  const canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d');
  const image=new Image(),reduced=matchMedia('(prefers-reduced-motion: reduce)');
- const active=new Map(),blooms=new Map(),clusters=[];let ready=false,frame=0;
+ const active=new Map(),blooms=new Map(),closing=new Map(),clusters=[];let lastNight=isNight();let ready=false,frame=0;
  const scene={x:190,y:275,width:1840,height:405};
  const specs=[
-  {box:[210,285,590,375],flower:{rect:[222,294,140,175],anchor:[344,398],axis:[-.79,-.61],stemSlope:1.22,stemWidth:4.5}},
-  {box:[875,350,510,310],flower:{rect:[1068,413,154,100],anchor:[1148,462],axis:[.51,-.86],stemSlope:-.60,stemWidth:3.2}},
-  {box:[1520,360,500,300],flower:{rect:[1562,370,154,123],anchor:[1661,468],axis:[-.40,-.92],stemSlope:.42,stemWidth:3.5}}
+  {flowerIndex:0,box:[210,285,590,375],flower:{rect:[222,294,140,175],anchor:[344,398],axis:[-.79,-.61],stemSlope:1.22,stemWidth:4.5}},
+  {flowerIndex:1,shiftX:-65,box:[875,350,510,310],flower:{rect:[1068,413,154,100],anchor:[1148,462],axis:[.51,-.86],stemSlope:-.60,stemWidth:3.2}},
+  {grassOnly:true,shiftX:220,box:[1125,520,260,140]},
+  {flowerIndex:2,box:[1520,360,500,300],flower:{rect:[1562,370,154,123],anchor:[1661,468],axis:[-.40,-.92],stemSlope:.42,stemWidth:3.5}}
  ];
  function makeCanvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
  function tint(source,color){const c=makeCanvas(source.width,source.height),x=c.getContext('2d');x.drawImage(source,0,0);x.globalCompositeOperation='source-in';x.fillStyle=color;x.fillRect(0,0,c.width,c.height);return c;}
@@ -143,6 +144,12 @@
   x.restore();
  }
 
+ function bloomProgress(i,now){
+  const close=closing.get(i);
+  if(close)return reduced.matches?0:close.from*(1-smooth((now-close.start)/1900));
+  const began=blooms.get(i);
+  return began===undefined?0:reduced.matches?1:clamp((now-began-120)/2600);
+ }
  function draw(now=performance.now()){
   if(!ready||destroyed||!root.isConnected)return;
   const color=getComputedStyle(root).color,scale=canvas.width/scene.width;
@@ -150,8 +157,8 @@
   clusters.forEach((m,i)=>{
    if(m.color!==color){m.baseTint=tint(m.base,color);m.color=color;}
    const x=m.work.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,m.width,m.height);x.drawImage(m.baseTint,0,0);
-   const began=isNight()?undefined:blooms.get(i),p=began===undefined?0:reduced.matches?1:Math.min(1,Math.max(0,(now-began-120)/2600)),ease=p*p*(3-2*p);
-   drawFlower(x,m,i,p,color);
+   const p=bloomProgress(i,now);
+   if(!m.grassOnly)drawFlower(x,m,m.flowerIndex,p,color);
    const activity=active.get(i),t=activity?(now-activity.start)/1000:0;let bend=0;
    if(activity&&t<4.2){const envelope=Math.pow(Math.min(1,t/.16),2)*Math.exp(-.88*t)*Math.pow(Math.max(0,1-t/4.2),1.1);bend=Math.sin(t*6.5)*envelope*activity.direction*(reduced.matches?.0005:.024)*scene.width;}
    if(Math.abs(bend)<.001){ctx.drawImage(m.work,m.x,m.y);return;}
@@ -162,10 +169,10 @@
    }
   });
  }
- function tick(now){for(const [i,a] of active)if(now-a.start>=4200)active.delete(i);draw(now);frame=active.size||[...blooms.values()].some(t=>now-t<2850)?requestAnimationFrame(tick):0;}
+ function tick(now){for(const [i,a] of active)if(now-a.start>=4200)active.delete(i);draw(now);for(const [i,a] of closing)if(now-a.start>=1900)closing.delete(i);frame=active.size||closing.size||[...blooms.values()].some(t=>now-t<2850)?requestAnimationFrame(tick):0;}
  root.querySelectorAll('button').forEach((button,i)=>button.addEventListener('click',e=>{
-  if(!ready||destroyed||!root.isConnected)return;const now=performance.now(),r=button.getBoundingClientRect();active.set(i,{start:now,direction:e.detail===0||e.clientX<r.left+r.width/2?1:-1});if(!isNight()&&!blooms.has(i))blooms.set(i,now);
-  e.stopPropagation();root.querySelector('[aria-live]').textContent=['Left','Middle','Right'][i]+(isNight()?' grass patch swaying':' grass patch swaying and flowering');if(!frame)frame=requestAnimationFrame(tick);
+  if(!ready||destroyed||!root.isConnected)return;const now=performance.now(),r=button.getBoundingClientRect();active.set(i,{start:now,direction:e.detail===0||e.clientX<r.left+r.width/2?1:-1});if(!isNight()&&!clusters[i]?.grassOnly&&!blooms.has(i))blooms.set(i,now);
+  e.stopPropagation();root.querySelector('[aria-live]').textContent=['Left','Middle left','Middle right','Right'][i]+(isNight()?' grass patch swaying':' grass patch swaying and flowering');if(!frame)frame=requestAnimationFrame(tick);
  }));
  image.onload=()=>{
   if(destroyed)return;
@@ -179,6 +186,9 @@
     if(pixels[j+3]>100)bottom=Math.max(bottom,y);
    }
    x.putImageData(data,0,0);
+   if(spec.grassOnly){
+    clusters.push({base,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x+(spec.shiftX||0),y:by-scene.y,root:bottom,grassOnly:true});return;
+   }
    const f=spec.flower,[fx,fy,fw,fh]=f.rect,hx=fx-bx,hy=fy-by,anchor=[f.anchor[0]-bx,f.anchor[1]-by];
    const head=makeCanvas(fw,fh),hc=head.getContext('2d',{willReadFrequently:true});hc.drawImage(base,hx,hy,fw,fh,0,0,fw,fh);
    const headData=hc.getImageData(0,0,fw,fh),hp=headData.data;
@@ -193,7 +203,7 @@
    }
    hc.putImageData(headData,0,0);x.putImageData(data,0,0);
    const magnitude=Math.hypot(...f.axis);
-   clusters.push({base,head,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x,y:by-scene.y,root:bottom,anchor,axis:f.axis.map(v=>v/magnitude),headX:hx,headY:hy});
+   clusters.push({base,head,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x+(spec.shiftX||0),y:by-scene.y,root:bottom,flowerIndex:spec.flowerIndex,anchor,axis:f.axis.map(v=>v/magnitude),headX:hx,headY:hy});
   });ready=true;draw();
  };
  const resizeObserver=new ResizeObserver(()=>{
@@ -205,6 +215,16 @@
  });
  resizeObserver.observe(canvas);
  const updateTheme=()=>{
+  const nextNight=isNight();
+  if(nextNight!==lastNight){
+   const now=performance.now();
+   const open=clusters.map((_,i)=>bloomProgress(i,now));
+   blooms.clear();closing.clear();
+   if(nextNight&&!reduced.matches)open.forEach((from,i)=>{if(from>0)closing.set(i,{from,start:now});});
+   lastNight=nextNight;
+   if(closing.size&&!frame)frame=requestAnimationFrame(tick);
+  }
+
   canvas.setAttribute('aria-label',isNight()?'White ink grasses and closed flower buds. Tap a patch to sway the grass.':'Ink grasses and flower buds. Tap a patch to sway the grass and open its flower.');
   draw();
  };

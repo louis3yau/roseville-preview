@@ -28,7 +28,8 @@ const noticeboard=`<section id="home-about" class="notice-section"><div class="n
   <canvas role="img" aria-label="Ink grasses and closed flower buds. Tap a patch to sway the grass."></canvas>
   <div class="sign-wildflower-targets" role="group" aria-label="Sway the grass by the sign">
    <button type="button" aria-label="Sway left grass patch"></button>
-   <button type="button" aria-label="Sway middle grass patch"></button>
+   <button type="button" aria-label="Sway middle left grass patch"></button>
+   <button type="button" aria-label="Sway middle right grass patch"></button>
    <button type="button" aria-label="Sway right grass patch"></button>
   </div>
   <span class="sign-wildflower-status" aria-live="polite"></span>
