@@ -8,7 +8,7 @@
  let destroyed=false;
  const canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d');
  const image=new Image(),reduced=matchMedia('(prefers-reduced-motion: reduce)');
- const active=new Map(),blooms=new Map(),closing=new Map(),clusters=[];let lastNight=isNight();let ready=false,frame=0;
+ const active=new Map(),blooms=new Map(),closing=new Map(),taps=new Map(),thresholds=new Map(),clusters=[];let lastNight=isNight();let ready=false,frame=0;
  const scene={x:190,y:275,width:1840,height:405};
  const specs=[
   {flowerIndex:0,box:[210,285,590,375],flower:{rect:[222,294,140,175],anchor:[344,398],axis:[-.79,-.61],stemSlope:1.22,stemWidth:4.5}},
@@ -161,6 +161,7 @@
    const x=m.work.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,m.width,m.height);x.drawImage(m.baseTint,0,0);
    const p=bloomProgress(i,now);
    if(!m.grassOnly)drawFlower(x,m,m.flowerIndex,p,color);
+   if(m.extraBud)drawFlower(x,m.extraBud,2,bloomProgress('0:bud',now),color);
    const activity=active.get(i),t=activity?(now-activity.start)/1000:0;let bend=0;
    if(activity&&t<4.2){const envelope=Math.pow(Math.min(1,t/.16),2)*Math.exp(-.88*t)*Math.pow(Math.max(0,1-t/4.2),1.1);bend=Math.sin(t*6.5)*envelope*activity.direction*(reduced.matches?.0005:.024)*scene.width;}
    if(Math.abs(bend)<.001){ctx.drawImage(m.work,m.x,m.y);return;}
@@ -187,8 +188,17 @@
  }
  function tick(now){for(const [i,a] of active)if(now-a.start>=4200)active.delete(i);draw(now);for(const [i,a] of closing)if(now-a.start>=1900)closing.delete(i);frame=active.size||closing.size||[...blooms.values()].some(t=>now-t<2850)?requestAnimationFrame(tick):0;}
  root.querySelectorAll('button').forEach((button,i)=>button.addEventListener('click',e=>{
-  if(!ready||destroyed||!root.isConnected)return;const now=performance.now(),r=button.getBoundingClientRect();active.set(i,{start:now,direction:e.detail===0||e.clientX<r.left+r.width/2?1:-1});if(!isNight()&&!clusters[i]?.grassOnly&&!blooms.has(i))blooms.set(i,now);
-  e.stopPropagation();root.querySelector('[aria-live]').textContent=['Left','Middle left','Middle right','Right'][i]+(isNight()?' grass patch swaying':' grass patch swaying and flowering');if(!frame)frame=requestAnimationFrame(tick);
+  if(!ready||destroyed||!root.isConnected)return;const now=performance.now(),r=button.getBoundingClientRect();active.set(i,{start:now,direction:e.detail===0||e.clientX<r.left+r.width/2?1:-1});
+  let opened=false;
+  if(!isNight()&&!clusters[i]?.grassOnly){
+   const key=!blooms.has(i)?i:i===0&&!blooms.has('0:bud')?'0:bud':null;
+   if(key!==null){
+    if(!thresholds.has(key))thresholds.set(key,2+Math.floor(Math.random()*2));
+    const count=(taps.get(key)||0)+1;taps.set(key,count);
+    if(count>=thresholds.get(key)){blooms.set(key,now);opened=true;}
+   }
+  }
+  e.stopPropagation();root.querySelector('[aria-live]').textContent=['Left','Middle left','Middle right','Right'][i]+(opened?' grass patch swaying and flowering':' grass patch swaying');if(!frame)frame=requestAnimationFrame(tick);
  }));
  image.onload=()=>{
   if(destroyed)return;
@@ -243,7 +253,12 @@
    }
    hc.putImageData(headData,0,0);x.putImageData(data,0,0);
    const magnitude=Math.hypot(...f.axis);
-   clusters.push({base,head,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x+(spec.shiftX||0),y:by-scene.y,root:bottom,flowerIndex:spec.flowerIndex,anchor,axis:f.axis.map(v=>v/magnitude),headX:hx,headY:hy});
+   let extraBud;
+   if(spec.flowerIndex===0){
+    x.clearRect(467-bx,378-by,50,40);
+    extraBud={anchor:[482-bx,419-by],axis:[.40,-.916515],lowBud:true};
+   }
+   clusters.push({base,head,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x+(spec.shiftX||0),y:by-scene.y,root:bottom,flowerIndex:spec.flowerIndex,anchor,axis:f.axis.map(v=>v/magnitude),headX:hx,headY:hy,extraBud});
   });ready=true;draw();
  };
  const resizeObserver=new ResizeObserver(()=>{
@@ -258,9 +273,9 @@
   const nextNight=isNight();
   if(nextNight!==lastNight){
    const now=performance.now();
-   const open=clusters.map((_,i)=>bloomProgress(i,now));
-   blooms.clear();closing.clear();
-   if(nextNight&&!reduced.matches)open.forEach((from,i)=>{if(from>0)closing.set(i,{from,start:now});});
+   const open=[...new Set([...blooms.keys(),...closing.keys()])].map(key=>[key,bloomProgress(key,now)]);
+   blooms.clear();closing.clear();taps.clear();thresholds.clear();
+   if(nextNight&&!reduced.matches)open.forEach(([key,from])=>{if(from>0)closing.set(key,{from,start:now});});
    lastNight=nextNight;
    if(closing.size&&!frame)frame=requestAnimationFrame(tick);
   }
