@@ -24,6 +24,16 @@ const cloudFills=[
 const clouds=cloudFills.map(([box,path],index)=>{const i=index+1;return `<button class="cloud cloud-${i}" type="button" aria-label="Nudge cloud ${i}" title="Nudge cloud"><span class="cloud-ink"><svg class="cloud-fill" viewBox="0 0 ${box}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}"/></svg><img src="assets/cloud-etch-${i}.png" alt="" onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src=this.src+(this.src.includes('?')?'&':'?')+'retry=1'}else{this.style.visibility='hidden'}"></span></button>`}).join('');
 const noticeboard=`<section id="home-about" class="notice-section"><div class="noticeboard">
  <div class="sign-legs" aria-hidden="true"><span></span><span></span></div>
+ <div class="sign-wildflowers" id="sign-wildflowers">
+  <canvas role="img" aria-label="Ink grasses and closed flower buds. Tap a patch to sway the grass."></canvas>
+  <div class="sign-wildflower-targets" role="group" aria-label="Sway the grass by the sign">
+   <button type="button" aria-label="Sway left grass patch"></button>
+   <button type="button" aria-label="Sway middle left grass patch"></button>
+   <button type="button" aria-label="Sway middle right grass patch"></button>
+   <button type="button" aria-label="Sway right grass patch"></button>
+  </div>
+  <span class="sign-wildflower-status" aria-live="polite"></span>
+ </div>
  <div class="sign-frame">
   <div class="sign-header"><div class="sign-logo"><img src="assets/menu-logo.png" alt=""><svg class="sign-logo-inset" viewBox="0 0 100 130" preserveAspectRatio="none" aria-hidden="true" focusable="false">
    <path d="M1.6 1.8 L27.8 1.5 M29.2 1.5 L65.5 1.9 M66.8 1.9 L98.2 1.4 M98.2 1.4 L98.5 31.6 M98.5 33 L98.1 82.4 M98.1 83.8 L98.6 128.1 M98.6 128.1 L72.4 128.4 M71 128.4 L36.5 128 M35.1 128 L1.7 128.5 M1.7 128.5 L1.4 95.2 M1.4 93.8 L1.9 48.1 M1.9 46.7 L1.6 1.8"/>
