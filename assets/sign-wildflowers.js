@@ -220,7 +220,7 @@
    if(key!==null){
     if(!thresholds.has(key))thresholds.set(key,2+Math.floor(Math.random()*2));
     const count=(taps.get(key)||0)+1;taps.set(key,count);
-    if(count>=thresholds.get(key)){blooms.set(key,now);opened=true;}
+    if(count>=thresholds.get(key)){blooms.set(key,now);root.parentElement.dispatchEvent(new CustomEvent('roseville:bloom',{detail:{key},bubbles:true}));opened=true;}
    }
   }
   if(!isNight()&&i===2){
