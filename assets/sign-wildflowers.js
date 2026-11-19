@@ -13,7 +13,7 @@
  const specs=[
   {flowerIndex:0,box:[210,285,590,375],flower:{rect:[222,294,140,175],anchor:[344,398],axis:[-.79,-.61],stemSlope:1.22,stemWidth:4.5}},
   {flowerIndex:1,shiftX:-65,box:[875,350,510,310],flower:{rect:[1068,413,154,100],anchor:[1148,462],axis:[.51,-.86],stemSlope:-.60,stemWidth:3.2}},
-  {grassOnly:true,shiftX:220,box:[1125,520,260,140]},
+  {lowBud:true,flowerIndex:0,box:[1360,480,140,180]},
   {flowerIndex:2,box:[1520,360,500,300],flower:{rect:[1562,370,154,123],anchor:[1661,468],axis:[-.40,-.92],stemSlope:.42,stemWidth:3.5}}
  ];
  function makeCanvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
@@ -56,7 +56,9 @@
   const st=styles[index],[nx,ny]=m.axis,u=[-ny,nx],v=[-nx*st.q,-ny*st.q];
   const random=j=>{const n=Math.sin((j+st.seed)*127.1)*43758.5453;return n-Math.floor(n);};
   const c=[ax+nx*st.centre,ay+ny*st.centre];
-  x.save();x.strokeStyle=color;x.fillStyle=color;x.lineCap='round';x.lineJoin='round';x.lineWidth=1.65;
+  x.save();
+  if(m.lowBud){x.translate(ax,ay);x.scale(.62,.62);x.translate(-ax,-ay);}
+  x.strokeStyle=color;x.fillStyle=color;x.lineCap='round';x.lineJoin='round';x.lineWidth=1.65;
   // The receptacle grows directly from the original stem endpoint.
   x.beginPath();x.moveTo(ax-nx*3,ay-ny*3);x.quadraticCurveTo(ax+nx*7-u[0],ay+ny*7-u[1],...c);x.stroke();
   const budOpacity=1-smooth((p-.12)/.30);
@@ -191,6 +193,30 @@
  image.onload=()=>{
   if(destroyed)return;
   specs.forEach(spec=>{
+   if(spec.lowBud){
+    // One small flower and one grass blade, sharing an intact root.
+    // Draw the complete stems here rather than cropping across another patch.
+    const [bx,by,w,h]=spec.box,base=makeCanvas(w,h),x=base.getContext('2d');
+    x.strokeStyle='#000';x.lineCap='round';x.lineJoin='round';
+    function inkCurve(a,b,c,d,width,seed){
+     let prev=a;
+     for(let j=1;j<=45;j++){
+      const t=j/45,u=1-t,wobble=Math.sin(t*19+seed)*.30*Math.sin(Math.PI*t);
+      const q=[u*u*u*a[0]+3*u*u*t*b[0]+3*u*t*t*c[0]+t*t*t*d[0]+wobble,
+       u*u*u*a[1]+3*u*u*t*b[1]+3*u*t*t*c[1]+t*t*t*d[1]];
+      x.lineWidth=width*(.86+.16*Math.sin(t*8+seed));
+      x.beginPath();x.moveTo(...prev);x.lineTo(...q);x.stroke();prev=q;
+     }
+    }
+    inkCurve([67,178],[60,149],[61,116],[49,94],2.1,3);
+    inkCurve([61,141],[52,138],[46,132],[43,128],1.35,8);
+    inkCurve([43,128],[52,128],[58,132],[61,141],1.05,5);
+    inkCurve([67,178],[68,139],[88,113],[110,106],1.8,7);
+    inkCurve([110,106],[86,126],[77,151],[67,178],1.1,11);
+    clusters.push({base,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x,y:by-scene.y,
+     root:178,lowBud:true,flowerIndex:spec.flowerIndex,anchor:[49,94],axis:[-.32,-.948]});
+    return;
+   }
    const [bx,by,w,h]=spec.box,base=makeCanvas(w,h),x=base.getContext('2d',{willReadFrequently:true});x.drawImage(image,bx,by,w,h,0,0,w,h);
    const data=x.getImageData(0,0,w,h),pixels=data.data;
    let bottom=0;
