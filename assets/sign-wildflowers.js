@@ -161,9 +161,9 @@
    const x=m.work.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,m.width,m.height);x.drawImage(m.baseTint,0,0);
    const p=bloomProgress(i,now);
    const g=growth.get(i);
-   if(g&&!m.grassOnly){
+   if(i===2&&g){
     const amount=reduced.matches?g.to:g.from+(g.to-g.from)*smooth((now-g.start)/650);
-    const baseX=m.flowerIndex===0?m.width*.61:m.flowerIndex===1?m.width*.55:m.width*.65;
+    const baseX=m.width*.65;
     const rootY=m.root-3, height=48*amount;
     x.save();x.strokeStyle=color;x.fillStyle=color;x.lineCap='round';x.lineJoin='round';
     x.lineWidth=1.7;
@@ -172,8 +172,16 @@
     x.bezierCurveTo(baseX-8,rootY-height*.38,baseX+9,rootY-height*.72,baseX+2,height?rootY-height:rootY);
     x.stroke();
     if(amount>.24){
-     const tipY=rootY-height, size=1.5+2.6*amount;
-     x.beginPath();x.ellipse(baseX+2,tipY,size*.7,size, -.25,0,Math.PI*2);x.fill();
+     const tipX=baseX+2,tipY=rootY-height;
+     if(p>0){
+      // The third patch's little bud opens at the end of its own stalk.
+      x.save();x.translate(tipX,tipY);x.scale(.28,.28);x.translate(-tipX,-tipY);
+      drawFlower(x,{anchor:[tipX,tipY],axis:[.12,-.99]},2,p,color);
+      x.restore();
+     }else{
+      const size=1.5+2.6*amount;
+      x.beginPath();x.ellipse(tipX,tipY,size*.7,size,-.25,0,Math.PI*2);x.fill();
+     }
     }
     x.restore();
    }
@@ -215,7 +223,7 @@
     if(count>=thresholds.get(key)){blooms.set(key,now);opened=true;}
    }
   }
-  if(!isNight()&&!clusters[i]?.grassOnly){
+  if(!isNight()&&i===2){
    const previous=growth.get(i),from=previous?(reduced.matches?previous.to:previous.from+(previous.to-previous.from)*smooth((now-previous.start)/650)):0;
    growth.set(i,{from,to:Math.min(1,from+.34),start:now});
   }
