@@ -4,7 +4,7 @@
  const style=document.createElement('style');
  style.textContent=`
  .sign-fireflies{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:visible}
- .sign-firefly{position:absolute;width:24px;height:24px;margin:-12px;border:0;border-radius:50%;background:transparent;padding:0;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+ .sign-firefly{position:absolute;left:0;top:0;width:24px;height:24px;margin:-12px;border:0;border-radius:50%;background:transparent;padding:0;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
  .sign-firefly:after{content:"";position:absolute;left:11px;top:11px;width:2px;height:2px;border-radius:50%;background:#fff0b1;box-shadow:0 0 2px 1px #f5df9b66}
  .sign-firefly:focus-visible{outline:2px solid #fff0b1;outline-offset:1px}
  `;
