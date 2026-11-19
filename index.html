@@ -1231,8 +1231,8 @@ function focusPage(){const h=document.querySelector('main h1,main h2');const tar
 function navigateToPage(page='home',section=''){
  if(!Object.hasOwn(pages,page))page='home';
  const target=routePath(page)+(section?'#'+encodeURIComponent(section):'');
- if(location.pathname+location.hash===target){if(section)document.getElementById(section)?.scrollIntoView();else window.scrollTo({top:0,behavior:'smooth'});return}
- rememberScroll();history.pushState(null,'',target);render();requestAnimationFrame(focusPage);
+ if(location.pathname+location.hash===target){if(section)document.getElementById(section)?.scrollIntoView({block:'start',behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'});return}
+ rememberScroll();history.pushState(null,'',target);render(true);requestAnimationFrame(focusPage);
 }
 function setupBackLink(){
  const entry=routeEntries[activeEntry];if(!entry||entry.page==='home')return;
@@ -1274,7 +1274,7 @@ document.addEventListener('click',event=>{
 
 
 
-function render(){
+function render(smoothAnchor=false){
  const page=pageFromPath(),section=decodeURIComponent(location.hash.slice(1));
  const restoreY=enterRoute(page);
  if(page!==current){
@@ -1292,7 +1292,7 @@ function render(){
   setupClickableRows();updateCMSPage(page);setupGuide();setupGuideArchive();refreshDirectionalArrows()
  }
  setupBackLink();localizeLinks();applyNightMode();setupInteractions();loadSign();setupStaff();
- if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:'instant'}));
+ if(section)requestAnimationFrame(()=>document.getElementById(section)?.scrollIntoView({block:'start',behavior:smoothAnchor?'smooth':'instant'}));
  else if(restoreY!==null)requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:'instant'}));
  else window.scrollTo({top:0,behavior:'instant'});
  document.querySelectorAll('nav a').forEach(a=>{
