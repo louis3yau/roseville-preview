@@ -250,7 +250,7 @@
   const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,3);
   canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.round(canvas.width*scene.height/scene.width);
   const legs=root.closest('.noticeboard')?.querySelector('.sign-legs');
-  if(legs)root.style.top=(legs.offsetTop+legs.offsetHeight-r.height*.90)+'px';
+  if(legs)root.style.top=(legs.offsetTop+legs.offsetHeight-r.height*.90+4)+'px';
   draw();
  });
  resizeObserver.observe(canvas);
