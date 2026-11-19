@@ -4,8 +4,8 @@
  const style=document.createElement('style');
  style.textContent=`
  .sign-fireflies{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:visible}
- .sign-firefly{position:absolute;width:34px;height:34px;margin:-17px;border:0;border-radius:50%;background:transparent;padding:0;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
- .sign-firefly:after{content:"";position:absolute;left:14px;top:14px;width:6px;height:6px;border-radius:50%;background:#fff0b1;box-shadow:0 0 5px 2px #fff4c4,0 0 15px 7px #f5dd89ad,0 0 30px 13px #eac95c55}
+ .sign-firefly{position:absolute;width:28px;height:28px;margin:-14px;border:0;border-radius:50%;background:transparent;padding:0;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+ .sign-firefly:after{content:"";position:absolute;left:12px;top:12px;width:4px;height:4px;border-radius:50%;background:#fff0b1;box-shadow:0 0 4px 1px #f5df9b9c,0 0 9px 3px #eac95c38}
  .sign-firefly:focus-visible{outline:2px solid #fff0b1;outline-offset:1px}
  `;
  document.head.append(style);
@@ -21,19 +21,19 @@
   if(next!==board){clear();layer?.remove();board=next;layer=document.createElement('div');layer.className='sign-fireflies';layer.setAttribute('aria-label','Fireflies');board.append(layer);}
   root.querySelectorAll('.sign-wildflower-targets button').forEach((button,i)=>{
    if(seen.has(button))return;seen.add(button);
-   button.addEventListener('click',()=>{if(night())release(button,i);});
+   button.addEventListener('click',e=>{if(night())release(button,e);});
   });
  }
- function release(button,i){
+ function release(button,e){
   if(!board||!layer)return;
   const b=board.getBoundingClientRect(),r=button.getBoundingClientRect();
-  for(let n=0;n<2;n++){
+  {
    const el=document.createElement('button');
    el.type='button';el.className='sign-firefly';el.setAttribute('aria-label','Firefly. Tap to make it dodge.');
    layer.append(el);
-   const x=r.left-b.left+r.width*(.37+.26*Math.random());
+   const x=(e.detail===0?r.left+r.width/2:clamp(e.clientX,r.left+10,r.right-10))-b.left;
    const y=r.bottom-b.top-r.height*.10;
-   const f={el,x,y,baseX:x,baseY:y,phase:Math.random()*Math.PI*2,age:-n*.30,vx:0,vy:0,dx:0,dy:0};
+   const f={el,x,y,baseX:x,baseY:y,phase:Math.random()*Math.PI*2,age:0,vx:0,vy:0,dx:0,dy:0};
    flies.push(f);
    el.addEventListener('click',e=>{
     e.stopPropagation();
