@@ -181,15 +181,12 @@
    if(m.extraBud)drawFlower(x,m.extraBud,2,bloomProgress('0:bud',now),color);
    const activity=active.get(i),t=activity?(now-activity.start)/1000:0;let bend=0;
    if(activity&&t<4.2){const envelope=Math.pow(Math.min(1,t/.16),2)*Math.exp(-.88*t)*Math.pow(Math.max(0,1-t/4.2),1.1);bend=Math.sin(t*6.5)*envelope*activity.direction*(reduced.matches?.0005:.024)*scene.width;}
-   ctx.save();const ground=scene.height*.945;
-   ctx.translate(0,ground);ctx.scale(1,.76);ctx.translate(0,-ground);
-   if(Math.abs(bend)<.001){ctx.drawImage(m.work,m.x,m.y);ctx.restore();return;}
+   if(Math.abs(bend)<.001){ctx.drawImage(m.work,m.x,m.y);return;}
    const step=m.height/90;
    for(let y=0;y<m.height;y+=step){
     const h=Math.max(0,(m.root-y)/Math.max(1,m.root-(i===1?60:0))),dx=bend*Math.pow(h,1.65),sh=Math.min(step,m.height-y);
     ctx.drawImage(m.work,0,y,m.width,sh,m.x+dx,m.y+y,m.width,sh);
    }
-   ctx.restore();
   });
   // Recolour only pixels drawn directly over either sign post. Keep the
   // remaining strokes in the normal ink colour against the page background.
