@@ -4,8 +4,8 @@
  const style=document.createElement('style');
  style.textContent=`
  .sign-fireflies{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:visible}
- .sign-firefly{position:absolute;width:28px;height:28px;margin:-14px;border:0;border-radius:50%;background:transparent;padding:0;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
- .sign-firefly:after{content:"";position:absolute;left:12px;top:12px;width:4px;height:4px;border-radius:50%;background:#fff0b1;box-shadow:0 0 4px 1px #f5df9b9c,0 0 9px 3px #eac95c38}
+ .sign-firefly{position:absolute;width:24px;height:24px;margin:-12px;border:0;border-radius:50%;background:transparent;padding:0;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+ .sign-firefly:after{content:"";position:absolute;left:11px;top:11px;width:2px;height:2px;border-radius:50%;background:#fff0b1;box-shadow:0 0 2px 1px #f5df9b66}
  .sign-firefly:focus-visible{outline:2px solid #fff0b1;outline-offset:1px}
  `;
  document.head.append(style);
@@ -30,9 +30,10 @@
   {
    const el=document.createElement('button');
    el.type='button';el.className='sign-firefly';el.setAttribute('aria-label','Firefly. Tap to make it dodge.');
+   const x=(e.detail===0?r.left+r.width/2:e.clientX)-b.left;
+   const y=(e.detail===0?r.bottom-r.height*.10:e.clientY)-b.top;
+   el.style.transform=`translate(${x}px,${y}px)`;
    layer.append(el);
-   const x=(e.detail===0?r.left+r.width/2:clamp(e.clientX,r.left+10,r.right-10))-b.left;
-   const y=r.bottom-b.top-r.height*.10;
    const f={el,x,y,baseX:x,baseY:y,phase:Math.random()*Math.PI*2,age:0,vx:0,vy:0,dx:0,dy:0};
    flies.push(f);
    el.addEventListener('click',e=>{
@@ -57,9 +58,9 @@
    f.dx+=f.vx*dt;f.dy+=f.vy*dt;
    f.vx*=Math.exp(-3.0*dt);f.vy*=Math.exp(-3.0*dt);
    f.dx*=Math.exp(-.22*dt);f.dy*=Math.exp(-.22*dt);
-   const sway=reduced.matches?0:Math.sin(f.age*1.18+f.phase)*18;
+   const sway=reduced.matches?0:(Math.sin(f.age*1.18+f.phase)-Math.sin(f.phase))*18;
    f.x=clamp(f.baseX+sway+f.dx,22,board.clientWidth-22);
-   f.y=f.baseY-rise+(reduced.matches?0:Math.sin(f.age*1.8+f.phase)*5)+f.dy;
+   f.y=f.baseY-rise+(reduced.matches?0:(Math.sin(f.age*1.8+f.phase)-Math.sin(f.phase))*5)+f.dy;
    f.el.style.transform=`translate(${f.x}px,${f.y}px)`;
    f.el.style.opacity=Math.min(1,f.age*2.5)*(f.age>13?clamp((17-f.age)/4,0,1):1);
   }
