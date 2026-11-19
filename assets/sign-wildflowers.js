@@ -8,7 +8,7 @@
  let destroyed=false;
  const canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d');
  const image=new Image(),reduced=matchMedia('(prefers-reduced-motion: reduce)');
- const active=new Map(),blooms=new Map(),closing=new Map(),taps=new Map(),thresholds=new Map(),clusters=[];let lastNight=isNight();let ready=false,frame=0;
+ const active=new Map(),blooms=new Map(),closing=new Map(),taps=new Map(),thresholds=new Map(),growth=new Map(),clusters=[];let lastNight=isNight();let ready=false,frame=0;
  const scene={x:190,y:275,width:1840,height:405};
  const specs=[
   {flowerIndex:0,box:[210,285,590,375],flower:{rect:[222,294,140,175],anchor:[344,398],axis:[-.79,-.61],stemSlope:1.22,stemWidth:4.5}},
@@ -160,16 +160,36 @@
    if(m.color!==color){m.baseTint=tint(m.base,color);m.color=color;}
    const x=m.work.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,m.width,m.height);x.drawImage(m.baseTint,0,0);
    const p=bloomProgress(i,now);
+   const g=growth.get(i);
+   if(g&&!m.grassOnly){
+    const amount=reduced.matches?g.to:g.from+(g.to-g.from)*smooth((now-g.start)/650);
+    const baseX=m.flowerIndex===0?m.width*.61:m.flowerIndex===1?m.width*.55:m.width*.65;
+    const rootY=m.root-3, height=48*amount;
+    x.save();x.strokeStyle=color;x.fillStyle=color;x.lineCap='round';x.lineJoin='round';
+    x.lineWidth=1.7;
+    // A small secondary stalk draws upward from the same rooted grass patch.
+    x.beginPath();x.moveTo(baseX,rootY);
+    x.bezierCurveTo(baseX-8,rootY-height*.38,baseX+9,rootY-height*.72,baseX+2,height?rootY-height:rootY);
+    x.stroke();
+    if(amount>.24){
+     const tipY=rootY-height, size=1.5+2.6*amount;
+     x.beginPath();x.ellipse(baseX+2,tipY,size*.7,size, -.25,0,Math.PI*2);x.fill();
+    }
+    x.restore();
+   }
    if(!m.grassOnly)drawFlower(x,m,m.flowerIndex,p,color);
    if(m.extraBud)drawFlower(x,m.extraBud,2,bloomProgress('0:bud',now),color);
    const activity=active.get(i),t=activity?(now-activity.start)/1000:0;let bend=0;
    if(activity&&t<4.2){const envelope=Math.pow(Math.min(1,t/.16),2)*Math.exp(-.88*t)*Math.pow(Math.max(0,1-t/4.2),1.1);bend=Math.sin(t*6.5)*envelope*activity.direction*(reduced.matches?.0005:.024)*scene.width;}
-   if(Math.abs(bend)<.001){ctx.drawImage(m.work,m.x,m.y);return;}
+   ctx.save();const ground=scene.height*.945;
+   ctx.translate(0,ground);ctx.scale(1,.76);ctx.translate(0,-ground);
+   if(Math.abs(bend)<.001){ctx.drawImage(m.work,m.x,m.y);ctx.restore();return;}
    const step=m.height/90;
    for(let y=0;y<m.height;y+=step){
     const h=Math.max(0,(m.root-y)/Math.max(1,m.root-(i===1?60:0))),dx=bend*Math.pow(h,1.65),sh=Math.min(step,m.height-y);
     ctx.drawImage(m.work,0,y,m.width,sh,m.x+dx,m.y+y,m.width,sh);
    }
+   ctx.restore();
   });
   // Recolour only pixels drawn directly over either sign post. Keep the
   // remaining strokes in the normal ink colour against the page background.
@@ -186,7 +206,7 @@
    ctx.restore();
   }
  }
- function tick(now){for(const [i,a] of active)if(now-a.start>=4200)active.delete(i);draw(now);for(const [i,a] of closing)if(now-a.start>=1900)closing.delete(i);frame=active.size||closing.size||[...blooms.values()].some(t=>now-t<2850)?requestAnimationFrame(tick):0;}
+ function tick(now){for(const [i,a] of active)if(now-a.start>=4200)active.delete(i);draw(now);for(const [i,a] of closing)if(now-a.start>=1900)closing.delete(i);frame=active.size||closing.size||[...blooms.values()].some(t=>now-t<2850)||[...growth.values()].some(g=>now-g.start<650)?requestAnimationFrame(tick):0;}
  root.querySelectorAll('button').forEach((button,i)=>button.addEventListener('click',e=>{
   if(!ready||destroyed||!root.isConnected)return;const now=performance.now(),r=button.getBoundingClientRect();active.set(i,{start:now,direction:e.detail===0||e.clientX<r.left+r.width/2?1:-1});
   let opened=false;
@@ -197,6 +217,10 @@
     const count=(taps.get(key)||0)+1;taps.set(key,count);
     if(count>=thresholds.get(key)){blooms.set(key,now);opened=true;}
    }
+  }
+  if(!isNight()&&!clusters[i]?.grassOnly){
+   const previous=growth.get(i),from=previous?(reduced.matches?previous.to:previous.from+(previous.to-previous.from)*smooth((now-previous.start)/650)):0;
+   growth.set(i,{from,to:Math.min(1,from+.34),start:now});
   }
   e.stopPropagation();root.querySelector('[aria-live]').textContent=['Left','Middle left','Middle right','Right'][i]+(opened?' grass patch swaying and flowering':' grass patch swaying');if(!frame)frame=requestAnimationFrame(tick);
  }));
@@ -261,14 +285,14 @@
    clusters.push({base,head,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x+(spec.shiftX||0),y:by-scene.y,root:bottom,flowerIndex:spec.flowerIndex,anchor,axis:f.axis.map(v=>v/magnitude),headX:hx,headY:hy,extraBud});
   });
   // Put every patch's actual root on the same line as the post bottoms.
-  clusters.forEach(m=>{m.y=scene.height*.95-m.root;});
+  clusters.forEach(m=>{m.y=scene.height*.945-m.root;});
   ready=true;draw();
  };
  const resizeObserver=new ResizeObserver(()=>{
   const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,3);
   canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.round(canvas.width*scene.height/scene.width);
   const legs=root.closest('.noticeboard')?.querySelector('.sign-legs');
-  if(legs)root.style.top=(legs.offsetTop+legs.offsetHeight-r.height*.95)+'px';
+  if(legs)root.style.top=(legs.offsetTop+legs.offsetHeight-r.height*.945+2)+'px';
   draw();
  });
  resizeObserver.observe(canvas);
@@ -277,7 +301,7 @@
   if(nextNight!==lastNight){
    const now=performance.now();
    const open=[...new Set([...blooms.keys(),...closing.keys()])].map(key=>[key,bloomProgress(key,now)]);
-   blooms.clear();closing.clear();taps.clear();thresholds.clear();
+   blooms.clear();closing.clear();taps.clear();thresholds.clear();growth.clear();
    if(nextNight&&!reduced.matches)open.forEach(([key,from])=>{if(from>0)closing.set(key,{from,start:now});});
    lastNight=nextNight;
    if(closing.size&&!frame)frame=requestAnimationFrame(tick);
