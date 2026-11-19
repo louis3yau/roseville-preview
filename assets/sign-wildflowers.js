@@ -259,13 +259,16 @@
     extraBud={anchor:[482-bx,419-by],axis:[.40,-.916515],lowBud:true};
    }
    clusters.push({base,head,work:makeCanvas(w,h),width:w,height:h,x:bx-scene.x+(spec.shiftX||0),y:by-scene.y,root:bottom,flowerIndex:spec.flowerIndex,anchor,axis:f.axis.map(v=>v/magnitude),headX:hx,headY:hy,extraBud});
-  });ready=true;draw();
+  });
+  // Put every patch's actual root on the same line as the post bottoms.
+  clusters.forEach(m=>{m.y=scene.height*.95-m.root;});
+  ready=true;draw();
  };
  const resizeObserver=new ResizeObserver(()=>{
   const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,3);
   canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.round(canvas.width*scene.height/scene.width);
   const legs=root.closest('.noticeboard')?.querySelector('.sign-legs');
-  if(legs)root.style.top=(legs.offsetTop+legs.offsetHeight-r.height*.90+4)+'px';
+  if(legs)root.style.top=(legs.offsetTop+legs.offsetHeight-r.height*.95)+'px';
   draw();
  });
  resizeObserver.observe(canvas);
