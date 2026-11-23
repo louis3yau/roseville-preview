@@ -4,15 +4,15 @@ const atlas='data:image/webp;base64,UklGRszFAABXRUJQVlA4WAoAAAAQAAAA/wUA/wIAQUxQ
 window.RosevilleBird=(host)=>{
  if(host.dataset.birdMounted)return;host.dataset.birdMounted='1';
  const frame=host.querySelector('.sign-frame'),el=document.createElement('button');el.type='button';el.className='sign-bird-light';el.setAttribute('aria-label','Nudge the bird sideways');
- Object.assign(el.style,{position:'fixed',left:'0px',top:'0px',willChange:'transform',width:'96px',height:'96px',padding:'0',border:'0',backgroundColor:'transparent',backgroundImage:`url(${atlas})`,backgroundSize:'768px 384px',backgroundRepeat:'no-repeat',boxShadow:'none',transformOrigin:'48px 78px',zIndex:'8',display:'none',touchAction:'manipulation'});document.body.appendChild(el);
+ Object.assign(el.style,{position:'absolute',left:'0px',top:'0px',willChange:'transform',width:'96px',height:'96px',padding:'0',border:'0',backgroundColor:'transparent',backgroundImage:`url(${atlas})`,backgroundSize:'768px 384px',backgroundRepeat:'no-repeat',boxShadow:'none',transformOrigin:'48px 78px',zIndex:'8',display:'none',touchAction:'manipulation'});document.body.appendChild(el);
  let state='absent',keys=new Set(),timers=new Set(),raf=0,visible=true,x=0,hop=false,idleTimer=0,lastGaze=18,posX=0,posY=0;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const night=()=>document.body.classList.contains('night');
  const later=(f,ms)=>{const id=setTimeout(()=>{timers.delete(id);if(host.isConnected&&!document.hidden&&visible)f();},ms);timers.add(id);return id;};
  const cancel=()=>{timers.forEach(clearTimeout);timers.clear();cancelAnimationFrame(raf);raf=0;};
  function sprite(i){el.style.backgroundPosition=`${-(i%8)*96}px ${-Math.floor(i/8)*96}px`;}
- function place(px=x,py=0){posX=px;posY=py;const scale=frame.offsetWidth/570,r=frame.getBoundingClientRect();el.style.transform=`translate3d(${r.left+(59+px)*scale-48}px,${r.top+py*scale-78}px,0) scale(${scale})`;}
- const syncPosition=()=>place(posX,posY);const resize=new ResizeObserver(syncPosition);resize.observe(frame);window.addEventListener('scroll',syncPosition,{passive:true});
+ function place(px=x,py=0){posX=px;posY=py;const scale=frame.offsetWidth/570,r=frame.getBoundingClientRect();el.style.transform=`translate3d(${r.left+window.scrollX+(59+px)*scale-48}px,${r.top+window.scrollY+py*scale-78}px,0) scale(${scale})`;}
+ const syncPosition=()=>place(posX,posY);const resize=new ResizeObserver(syncPosition);resize.observe(frame);
  function animate(duration,update,done){cancelAnimationFrame(raf);const start=performance.now();let last=-100;function tick(now){if(!host.isConnected||document.hidden||!visible){raf=0;return;}const t=Math.min(1,(now-start)/duration);if(now-last>32||t===1){update(t,now-start);last=now;}if(t<1)raf=requestAnimationFrame(tick);else{raf=0;done?.();}}raf=requestAnimationFrame(tick);}
  function reset(){cancel();state='absent';keys.clear();el.style.display='none';x=0;}
  function idle(){if(state!=='perched')return;if(hop){later(idle,500);return;}const seq=[18,19,18,14,18,19],target=seq[Math.floor(Math.random()*seq.length)];const crossing=(lastGaze===14)!==(target===14);if(crossing){sprite(16);later(()=>{if(state==='perched'&&!hop){sprite(target);lastGaze=target;}},220);}else{sprite(target);lastGaze=target;}place();later(idle,650+Math.random()*1550);}
@@ -27,7 +27,7 @@ window.RosevilleBird=(host)=>{
  const intersection=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible){cancel();if(state==='arriving'||state==='leaving')reset();}else if(state==='perched'){idle();later(tail,3500);armDeparture();}},{rootMargin:'100px'});intersection.observe(host);
  const visibility=()=>{if(document.hidden)cancel();else if(visible&&state==='perched'){idle();later(tail,3500);armDeparture();}};document.addEventListener('visibilitychange',visibility);
  const theme=new MutationObserver(()=>{if(night())reset();});theme.observe(document.body,{attributes:true,attributeFilter:['class']});
- const detach=new MutationObserver(()=>{if(host.isConnected)return;cancel();resize.disconnect();intersection.disconnect();theme.disconnect();detach.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('scroll',syncPosition);el.remove();});detach.observe(document.getElementById('main'),{childList:true});place();
+ const detach=new MutationObserver(()=>{if(host.isConnected)return;cancel();resize.disconnect();intersection.disconnect();theme.disconnect();detach.disconnect();document.removeEventListener('visibilitychange',visibility);el.remove();});detach.observe(document.getElementById('main'),{childList:true});place();
 };
 window.dispatchEvent(new Event('roseville:bird-ready'));
 })();
