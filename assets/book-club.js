@@ -263,22 +263,26 @@ function revealBookworm(b){
   const t=(now-t0)/1000,floor=field.clientHeight-8-radius,a=anchor(),r=clamp01((t-.1)/.7);
   hole.setAttribute('rx',String(3.4*r));hole.setAttribute('ry',String(4.2*r));
   if(t<.85){requestAnimationFrame(paint);return}
-  if(t<2.45){
-   // Extend the head down to the floor before the rear leaves the hole.
-   const p=clamp01((t-.85)/1.6),pts=[],reach=len*.63*p;
-   const gap=floor-a[1],ease=p*p*(3-2*p);
-   for(let i=0;i<=24;i++){const q=i/24;pts.push([a[0]+dir*reach*q,a[1]+gap*ease*Math.pow(q,1.35)])}
+  if(t<2.85){
+   // Two small reach-and-contract motions while the tail is inside.
+   const p=clamp01((t-.85)/2),pts=[];
+   const ease=p*p*(3-2*p),pulse=Math.pow(Math.sin(p*2*Math.PI),2);
+   const reach=len*(.62*ease-.065*pulse*p),gap=floor-a[1];
+   for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.12)/.74));pts.push([a[0]+dir*reach*q,a[1]+gap*ease*(1-Math.pow(1-q,2))-Math.pow(Math.sin(Math.PI*u),1.7)*len*.12*pulse*p])}
    draw(pts,dir);
-  }else if(t<4.05){
-   if(!firstContact)firstContact={x:a[0]+dir*len*.63};
-   const p=clamp01((t-2.45)/1.6),ease=p*p*(3-2*p),head=firstContact.x+dir*len*.37*ease;
-   const tailX=a[0],tailY=a[1]+(floor-a[1])*ease,pts=[];
-   // Head stays grounded and advances; the rear slides continuously out of
-   // the opening and lowers, with a gentle arch through the first pull.
-   for(let i=0;i<=24;i++){const q=i/24;pts.push([tailX+(head-tailX)*q,tailY+(floor-tailY)*Math.pow(q,1.35)-Math.sin(q*Math.PI)*len*.22*Math.sin(Math.PI*p)])}
+  }else if(t<4.95){
+   if(!firstContact)firstContact={x:a[0]+dir*len*.62,ax:a[0],ay:a[1]};
+   // Two complete pull/extend cycles: head stays planted on contraction;
+   // tail advances and drops in small increments rather than falling.
+   const k=(t-2.85)/1.05,n=Math.min(1,Math.floor(k)),phase=k-n;
+   const smooth=x=>x*x*(3-2*x),pull=(n+smooth(Math.min(1,phase*2)))/2,reach=(n+smooth(Math.max(0,phase*2-1)))/2;
+   const arch=Math.pow(Math.sin(Math.PI*phase),2);
+   const head=firstContact.x+dir*len*.68*reach,tailX=firstContact.ax+dir*len*.30*pull,tailY=firstContact.ay+(floor-firstContact.ay)*pull;
+   const pts=[];
+   for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62));pts.push([tailX+(head-tailX)*q,floor+(tailY-floor)*Math.pow(Math.max(0,1-q/.78),2)-Math.pow(Math.sin(Math.PI*u),1.65)*len*.29*arch])}
    draw(pts,dir);
   }else{
-   if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.37:a[0]+dir*len,time:4.05};
+   if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.68:a[0]+dir*len*1.30,time:4.95};
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
    const goal=dir<0?Math.min(grounded.x,edge+radius*2):Math.max(grounded.x,edge-radius*2);
    let head=grounded.x+dir*travel(t-grounded.time);
