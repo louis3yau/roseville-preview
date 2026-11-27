@@ -36,7 +36,7 @@ const art=el.innerHTML;el.innerHTML='<div class="book-solid"><div class="solid-s
 const field=$('#club'),bodies=[];let activeDrag=null,frame=0,last=0,layer=0;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function axes(b){if(b.kind==='apple'){const p=corners(b);return p.map((a,i)=>{const c=p[(i+1)%p.length],dx=c[0]-a[0],dy=c[1]-a[1],m=Math.hypot(dx,dy)||1;return [-dy/m,dx/m]})}const c=Math.cos(b.angle),s=Math.sin(b.angle);return [[c,s],[-s,c]]}
-function corners(b){if(b.kind==='apple'){const c=Math.cos(b.angle),s=Math.sin(b.angle),k=b.w/110;return [[28,31],[65,29],[83,36],[95,50],[98,68],[88,90],[73,104],[57,108],[35,107],[22,99],[10,78],[5,59],[11,43]].map(([x,y])=>{const u=(x-50)*k,v=(y-55)*k;return [b.x+u*c-v*s,b.y+u*s+v*c]})}const [u,v]=axes(b);const w=Math.abs(Math.cos(b.yaw||0))*b.w+Math.abs(Math.sin(b.yaw||0))*b.h*2/3;return [[-1,-1],[1,-1],[1,1],[-1,1]].map(([i,j])=>[b.x+i*u[0]*w/2+j*v[0]*b.h/2,b.y+i*u[1]*w/2+j*v[1]*b.h/2])}
+function corners(b){if(b.kind==='apple'){const c=Math.cos(b.angle),s=Math.sin(b.angle),k=b.w/110;return [[28,31],[63,30],[76,35],[85,43],[90,63],[88,76],[80,92],[68,104],[55,107],[34,106],[21,97],[12,85],[6,69],[5.5,63],[9,48],[18,37]].map(([x,y])=>{const u=(x-50)*k,v=(y-55)*k;return [b.x+u*c-v*s,b.y+u*s+v*c]})}const [u,v]=axes(b);const w=Math.abs(Math.cos(b.yaw||0))*b.w+Math.abs(Math.sin(b.yaw||0))*b.h*2/3;return [[-1,-1],[1,-1],[1,1],[-1,1]].map(([i,j])=>[b.x+i*u[0]*w/2+j*v[0]*b.h/2,b.y+i*u[1]*w/2+j*v[1]*b.h/2])}
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]}
 function cross(a,b){return a[0]*b[1]-a[1]*b[0]}
 function contact(a,b){const A=corners(a),B=corners(b);let depth=Infinity,n;for(const axis of [...axes(a),...axes(b)]){const x=A.map(p=>dot(p,axis)),y=B.map(p=>dot(p,axis)),over=Math.min(Math.max(...x),Math.max(...y))-Math.max(Math.min(...x),Math.min(...y));if(over<=0)return null;if(over<depth){depth=over;n=axis}}if(dot([b.x-a.x,b.y-a.y],n)<0)n=n.map(x=>-x);const pa=A.slice().sort((p,q)=>dot(q,n)-dot(p,n)),pb=B.slice().sort((p,q)=>dot(p,n)-dot(q,n));return {n,depth,p:[(pa[0][0]+pb[0][0])/2,(pa[0][1]+pb[0][1])/2]}}
@@ -55,7 +55,15 @@ if(Math.abs(p.gap)<1.5&&b.vy>=-12)b.y+=p.gap*.6;
 b.vx*=Math.exp(-(stableSurface?5.2:2.4)*t);b.spin*=Math.exp(-(stableSurface?5.8:2.8)*t);
 if(!stableSurface&&Math.abs(b.vx)<32)b.vx+=clamp(p.slope*100,-70,70)*t;
 if(stableSurface&&speed<32&&Math.abs(b.spin)<.9){if(!stableCenter){b.spin+=clamp((p.x-b.x)*-.09,-1.8,1.8)*t;}else b.spin*=Math.exp(-8*t)}
-if(stableSurface&&speed<18&&Math.abs(b.spin)<.32){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.19){parkApple(b,p)}}else b.appleQuiet=0;return}const level=supportLevel(b);if(!Number.isFinite(level)){b.quiet=0;return}
+if(!p.body&&stableSurface&&speed<65&&Math.abs(b.spin)<1.6){
+ // Pick a broad supporting face, not a single corner. Roll gradually while maintaining floor contact.
+ const hull=corners({...b,angle:0}), candidates=[];
+ for(let i=0;i<hull.length;i++){const u=hull[i],v=hull[(i+1)%hull.length],dx=v[0]-u[0],dy=v[1]-u[1],length=Math.hypot(dx,dy);if(length<b.w*.16)continue;
+ let angle=-Math.atan2(dy,dx);for(let j=0;j<2;j++,angle+=Math.PI){const delta=Math.atan2(Math.sin(angle-b.angle),Math.cos(angle-b.angle)),pose={...b,angle:b.angle+delta},poly=corners(pose),bottom=Math.max(...poly.map(q=>q[1])),a=poly[i],c=poly[(i+1)%poly.length];if(bottom-a[1]>1||bottom-c[1]>1)continue;const lo=Math.min(a[0],c[0]),hi=Math.max(a[0],c[0]);if(b.x<lo-b.w*.04||b.x>hi+b.w*.04)continue;candidates.push({delta,score:Math.abs(delta)-length/b.w*.35})}}
+ candidates.sort((a,c)=>a.score-c.score);const target=candidates[0];
+ if(target){const d=target.delta;if(Math.abs(d)>.012){const step=Math.sign(d)*Math.min(Math.abs(d),Math.max(.18,Math.abs(d)*3.8)*t);b.angle+=step;b.x-=step*radius*.65;b.spin=0;b.vy=0;b.y+=field.clientHeight-8-extent(b).b;b.appleQuiet=0;return}b.angle+=d;b.y+=field.clientHeight-8-extent(b).b;b.spin=0;if(speed<18){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.22)parkApple(b,{...p,gap:0});return}}
+ }
+ if(p.body&&stableSurface&&stableCenter&&speed<18&&Math.abs(b.spin)<.32){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.25)parkApple(b,p)}else b.appleQuiet=0;return}const level=supportLevel(b);if(!Number.isFinite(level)){b.quiet=0;return}
  const target=Math.round(b.angle/(Math.PI/2))*Math.PI/2,delta=target-b.angle,flat=Math.abs(Math.sin(target))>.9,slow=Math.abs(b.vy)<90;
  if(!slow){b.quiet=0;return}
  b.yawVelocity*=Math.exp(-12*t);const spineTurn=Math.round(b.yaw/(2*Math.PI))*2*Math.PI,offset=b.yaw-spineTurn;const edge=Math.abs(offset)>Math.PI*.72?spineTurn+Math.sign(offset)*Math.PI:spineTurn,y=b.yaw-edge;b.yaw-=y*Math.min(1,10*t);if(Math.abs(y)<.025){b.yaw=edge;b.yawVelocity=0}
@@ -234,8 +242,8 @@ function revealBookworm(b){
  function draw(points,facing){
   const normals=points.map((p,i)=>{const u=points[Math.max(0,i-1)],v=points[Math.min(points.length-1,i+1)],dx=v[0]-u[0],dy=v[1]-u[1],m=Math.hypot(dx,dy)||1;return [-dy/m,dx/m]});
   const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(.76+.24*Math.min(1,i/4));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
-  const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1;
-  body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' A'+radius+' '+radius+' 0 0 1 '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' A'+radius*.76+' '+radius*.76+' 0 0 1 '+fmt(edges[0][0])+' Z');
+  const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailTip=[points[0][0]-normals[0][1]*radius*.76,points[0][1]+normals[0][0]*radius*.76];
+  body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' Q'+fmt([edges[1][0][0]-normals[0][1]*radius*.76,edges[1][0][1]+normals[0][0]*radius*.76])+' '+fmt(tailTip)+' Q'+fmt([edges[0][0][0]-normals[0][1]*radius*.76,edges[0][0][1]+normals[0][0]*radius*.76])+' '+fmt(edges[0][0])+' Z');
   let marks='';for(let i=4;i<n-2;i+=4){marks+='M'+fmt(edges[0][i])+' Q'+fmt([points[i][0]+facing*radius*.4,points[i][1]])+' '+fmt(edges[1][i])}stripes.setAttribute('d',marks);
   const h=points[n];eye.setAttribute('r',String(Math.max(.55,scale*.8)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
  }
