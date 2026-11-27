@@ -22,17 +22,21 @@ function tolstoyWear(b,side='front'){
  const narrow=side==='spine',W=narrow?54:300,H=450;
  let seed=side==='back'?73:narrow?21:41;
  const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
- let marks='',grain='';
- // Leave the outer silhouette entirely untouched. Abrasion occurs in
- // discrete irregular patches inside the printed surface.
- const clusters=narrow?[[7,18,3,10],[W-7,430,4,12],[8,350,3,21]]:[[11,15,7,8],[W-13,14,7,6],[W-15,H-18,9,10],[12,H-14,6,7],[10,106,3,23],[W-12,380,4,18],[62,409,13,4]];
- for(const [cx,cy,rx,ry] of clusters){for(let i=0;i<(narrow?32:48);i++){
-  const x=Math.max(5,Math.min(W-5,cx+(rand()-.5)*rx*2)),y=Math.max(5,Math.min(H-5,cy+(rand()-.5)*ry*2));
-  marks+='<ellipse cx="'+x.toFixed(2)+'" cy="'+y.toFixed(2)+'" rx="'+(.25+rand()*.95).toFixed(2)+'" ry="'+(.25+rand()*1.3).toFixed(2)+'" opacity="'+(.24+rand()*.46).toFixed(2)+'"/>';
- }}
- for(let i=0;i<(narrow?100:650);i++){const x=6+rand()*(W-12),y=6+rand()*(H-12);grain+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(.2+rand()*.45).toFixed(2)+'" opacity="'+(.08+rand()*.18).toFixed(2)+'"/>'}
- const creases=narrow?'M8 15Q9 25 8 38 M45 408Q43 422 46 434':side==='back'?'M282 435Q276 425 267 420 M12 18Q16 27 15 40':'M285 435Q277 423 265 417 M13 16Q15 27 13 43 M17 82Q16 103 18 120';
- return '<svg class="tolstoy-wear" aria-hidden="true" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:hidden;display:block;background:transparent!important;box-shadow:none!important;border:0!important;filter:none!important"><g fill="#b47843">'+grain+'</g><g fill="#e9bc80">'+marks+'</g><path d="'+creases+'" fill="none" stroke="#bb713d" stroke-width="1.1" stroke-linecap="round" opacity=".56"/><path d="'+creases+'" transform="translate(.85 .4)" fill="none" stroke="#edc28b" stroke-width=".65" stroke-linecap="round" opacity=".64"/></svg>';
+ // Only localised rubbed ink: two cover corners, one larger spine-end patch.
+ // No perimeter strokes, crease lines, or general surface grain.
+ const clusters=narrow?[[13,430,12,19,105]]:side==='back'?[[289,436,8,9,44]]:[[10,12,8,8,54],[288,438,9,8,60]];
+ let marks='';
+ for(const [cx,cy,rx,ry,count] of clusters){
+  for(let i=0;i<count;i++){
+   const angle=rand()*Math.PI*2,d=Math.sqrt(rand()),rough=.75+.25*Math.sin(angle*3+.7);
+   const x=cx+Math.cos(angle)*rx*d*rough,y=cy+Math.sin(angle)*ry*d*rough;
+   if(x<1.8||x>W-1.8||y<1.8||y>H-1.8)continue;
+   const a=.18+rand()*(narrow?1.25:1.05),c=.2+rand()*(narrow?1.8:1.15);
+   const fill=rand()<.72?'#e9bc80':'#b47843',opacity=.24+rand()*.48;
+   marks+='<path d="M'+(x-a).toFixed(2)+' '+y.toFixed(2)+' l'+(a*.72).toFixed(2)+' '+(-c).toFixed(2)+' '+(a*1.23).toFixed(2)+' '+(c*.65).toFixed(2)+' '+(-a*.38).toFixed(2)+' '+(c*.83).toFixed(2)+' Z" fill="'+fill+'" opacity="'+opacity.toFixed(2)+'"/>';
+  }
+ }
+ return '<svg class="tolstoy-wear" aria-hidden="true" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:hidden;display:block;background:transparent!important;box-shadow:none!important;border:0!important;filter:none!important">'+marks+'</svg>';
 }
 function spine(b){const el=document.createElement('button');el.className='spine '+(b.spine==='solid'?'solid':'');el.style.setProperty('--edition',b.colour);el.style.width=b.thickness+'px';el.style.height=b.height+'px';el.setAttribute('aria-label','Open '+b.title);const w=b.thickness,H=b.height,solid=b.spine==='solid';
 function zone(text,top,portion,weight,max,fill,wrap){
