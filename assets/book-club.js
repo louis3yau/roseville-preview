@@ -246,8 +246,8 @@ function revealBookworm(b){
  function draw(points,facing,emerging=false){
   const normals=points.map((p,i)=>{const u=points[Math.max(0,i-1)],v=points[Math.min(points.length-1,i+1)],dx=v[0]-u[0],dy=v[1]-u[1],m=Math.hypot(dx,dy)||1;return [-dy/m,dx/m]});
   const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(emerging?1:(.76+.24*Math.min(1,i/4)));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
-  const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailTip=emerging?points[0]:[points[0][0]-normals[0][1]*radius*.76,points[0][1]+normals[0][0]*radius*.76];
-  body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' Q'+fmt([edges[1][0][0]-normals[0][1]*radius*.76,edges[1][0][1]+normals[0][0]*radius*.76])+' '+fmt(tailTip)+' Q'+fmt([edges[0][0][0]-normals[0][1]*radius*.76,edges[0][0][1]+normals[0][0]*radius*.76])+' '+fmt(edges[0][0])+' Z');
+  const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailRadius=radius*(emerging?1:.76),tailTip=[points[0][0]-normals[0][1]*tailRadius,points[0][1]+normals[0][0]*tailRadius];
+  body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' A'+tailRadius+' '+tailRadius+' 0 0 0 '+fmt(edges[0][0])+' Z');
   backing.setAttribute('d',body.getAttribute('d'));
   // Stripe spacing follows the body, not the number of visible path samples.
   let marks='',distance=0,nextStripe=radius*2.5;
