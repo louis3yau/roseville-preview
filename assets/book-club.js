@@ -238,6 +238,8 @@ function revealBookworm(b){
  const nearest=()=>booksNow().reduce((best,q)=>!best||Math.abs(q.x-b.x)<Math.abs(best.x-b.x)?q:best,null);
  const target=nearest();let dir=target&&target.x>b.x?1:-1;
  const localX=dir*Math.cos(b.angle)>0?81:19;
+ const appleSvg=b.el.querySelector('svg'),clip=document.createElementNS(ns,'clipPath'),clipRect=document.createElementNS(ns,'rect');clip.id='worm-opening-half';clip.setAttribute('clipPathUnits','userSpaceOnUse');clipRect.setAttribute('x',String(localX===19?localX:localX-5));clipRect.setAttribute('y','69');clipRect.setAttribute('width','5');clipRect.setAttribute('height','14');clip.append(clipRect);appleSvg.prepend(clip);
+ const coverOpening=on=>{if(on)hole.setAttribute('clip-path','url(#worm-opening-half)');else hole.removeAttribute('clip-path')};
  hole.setAttribute('cx',String(localX));hole.setAttribute('cy','76');
  let firstContact=null,grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
  const clamp01=x=>Math.max(0,Math.min(1,x));
@@ -278,7 +280,7 @@ function revealBookworm(b){
    const total=lengths.at(-1),visible=Math.min(total,radius*1.25+(total-radius*1.25)*ease);
    const pts=[];
    for(let i=0;i<=40;i++){const d=visible*i/40;let j=1;while(j<80&&lengths[j]<d)j++;const f=(d-lengths[j-1])/Math.max(.0001,lengths[j]-lengths[j-1]),u=route[j-1],v=route[j];pts.push([u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f])}
-   draw(pts,dir,true);
+   draw(pts,dir,true);coverOpening(true);
   }else if(t<4.95){
    if(!firstContact)firstContact={x:a[0]+dir*len*.62,ax:a[0],ay:a[1]};
    // Two complete pull/extend cycles: head stays planted on contraction;
@@ -289,8 +291,9 @@ function revealBookworm(b){
    const head=firstContact.x+dir*len*.68*reach,tailX=firstContact.ax+dir*len*.30*pull,tailY=firstContact.ay+(floor-firstContact.ay)*pull;
    const pts=[];
    for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62));pts.push([tailX+(head-tailX)*q,floor+(tailY-floor)*Math.pow(Math.max(0,1-q/.78),2)-Math.pow(Math.sin(Math.PI*u),1.65)*len*.29*arch])}
-   draw(pts,dir);
+   draw(pts,dir);coverOpening(pull<.98);
   }else{
+   coverOpening(false);
 
    if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.68:a[0]+dir*len*1.30,time:4.95};
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
