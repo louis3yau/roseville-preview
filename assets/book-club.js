@@ -230,7 +230,7 @@ function revealBookworm(b){
  const ink='#514e48',paper='#f3f0e7';
  body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','1.05');body.setAttribute('stroke-linejoin','round');
  stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.65');eye.setAttribute('fill',ink);field.append(art);
- const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=55*scale,t0=performance.now();
+ const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=67*scale,t0=performance.now();
  const booksNow=()=>bodies.filter(q=>q.kind!=='apple');
  const nearest=()=>booksNow().reduce((best,q)=>!best||Math.abs(q.x-b.x)<Math.abs(best.x-b.x)?q:best,null);
  const target=nearest();let dir=target&&target.x>b.x?1:-1;
@@ -244,10 +244,19 @@ function revealBookworm(b){
   const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(.76+.24*Math.min(1,i/4));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
   const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailTip=[points[0][0]-normals[0][1]*radius*.76,points[0][1]+normals[0][0]*radius*.76];
   body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' Q'+fmt([edges[1][0][0]-normals[0][1]*radius*.76,edges[1][0][1]+normals[0][0]*radius*.76])+' '+fmt(tailTip)+' Q'+fmt([edges[0][0][0]-normals[0][1]*radius*.76,edges[0][0][1]+normals[0][0]*radius*.76])+' '+fmt(edges[0][0])+' Z');
-  let marks='';for(let i=4;i<n-2;i+=4){marks+='M'+fmt(edges[0][i])+' Q'+fmt([points[i][0]+facing*radius*.4,points[i][1]])+' '+fmt(edges[1][i])}stripes.setAttribute('d',marks);
+  let marks='';for(let i=4;i<n-2;i+=5){marks+='M'+fmt(edges[0][i])+' Q'+fmt([points[i][0]+facing*radius*.4,points[i][1]])+' '+fmt(edges[1][i])}stripes.setAttribute('d',marks);
   const h=points[n];eye.setAttribute('r',String(Math.max(.55,scale*.8)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
  }
- function gait(head,floor,k,facing,idle=false){const phase=k*2*Math.PI/1.05,arch=idle?.08:(1-Math.cos(phase))/2,span=len*(1-.32*arch),pts=[];for(let i=0;i<=24;i++){const q=i/24;pts.push([head-facing*(1-q)*span,floor-Math.sin(q*Math.PI)*len*.37*arch-Math.pow(q,7)*radius*.55])}return pts}
+ function gait(head,floor,k,facing,idle=false){
+ const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2;
+ const span=len*(1-.27*arch),pts=[];
+ for(let i=0;i<=40;i++){
+  const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62));
+  const loop=Math.pow(Math.sin(Math.PI*u),1.65);
+  pts.push([head-facing*(1-q)*span,floor-loop*len*.33*arch]);
+ }
+ return pts
+ }
  function travel(k){const cycle=1.05,step=len*.48,n=Math.floor(k/cycle),p=k/cycle-n;return step*(n+(p<.5?0:(1-Math.cos((p-.5)*2*Math.PI))/2))}
  function paint(now){
   if(!b.el.isConnected||!art.isConnected){art.remove();b.wormActive=false;return}
@@ -257,7 +266,7 @@ function revealBookworm(b){
   if(t<2.45){
    // Extend the head down to the floor before the rear leaves the hole.
    const p=clamp01((t-.85)/1.6),pts=[],reach=len*.63*p;
-   const gap=floor-radius*.55-a[1],ease=p*p*(3-2*p);
+   const gap=floor-a[1],ease=p*p*(3-2*p);
    for(let i=0;i<=24;i++){const q=i/24;pts.push([a[0]+dir*reach*q,a[1]+gap*ease*Math.pow(q,1.35)])}
    draw(pts,dir);
   }else if(t<4.05){
@@ -266,7 +275,7 @@ function revealBookworm(b){
    const tailX=a[0],tailY=a[1]+(floor-a[1])*ease,pts=[];
    // Head stays grounded and advances; the rear slides continuously out of
    // the opening and lowers, with a gentle arch through the first pull.
-   for(let i=0;i<=24;i++){const q=i/24;pts.push([tailX+(head-tailX)*q,tailY+(floor-radius*.55-tailY)*Math.pow(q,1.35)-Math.sin(q*Math.PI)*len*.22*Math.sin(Math.PI*p)])}
+   for(let i=0;i<=24;i++){const q=i/24;pts.push([tailX+(head-tailX)*q,tailY+(floor-tailY)*Math.pow(q,1.35)-Math.sin(q*Math.PI)*len*.22*Math.sin(Math.PI*p)])}
    draw(pts,dir);
   }else{
    if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.37:a[0]+dir*len,time:4.05};
