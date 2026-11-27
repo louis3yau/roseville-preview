@@ -187,7 +187,7 @@ footer .footer-mark,body.night footer .footer-mark{background:url('../assets/chu
 .footer-home:active .footer-mark,.brand:active .menu-logo{opacity:.85}
 
 :root{--olive:#435267;--tap-link:#435267}body.night{--paper:#05070b;--ink:#f5f3ed;--olive:#a9bdd7;--line:#3b4759;--tap-link:#a9bdd7;color-scheme:dark}
-body.page-book-club footer .scripture-credit{display:block;grid-column:1/-1;margin:8px 0 0;font:10px/1.45 Arial,sans-serif;max-width:780px;color:#697589}body.night.page-book-club footer .scripture-credit{color:#aeb8c5}
+
 body.page-book-club header .outline{padding:11px 25px;letter-spacing:.04em}body.page-book-club header .outline:hover{background:#e2e8ef;color:var(--ink)}
 body.night.page-book-club header .outline:hover{background:#243449;color:var(--ink)}
 body.night.page-book-club .parent-link,body.night.page-book-club .scripture cite,body.night.page-book-club #reset-books,body.night.page-book-club #join-club{color:var(--olive)}
