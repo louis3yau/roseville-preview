@@ -776,3 +776,5 @@ main :is(h1,h2)[tabindex="-1"]:focus{outline:none}
 /* Explicitly hide collapsed panels on Safari as well as Chromium. */
 .inner-page .guide-archive-list details.guide-day:not([open])>.cares-details{display:none}
 body{overflow-x:clip}
+
+.home-life .life-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px}.home-life .life-pause{border:0;background:none;color:var(--olive);font:12px/1.4 Arial,sans-serif;padding:8px 0;cursor:pointer}.home-life .rows{overflow:hidden}.home-life .row{position:relative}
