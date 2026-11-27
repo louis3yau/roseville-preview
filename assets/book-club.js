@@ -264,15 +264,39 @@ function revealBookworm(b){
   stripes.setAttribute('d',marks);
   const h=points[n];lastHead=h[0];lastFacing=facing;eye.setAttribute('r',String(Math.max(.43,scale*.68)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
  }
- function gait(head,floor,k,facing,idle=false){
- const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2;
- const span=len*(1-.27*arch),pts=[];
- for(let i=0;i<=40;i++){
-  const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62));
-  const loop=Math.pow(Math.sin(Math.PI*u),1.65);
-  pts.push([head-facing*(1-q)*span,floor-loop*len*.33*arch]);
+ // Only books displaced from their display arrangement are obstacles.
+ // Follow the exposed upper contour, including the two rounded approaches.
+ function terrain(floor){
+  const obstacles=booksNow().filter(q=>!q.displayRest&&!q.drag).map(q=>({poly:corners(q),e:extent(q)})).filter(q=>q.e.b>=floor-radius*2&&q.e.t<floor-radius);
+  const pad=Math.max(radius*1.7,3);
+  return x=>{let y=floor;for(const {poly,e} of obstacles){
+   const left=e.l-pad,right=e.r+pad;if(x<left-pad||x>right+pad)continue;
+   const sx=Math.max(e.l+.001,Math.min(e.r-.001,x));
+   const top=verticalSpan(poly,sx).top;if(!Number.isFinite(top))continue;
+   const d=x<e.l?e.l-x:x>e.r?x-e.r:0;
+   if(d>pad*2)continue;
+   const f=Math.max(0,Math.min(1,1-d/(pad*2))),ease=f*f*(3-2*f);
+   y=Math.min(y,floor+(Math.min(floor,top-radius)-floor)*ease);
+  }return y}
  }
- return pts
+ let routeState=null;
+ function gait(head,floor,k,facing,idle=false){
+  const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2,span=len*(1-.27*arch),height=terrain(floor);
+  // Keep the original movement on flat ground, but consume travel by
+  // contour distance when climbing, so a tall book takes longer to cross.
+  if(!routeState||routeState.facing!==facing||head* facing<routeState.nominal*facing-2)routeState={facing,nominal:head,x:head};
+  let advance=Math.max(0,(head-routeState.nominal)*facing);routeState.nominal=head;
+  while(advance>.001){const step=Math.min(1,advance),x=routeState.x,y=height(x),dy=height(x+facing*step)-y;
+   const dx=step/Math.max(1,Math.hypot(step,dy)/step);routeState.x+=facing*dx;advance-=step}
+  const hx=routeState.x,pts=[],track=[[hx,height(hx)]];
+  let x=hx,y=height(x),dist=0;
+  // Sample backwards from the head by actual surface distance, so the
+  // tail follows the same climb rather than stretching across the book.
+  for(let i=1;i<=40;i++){const target=span*i/40;while(dist<target-.001){
+    const dx=Math.min(.65,target-dist),nx=x-facing*dx,ny=height(nx),d=Math.hypot(nx-x,ny-y),f=Math.min(1,(target-dist)/Math.max(.0001,d));x+=(nx-x)*f;y+=(ny-y)*f;dist+=d*f;
+   }track.push([x,y])}
+  for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62)),p=track[40-i],loop=Math.pow(Math.sin(Math.PI*u),1.65);pts.push([p[0],p[1]-loop*len*.33*arch])}
+  return pts
  }
  function travel(k){const cycle=1.05,step=len*.48,n=Math.floor(k/cycle),p=k/cycle-n;return step*(n+(p<.5?0:(1-Math.cos((p-.5)*2*Math.PI))/2))}
  function paint(now){
@@ -312,7 +336,7 @@ function revealBookworm(b){
    if(!rest&&(dir<0?head<=goal:head>=goal))rest={x:goal,time:t};
    if(rest){head=rest.x;const disturbed=booksNow().some(q=>q.drag||Math.hypot(q.vx,q.vy)>70);
     if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=head;escapeDir=-1;if(dir!==escapeDir)escapeX=head-dir*len}
-    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(head< -field.getBoundingClientRect().left-len-15){cleanup();b.wormDone=true;return}}
+    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(lastHead!==null&&lastHead< -field.getBoundingClientRect().left-len-15){cleanup();b.wormDone=true;return}}
     else draw(gait(head,floor,0,dir,true),dir);
    }else draw(gait(head,floor,t-grounded.time,dir),dir);
   }
