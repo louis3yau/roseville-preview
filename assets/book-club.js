@@ -226,10 +226,10 @@ function revealBookworm(b){
  art.setAttribute('width','100%');art.setAttribute('height','100%');art.setAttribute('aria-hidden','true');
  Object.assign(art.style,{position:'absolute',inset:'0',overflow:'visible',pointerEvents:'none',zIndex:'10000',opacity:'1',mixBlendMode:'normal'});
  const make=(tag)=>{const e=document.createElementNS(ns,tag);art.append(e);return e};
- const body=make('path'),stripes=make('path'),eye=make('circle');
+ const body=make('path'),stripes=make('path'),eye=make('circle'),monocle=make('circle');
  const ink='#514e48',paper='#f3f0e7';
  body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','1.05');body.setAttribute('stroke-linejoin','round');
- stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.65');eye.setAttribute('fill',ink);field.append(art);
+ stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.65');eye.setAttribute('fill',ink);monocle.setAttribute('fill','none');monocle.setAttribute('stroke',ink);monocle.setAttribute('stroke-width','.65');field.append(art);
  const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=67*scale,t0=performance.now();
  const booksNow=()=>bodies.filter(q=>q.kind!=='apple');
  const nearest=()=>booksNow().reduce((best,q)=>!best||Math.abs(q.x-b.x)<Math.abs(best.x-b.x)?q:best,null);
@@ -249,7 +249,7 @@ function revealBookworm(b){
   for(let i=n;i>0;i--){const p=points[i],q=points[i-1],seg=Math.hypot(p[0]-q[0],p[1]-q[1]);if(seg<.0001)continue;
    while(nextStripe<=distance+seg){const f=(nextStripe-distance)/seg;if(i>1||f<.7){const blend=(u,v)=>[u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f],c=blend(p,q),l=blend(edges[0][i],edges[0][i-1]),r=blend(edges[1][i],edges[1][i-1]);marks+='M'+fmt(l)+' Q'+fmt([c[0]+facing*radius*.4,c[1]])+' '+fmt(r)}nextStripe+=radius*2.3}distance+=seg}
   stripes.setAttribute('d',marks);
-  const h=points[n];eye.setAttribute('r',String(Math.max(.55,scale*.8)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
+  const h=points[n];eye.setAttribute('r',String(Math.max(.55,scale*.8)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));monocle.setAttribute('cx',eye.getAttribute('cx'));monocle.setAttribute('cy',eye.getAttribute('cy'));monocle.setAttribute('r',String(Math.max(1.05,radius*.62)));
  }
  function gait(head,floor,k,facing,idle=false){
  const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2;
@@ -294,8 +294,8 @@ function revealBookworm(b){
    let head=grounded.x+dir*travel(t-grounded.time);
    if(!rest&&(dir<0?head<=goal:head>=goal))rest={x:goal,time:t};
    if(rest){head=rest.x;const disturbed=booksNow().some(q=>q.drag||Math.hypot(q.vx,q.vy)>70);
-    if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=head;escapeDir=head<field.clientWidth/2?-1:1}
-    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(head>field.clientWidth+len+15||head< -len-15){art.remove();b.wormActive=false;b.wormDone=true;return}}
+    if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=head;escapeDir=-1;if(dir!==escapeDir)escapeX=head-dir*len}
+    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(head< -field.getBoundingClientRect().left-len-15){art.remove();b.wormActive=false;b.wormDone=true;return}}
     else draw(gait(head,floor,0,dir,true),dir);
    }else draw(gait(head,floor,t-grounded.time,dir),dir);
   }
