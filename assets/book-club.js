@@ -231,7 +231,7 @@ function revealBookworm(b){
  art.style.setProperty('isolation','isolate');art.style.setProperty('z-index','2147483000','important');
  body.style.setProperty('fill','#f3f0e7','important');body.style.setProperty('fill-opacity','1','important');body.style.setProperty('opacity','1','important');body.style.setProperty('mix-blend-mode','normal','important');
  const ink='#514e48',paper='#f3f0e7';
- body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','.72');body.setAttribute('stroke-linejoin','round');
+ body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','.72');body.setAttribute('stroke-linejoin','round');body.setAttribute('fill-rule','nonzero');
  stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.43');stripes.setAttribute('stroke-linecap','round');eye.setAttribute('fill',ink);field.append(art);
  const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=67*scale,t0=performance.now();
  const booksNow=()=>bodies.filter(q=>q.kind!=='apple');
@@ -278,7 +278,7 @@ function revealBookworm(b){
    const total=lengths.at(-1),visible=Math.min(total,radius*1.25+(total-radius*1.25)*ease);
    const pts=[];
    for(let i=0;i<=40;i++){const d=visible*i/40;let j=1;while(j<80&&lengths[j]<d)j++;const f=(d-lengths[j-1])/Math.max(.0001,lengths[j]-lengths[j-1]),u=route[j-1],v=route[j];pts.push([u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f])}
-   draw(pts,dir,true);hole.style.visibility='hidden';
+   draw(pts,dir,true);
   }else if(t<4.95){
    if(!firstContact)firstContact={x:a[0]+dir*len*.62,ax:a[0],ay:a[1]};
    // Two complete pull/extend cycles: head stays planted on contraction;
@@ -289,9 +289,9 @@ function revealBookworm(b){
    const head=firstContact.x+dir*len*.68*reach,tailX=firstContact.ax+dir*len*.30*pull,tailY=firstContact.ay+(floor-firstContact.ay)*pull;
    const pts=[];
    for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62));pts.push([tailX+(head-tailX)*q,floor+(tailY-floor)*Math.pow(Math.max(0,1-q/.78),2)-Math.pow(Math.sin(Math.PI*u),1.65)*len*.29*arch])}
-   draw(pts,dir);hole.style.visibility= (pull>.93?'visible':'hidden');
+   draw(pts,dir);
   }else{
-   hole.style.visibility='visible';
+
    if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.68:a[0]+dir*len*1.30,time:4.95};
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
    const goal=dir<0?Math.min(grounded.x,edge+radius*2):Math.max(grounded.x,edge-radius*2);
