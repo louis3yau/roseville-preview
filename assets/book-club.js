@@ -226,11 +226,12 @@ function revealBookworm(b){
  art.setAttribute('width','100%');art.setAttribute('height','100%');art.setAttribute('aria-hidden','true');
  Object.assign(art.style,{position:'absolute',inset:'0',overflow:'visible',pointerEvents:'none',zIndex:'10000',opacity:'1',mixBlendMode:'normal'});
  const make=(tag)=>{const e=document.createElementNS(ns,tag);art.append(e);return e};
- const body=make('path'),stripes=make('path'),eye=make('circle');
+ const backing=make('path'),body=make('path'),stripes=make('path'),eye=make('circle');
  // Explicit opaque paint and top layer, including Safari SVG compositing.
  art.style.setProperty('isolation','isolate');art.style.setProperty('z-index','2147483000','important');
  body.style.setProperty('fill','#f3f0e7','important');body.style.setProperty('fill-opacity','1','important');body.style.setProperty('opacity','1','important');body.style.setProperty('mix-blend-mode','normal','important');
  const ink='#514e48',paper='#f3f0e7';
+ backing.style.cssText='fill:'+paper+' !important;fill-opacity:1 !important;stroke:'+paper+' !important;stroke-width:.72px !important;stroke-linejoin:round !important;opacity:1 !important;mix-blend-mode:normal !important;';backing.setAttribute('fill-rule','nonzero');
  body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','.72');body.setAttribute('stroke-linejoin','round');body.setAttribute('fill-rule','nonzero');
  stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.43');stripes.setAttribute('stroke-linecap','round');eye.setAttribute('fill',ink);field.append(art);
  const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=67*scale,t0=performance.now();
@@ -238,12 +239,6 @@ function revealBookworm(b){
  const nearest=()=>booksNow().reduce((best,q)=>!best||Math.abs(q.x-b.x)<Math.abs(best.x-b.x)?q:best,null);
  const target=nearest();let dir=target&&target.x>b.x?1:-1;
  const localX=dir*Math.cos(b.angle)>0?81:19;
- const appleSvg=b.el.querySelector('svg'),defs=document.createElementNS(ns,'defs'),mask=document.createElementNS(ns,'mask'),white=document.createElementNS(ns,'rect'),occluder=document.createElementNS(ns,'path');
- mask.id='worm-opening-occlusion';mask.setAttribute('maskUnits','userSpaceOnUse');mask.setAttribute('maskContentUnits','userSpaceOnUse');mask.setAttribute('x','0');mask.setAttribute('y','0');mask.setAttribute('width','100');mask.setAttribute('height','110');
- white.setAttribute('width','100');white.setAttribute('height','110');white.setAttribute('fill','white');
- occluder.setAttribute('fill','black');occluder.setAttribute('stroke','black');occluder.setAttribute('stroke-width','.72');mask.append(white,occluder);defs.append(mask);appleSvg.prepend(defs);
- hole.removeAttribute('clip-path');hole.setAttribute('mask','url(#worm-opening-occlusion)');
- function updateOpening(){const local=appleSvg.getScreenCTM(),world=art.getScreenCTM();if(!local||!world)return;const m=local.inverse().multiply(world);occluder.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')');occluder.setAttribute('d',body.getAttribute('d')||'')}
  hole.setAttribute('cx',String(localX));hole.setAttribute('cy','76');
  let firstContact=null,grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
  const clamp01=x=>Math.max(0,Math.min(1,x));
@@ -253,7 +248,7 @@ function revealBookworm(b){
   const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(emerging?1:(.76+.24*Math.min(1,i/4)));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
   const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailTip=emerging?points[0]:[points[0][0]-normals[0][1]*radius*.76,points[0][1]+normals[0][0]*radius*.76];
   body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' Q'+fmt([edges[1][0][0]-normals[0][1]*radius*.76,edges[1][0][1]+normals[0][0]*radius*.76])+' '+fmt(tailTip)+' Q'+fmt([edges[0][0][0]-normals[0][1]*radius*.76,edges[0][0][1]+normals[0][0]*radius*.76])+' '+fmt(edges[0][0])+' Z');
-  updateOpening();
+  backing.setAttribute('d',body.getAttribute('d'));
   // Stripe spacing follows the body, not the number of visible path samples.
   let marks='',distance=0,nextStripe=radius*2.5;
   for(let i=n;i>0;i--){const p=points[i],q=points[i-1],seg=Math.hypot(p[0]-q[0],p[1]-q[1]);if(seg<.0001)continue;
@@ -307,7 +302,7 @@ function revealBookworm(b){
    if(!rest&&(dir<0?head<=goal:head>=goal))rest={x:goal,time:t};
    if(rest){head=rest.x;const disturbed=booksNow().some(q=>q.drag||Math.hypot(q.vx,q.vy)>70);
     if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=head;escapeDir=-1;if(dir!==escapeDir)escapeX=head-dir*len}
-    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(head< -field.getBoundingClientRect().left-len-15){hole.removeAttribute('mask');defs.remove();art.remove();b.wormActive=false;b.wormDone=true;return}}
+    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(head< -field.getBoundingClientRect().left-len-15){art.remove();b.wormActive=false;b.wormDone=true;return}}
     else draw(gait(head,floor,0,dir,true),dir);
    }else draw(gait(head,floor,t-grounded.time,dir),dir);
   }
