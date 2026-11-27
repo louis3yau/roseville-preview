@@ -258,44 +258,47 @@ function revealBookworm(b){
   body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' A'+tailRadius+' '+tailRadius+' 0 0 0 '+fmt(edges[0][0])+' Z');
   backing.setAttribute('d',body.getAttribute('d'));
   // Stripe spacing follows the body, not the number of visible path samples.
-  let marks='',distance=0,nextStripe=radius*2.5;
+  let marks='',distance=0,nextStripe=radius*2.5,lastMark=null;
   for(let i=n;i>0;i--){const p=points[i],q=points[i-1],seg=Math.hypot(p[0]-q[0],p[1]-q[1]);if(seg<.0001)continue;
-   while(nextStripe<=distance+seg){const f=(nextStripe-distance)/seg;if(i>1||f<.7){const blend=(u,v)=>[u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f],c=blend(p,q),l=blend(edges[0][i],edges[0][i-1]),r=blend(edges[1][i],edges[1][i-1]);marks+='M'+fmt(l)+' Q'+fmt([c[0]+facing*radius*.4,c[1]])+' '+fmt(r)}nextStripe+=radius*2.3}distance+=seg}
+   while(nextStripe<=distance+seg){const f=(nextStripe-distance)/seg;if(i>1||f<.7){const blend=(u,v)=>[u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f],c=blend(p,q),l=blend(edges[0][i],edges[0][i-1]),r=blend(edges[1][i],edges[1][i-1]);if(!lastMark||Math.min(Math.hypot(l[0]-lastMark.l[0],l[1]-lastMark.l[1]),Math.hypot(r[0]-lastMark.r[0],r[1]-lastMark.r[1]))>radius*.85){marks+='M'+fmt(l)+' Q'+fmt([c[0]+facing*radius*.25,c[1]])+' '+fmt(r);lastMark={l,r}}}nextStripe+=radius*2.3}distance+=seg}
   stripes.setAttribute('d',marks);
   const h=points[n];lastHead=h[0];lastFacing=facing;eye.setAttribute('r',String(Math.max(.43,scale*.68)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
  }
- // Only books displaced from their display arrangement are obstacles.
- // Follow the exposed upper contour, including the two rounded approaches.
+ // Use a rounded, clearance-offset contour of grounded displaced books.
+ // A moving airborne book is never a climbing surface.
  function terrain(floor){
-  const obstacles=booksNow().filter(q=>!q.displayRest&&!q.drag).map(q=>({poly:corners(q),e:extent(q)})).filter(q=>q.e.b>=floor-radius*2&&q.e.t<floor-radius);
-  const pad=Math.max(radius*1.7,3);
+  const obstacles=booksNow().filter(q=>!q.displayRest&&!q.drag&&Math.hypot(q.vx,q.vy)<45&&Math.abs(q.spin)<.65).map(q=>({poly:corners(q),e:extent(q)})).filter(q=>q.e.b>=floor-radius*2&&q.e.t<floor-radius);
+  const pad=Math.max(radius*2.5,5);
   return x=>{let y=floor;for(const {poly,e} of obstacles){
-   const left=e.l-pad,right=e.r+pad;if(x<left-pad||x>right+pad)continue;
-   const sx=Math.max(e.l+.001,Math.min(e.r-.001,x));
-   const top=verticalSpan(poly,sx).top;if(!Number.isFinite(top))continue;
-   const d=x<e.l?e.l-x:x>e.r?x-e.r:0;
+   const sx=Math.max(e.l+.001,Math.min(e.r-.001,x)),d=Math.abs(x-sx);
    if(d>pad*2)continue;
-   const f=Math.max(0,Math.min(1,1-d/(pad*2))),ease=f*f*(3-2*f);
+   const top=verticalSpan(poly,sx).top;if(!Number.isFinite(top))continue;
+   const f=clamp01(1-d/(pad*2)),ease=f*f*(3-2*f);
    y=Math.min(y,floor+(Math.min(floor,top-radius)-floor)*ease);
   }return y}
  }
  let routeState=null;
  function gait(head,floor,k,facing,idle=false){
-  const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2,span=len*(1-.27*arch),height=terrain(floor);
-  // Keep the original movement on flat ground, but consume travel by
-  // contour distance when climbing, so a tall book takes longer to cross.
-  if(!routeState||routeState.facing!==facing||head* facing<routeState.nominal*facing-2)routeState={facing,nominal:head,x:head};
+  const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2,height=terrain(floor);
+  if(!routeState||routeState.facing!==facing||head*facing<routeState.nominal*facing-2)routeState={facing,nominal:head,x:head,y:floor};
   let advance=Math.max(0,(head-routeState.nominal)*facing);routeState.nominal=head;
-  while(advance>.001){const step=Math.min(1,advance),x=routeState.x,y=height(x),dy=height(x+facing*step)-y;
-   const dx=step/Math.max(1,Math.hypot(step,dy)/step);routeState.x+=facing*dx;advance-=step}
-  const hx=routeState.x,pts=[],track=[[hx,height(hx)]];
-  let x=hx,y=height(x),dist=0;
-  // Sample backwards from the head by actual surface distance, so the
-  // tail follows the same climb rather than stretching across the book.
+  // Limit vertical displacement by the same distance budget as horizontal
+  // crawling, even when an obstacle appears underneath the head.
+  while(advance>.001){const step=Math.min(.5,advance),x=routeState.x,y=routeState.y,goal=height(x+facing*step),dy=goal-y;
+   if(Math.abs(dy)>step*2){routeState.y+=Math.sign(dy)*step}
+   else{const dx=step/Math.max(1,Math.hypot(step,dy)/step);routeState.x+=facing*dx;routeState.y+=clamp(height(routeState.x)-y,-step,step)}
+   advance-=step
+  }
+  const hx=routeState.x,hy=routeState.y,pts=[],track=[[hx,hy]];
+  const climbing=Math.abs(hy-floor)>radius||Array.from({length:9},(_,i)=>height(hx-facing*len*i/8)).some(y=>y<floor-radius);
+  const span=len*(1-(climbing?.08:.27)*arch);
+  let x=hx,y=hy,dist=0;
   for(let i=1;i<=40;i++){const target=span*i/40;while(dist<target-.001){
     const dx=Math.min(.65,target-dist),nx=x-facing*dx,ny=height(nx),d=Math.hypot(nx-x,ny-y),f=Math.min(1,(target-dist)/Math.max(.0001,d));x+=(nx-x)*f;y+=(ny-y)*f;dist+=d*f;
    }track.push([x,y])}
-  for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.19)/.62)),p=track[40-i],loop=Math.pow(Math.sin(Math.PI*u),1.65);pts.push([p[0],p[1]-loop*len*.33*arch])}
+  // Round sharp changes in direction before offsetting the outline.
+  for(let pass=0;pass<4;pass++){const old=track.map(p=>p.slice());for(let i=1;i<40;i++){track[i][0]=(old[i-1][0]+2*old[i][0]+old[i+1][0])/4;track[i][1]=Math.min(height(track[i][0]),(old[i-1][1]+2*old[i][1]+old[i+1][1])/4)}}
+  for(let i=0;i<=40;i++){const q=i/40,u=clamp01((q-.19)/.62),p=track[40-i],loop=Math.pow(Math.sin(Math.PI*u),1.65);pts.push([p[0],p[1]-loop*(climbing?radius*.35:len*.33)*arch])}
   return pts
  }
  function travel(k){const cycle=1.05,step=len*.48,n=Math.floor(k/cycle),p=k/cycle-n;return step*(n+(p<.5?0:(1-Math.cos((p-.5)*2*Math.PI))/2))}
