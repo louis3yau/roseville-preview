@@ -147,4 +147,44 @@
 .cover-opening-leaf .sheet-side .face{width:100%;height:100%;max-width:none}
 .cover-opening-leaf .sheet-side .page{visibility:visible!important}
 @media(max-width:700px){.free-books{height:330px;margin-top:20px}}
-</style><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400&display=swap"></head><body><header><a class="brand" href="../"><img src="../assets/menu-logo.png" alt=""><span><strong>Roseville</strong><small>PRESBYTERIAN CHURCH</small></span></a><button class="menu" aria-label="Menu" aria-expanded="false">☰</button><nav><a href="../about/">About</a><a href="../resources/">Worship &amp; Bible</a><a href="../community/" aria-current="page">Community</a><a href="../calendar/">Calendar</a><a class="outline" href="../visit/">Visit us →</a></nav></header><main class="section"><a class="parent" href="../community/">‹ Community</a><h1>Book Club</h1><p>Good books are better shared.</p><p class="demo">Development preview · Sample books and reading records · No emails are sent.</p><div class="free-books" id="club" aria-label="Books"></div><p class="hint">Move the books around. Double tap to open.</p><p class="reset-line"><button id="reset-books" type="button">Reset arrangement</button></p></main><footer><div>Roseville Presbyterian Church<br>28 Lord Street, Roseville</div><div>To love God and to love his own;<br>to know Christ and to make him known.</div></footer><dialog class="bookmodal" id="reader" aria-label="Book preview"><div class="toolbar"><button id="return">‹ Return to shelf</button><span class="demo" id="label"></span></div><div class="stage" id="stage"></div><div class="controls" id="controls"></div><p class="demo" style="text-align:center" id="status" aria-live="polite"></p></dialog><script src="../assets/book-club.js?v=9" defer></script></body></html>
+
+/* v10 — small paperbacks with actual front, back and page-block surfaces. */
+.free-books{height:285px;perspective:1000px;overflow:hidden}
+.free-books .spine,.free-books .spine:last-child{overflow:visible;background:none;border:0;box-shadow:none;border-radius:0;transform-style:preserve-3d}
+.book-solid{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}
+.book-solid>div{position:absolute;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.solid-spine,.solid-edges{inset:0;background:var(--edition);transform:translateZ(calc(var(--coverw)/2))}
+.solid-spine .mark{position:absolute;bottom:13%;left:33%;width:34%;height:8%}
+.solid-edges{background:repeating-linear-gradient(90deg,#e4dbc6 0,#e4dbc6 1px,#faf3e0 2px,#faf3e0 3px);transform:rotateY(180deg) translateZ(calc(var(--coverw)/2))}
+.solid-front,.solid-back{width:var(--coverw);height:var(--bh);top:0;left:50%;background:var(--edition);transform:translateX(-50%) rotateY(90deg) translateZ(calc(var(--bw)/2))}
+.solid-back{transform:translateX(-50%) rotateY(-90deg) translateZ(calc(var(--bw)/2))}
+.solid-front .face{width:100%;height:100%;aspect-ratio:auto;box-shadow:none;container-type:inline-size;border-radius:0}
+.solid-front .arch{width:26%;height:16%}
+.solid-front .author{font-size:5.1cqw;letter-spacing:.11em}
+.solid-front .titlefit{font-size:8cqw;white-space:normal;overflow-wrap:anywhere}
+.solid-front .subtitle{font-size:3.5cqw;letter-spacing:.06em;white-space:normal}
+.solid-front .titlefit span{white-space:normal;max-width:100%}
+.solid-front .rule{height:1px}
+.solid-back{container-type:inline-size}
+.mini-back-copy{position:absolute;inset:8% 9% 18%;font:600 4.2cqw/1.35 Arial;color:#191917}
+.mini-back-copy p,.mini-back-copy blockquote{margin:0 0 .8em}
+.mini-back-copy blockquote{border-top:1px solid #f8eacb;padding-top:.5em}
+.mini-back-copy small{display:block;font-size:.75em;font-weight:400}
+.mini-back-footer{position:absolute;bottom:4%;left:8%;right:8%;display:flex;justify-content:space-between;align-items:center}
+.mini-back-footer .mark{position:static;width:13%;height:auto}
+.mini-back-footer .barcode{width:30%;font-size:3cqw;padding:1px}
+.mini-back-footer .barcode svg{height:5cqw}
+.solid-top,.solid-bottom{width:var(--bw);height:var(--coverw);left:0;top:50%;background:repeating-linear-gradient(90deg,#e9dfc9 0,#faf3e0 2px,#e9dfc9 3px);transform:translateY(-50%) rotateX(90deg) translateZ(calc(var(--bh)/2))}
+.solid-bottom{transform:translateY(-50%) rotateX(-90deg) translateZ(calc(var(--bh)/2))}
+.stage .face{border-radius:0}
+.stage .face::after{background:none;opacity:.65;box-shadow:inset 1px 0 1px #38261922,inset -1px 0 1px #38261917,inset 0 -1px 1px #38261915}
+.spread .titlepage{padding-top:24%;justify-content:flex-start}
+.titlepage .dedication{position:absolute;bottom:16%;right:10%;width:76%;margin:0;text-align:left;font-family:var(--dedication-font,'La Belle Aurore'),cursive;transform:rotate(-3deg);font-size:clamp(11px,2.8vw,18px);line-height:1.27}
+.page .accesslink{display:inline-block;margin:.3em 0}
+.font-preview{max-width:440px;margin:15px auto;color:#435267;font-size:12px}
+.font-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.font-choices button{background:#faf5e8;border:1px solid #d9dbcd;padding:10px;text-align:left;color:#435267}
+.font-choices button[aria-pressed=true]{border-color:#435267}
+.font-choices small,.font-choices span{display:block}.font-choices span{font-size:19px;line-height:1.3;margin-top:8px}
+@media(max-width:700px){.free-books{height:250px}}
+</style><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400&amp;family=La+Belle+Aurore&amp;family=Nothing+You+Could+Do&amp;family=Patrick+Hand&amp;display=swap"></head><body><header><a class="brand" href="../"><img src="../assets/menu-logo.png" alt=""><span><strong>Roseville</strong><small>PRESBYTERIAN CHURCH</small></span></a><button class="menu" aria-label="Menu" aria-expanded="false">☰</button><nav><a href="../about/">About</a><a href="../resources/">Worship &amp; Bible</a><a href="../community/" aria-current="page">Community</a><a href="../calendar/">Calendar</a><a class="outline" href="../visit/">Visit us →</a></nav></header><main class="section"><a class="parent" href="../community/">‹ Community</a><h1>Book Club</h1><p>Good books are better shared.</p><p class="demo">Development preview · Sample books and reading records · No emails are sent.</p><div class="free-books" id="club" aria-label="Books"></div><p class="hint">Move the books around. Double tap to open.</p><p class="reset-line"><button id="reset-books" type="button">Reset arrangement</button></p><details class="font-preview"><summary>Dedication font preview</summary><div class="font-choices"><button data-font="La Belle Aurore"><small>La Belle Aurore</small><span>Good books are better shared.</span></button><button data-font="Caveat"><small>Caveat</small><span>Good books are better shared.</span></button><button data-font="Nothing You Could Do"><small>Nothing You Could Do</small><span>Good books are better shared.</span></button><button data-font="Patrick Hand"><small>Patrick Hand</small><span>Good books are better shared.</span></button></div></details></main><footer><div>Roseville Presbyterian Church<br>28 Lord Street, Roseville</div><div>To love God and to love his own;<br>to know Christ and to make him known.</div></footer><dialog class="bookmodal" id="reader" aria-label="Book preview"><div class="toolbar"><button id="return">‹ Return to shelf</button><span class="demo" id="label"></span></div><div class="stage" id="stage"></div><div class="controls" id="controls"></div><p class="demo" style="text-align:center" id="status" aria-live="polite"></p></dialog><script src="../assets/book-club.js?v=10" defer></script></body></html>
