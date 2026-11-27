@@ -230,13 +230,13 @@ function revealBookworm(b){
  const ink='#514e48',paper='#f3f0e7';
  body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','1.05');body.setAttribute('stroke-linejoin','round');
  stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.65');eye.setAttribute('fill',ink);field.append(art);
- const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=40*scale,t0=performance.now();
+ const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=55*scale,t0=performance.now();
  const booksNow=()=>bodies.filter(q=>q.kind!=='apple');
  const nearest=()=>booksNow().reduce((best,q)=>!best||Math.abs(q.x-b.x)<Math.abs(best.x-b.x)?q:best,null);
  const target=nearest();let dir=target&&target.x>b.x?1:-1;
  const localX=dir*Math.cos(b.angle)>0?81:19;
  hole.setAttribute('cx',String(localX));hole.setAttribute('cy','76');
- let grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
+ let firstContact=null,grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
  const clamp01=x=>Math.max(0,Math.min(1,x));
  function anchor(){const u=(localX-50)*b.w/110,v=21*b.h/110,c=Math.cos(b.angle),s=Math.sin(b.angle);return [b.x+u*c-v*s,b.y+u*s+v*c]}
  function draw(points,facing){
@@ -254,12 +254,22 @@ function revealBookworm(b){
   const t=(now-t0)/1000,floor=field.clientHeight-8-radius,a=anchor(),r=clamp01((t-.1)/.7);
   hole.setAttribute('rx',String(3.4*r));hole.setAttribute('ry',String(4.2*r));
   if(t<.85){requestAnimationFrame(paint);return}
-  if(t<3.25){
-   const p=clamp01((t-.85)/2.4),pts=[],reach=len*p;
-   for(let i=0;i<=24;i++){const q=i/24,f=p*q,xx=a[0]+dir*reach*q,yy=a[1]+(floor-a[1])*Math.pow(f,1.4)-Math.sin(q*Math.PI)*Math.sin(p*Math.PI)*radius*1.4;pts.push([xx,yy])}
+  if(t<2.45){
+   // Extend the head down to the floor before the rear leaves the hole.
+   const p=clamp01((t-.85)/1.6),pts=[],reach=len*.63*p;
+   const gap=floor-radius*.55-a[1],ease=p*p*(3-2*p);
+   for(let i=0;i<=24;i++){const q=i/24;pts.push([a[0]+dir*reach*q,a[1]+gap*ease*Math.pow(q,1.35)])}
+   draw(pts,dir);
+  }else if(t<4.05){
+   if(!firstContact)firstContact={x:a[0]+dir*len*.63};
+   const p=clamp01((t-2.45)/1.6),ease=p*p*(3-2*p),head=firstContact.x+dir*len*.37*ease;
+   const tailX=a[0],tailY=a[1]+(floor-a[1])*ease,pts=[];
+   // Head stays grounded and advances; the rear slides continuously out of
+   // the opening and lowers, with a gentle arch through the first pull.
+   for(let i=0;i<=24;i++){const q=i/24;pts.push([tailX+(head-tailX)*q,tailY+(floor-radius*.55-tailY)*Math.pow(q,1.35)-Math.sin(q*Math.PI)*len*.22*Math.sin(Math.PI*p)])}
    draw(pts,dir);
   }else{
-   if(!grounded)grounded={x:a[0]+dir*len,time:t};
+   if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.37:a[0]+dir*len,time:4.05};
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
    const goal=dir<0?Math.min(grounded.x,edge+radius*2):Math.max(grounded.x,edge-radius*2);
    let head=grounded.x+dir*travel(t-grounded.time);
@@ -277,7 +287,7 @@ function revealBookworm(b){
 }
 
 // Apple and bookworm are independent from the reader modal.
-function addApple(){const el=document.createElement('button');el.type='button';el.className='spine apple-object';el.setAttribute('aria-label','Apple, tap for worm or drag to throw');el.innerHTML='<svg viewBox="0 0 100 110" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.35" d="M44 31 Q36 28 28 31 L22 33 18 37 14 40 12 44 9 48 6 55 5.5 63 6 69 9 75 8.5 79 12 85 16 92 21 97 27 103 34 106 40 106 46 104.5 51 105 55 107 61 106.5 68 104 74 99 80 92 84 85 88 76 90 69 90 63 88 56 88 50 85 43 81 39 76 35 70 32 63 30 57 31"/><path fill="currentColor" stroke-width=".4" d="M40 34 47 32 44 27 39 23 39 21 42 18 45 18 49 24 52 29 53 33 58 33 55 34 48 35Z"/><path class="apple-leaf" fill="currentColor" stroke-width=".5" d="M52 30 54 24 58 17 63 12 69 9 77 8 86 8 91 7 96 5 93 11 90 16 85 21 79 24 73 26 66 25.5 59 26 55 28Z"/><g stroke-width=".65"><path d="M14 51l2 -4 M17 80l1 3 M21 90l1 5 M24 91l1 8 M27 93l1 8 M30 96l1 7 M33 98l1 5 M37 99l.5 4 M41 101l.5 2 M45 100l.5 3 M49 98l.5 5 M53 95l1 7 M57 94l.5 9 M60 91v12 M63 88l-.5 14 M66 87l-1 14 M69 83l-1 17 M72 79l-1 19 M75 76l-1 19 M78 73l-1 18 M82 68v15 M86 60l1 13 M75 53l1 4 M77 48l1 10 M79 47l2 8 M82 47l1 8 M85 50v5"/></g><ellipse class="worm-hole" cx="19" cy="76" rx="0" ry="0" fill="currentColor" stroke="none"/></g></svg>';attachPhysics(el,{kind:'apple',thickness:40,height:40,title:'Apple'});field.append(el)}
+function addApple(){const el=document.createElement('button');el.type='button';el.className='spine apple-object';el.setAttribute('aria-label','Apple, tap for worm or drag to throw');el.innerHTML='<svg viewBox="0 0 100 110" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.05" d="M44 31 Q36 28 28 31 L22 33 18 37 14 40 12 44 9 48 6 55 5.5 63 6 69 9 75 8.5 79 12 85 16 92 21 97 27 103 34 106 40 106 46 104.5 51 105 55 107 61 106.5 68 104 74 99 80 92 84 85 88 76 90 69 90 63 88 56 88 50 85 43 81 39 76 35 70 32 63 30 57 31"/><path fill="currentColor" stroke-width=".4" d="M45 33 Q48 32 46 28 L41 22 Q40 20 42 19 L44 19 Q48 24 50 29 L51 33 Q50 35 45 34Z"/><path class="apple-leaf" fill="currentColor" stroke-width=".5" d="M52 30 54 24 58 17 63 12 69 9 77 8 86 8 91 7 96 5 93 11 90 16 85 21 79 24 73 26 66 25.5 59 26 55 28Z"/><g stroke-width=".65"><path d="M14 51l2 -4 M17 80l1 3 M21 90l1 5 M24 91l1 8 M27 93l1 8 M30 96l1 7 M33 98l1 5 M37 99l.5 4 M41 101l.5 2 M45 100l.5 3 M49 98l.5 5 M53 95l1 7 M57 94l.5 9 M60 91v12 M63 88l-.5 14 M66 87l-1 14 M69 83l-1 17 M72 79l-1 19 M75 76l-1 19 M78 73l-1 18 M82 68v15 M86 60l1 13 M75 53l1 4 M77 48l1 10 M79 47l2 8 M82 47l1 8 M85 50v5"/></g><ellipse class="worm-hole" cx="19" cy="76" rx="0" ry="0" fill="currentColor" stroke="none"/></g></svg>';attachPhysics(el,{kind:'apple',thickness:40,height:40,title:'Apple'});field.append(el)}
 
 let joinedApple=false;
 $('#join-club').onclick=()=>{if(joinedApple||!books.length||restacking||activeDrag)return;joinedApple=true;addApple();const b=bodies.at(-1),size=Math.max(56,Math.min(88,field.clientWidth*.21)),total=bodies.filter(q=>q.kind!=='apple').reduce((s,q)=>s+q.w+5,0);b.w=b.h=size;b.x=Math.min(field.clientWidth-size/2-12,field.clientWidth/2+total/2+size/2+22);b.y=size/2;b.angle=b.yaw=b.vx=b.spin=b.yawVelocity=0;b.vy=reduced()?0:40;b.mass=.95;b.inertia=b.mass*Math.pow(size*.36,2)*.55;b.drag=false;b.asleep=false;b.displayRest=false;b.el.style.width=size+'px';b.el.style.height=size+'px';b.el.style.zIndex=++layer;if(reduced()){b.y=field.clientHeight-8-(extent(b).b-b.y);b.asleep=true;b.supportY=field.clientHeight-8}drawBody(b);wake()};
