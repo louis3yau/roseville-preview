@@ -44,8 +44,8 @@ function access(){return '<h2>Where to find it</h2>'+((book.access||[]).filter(x
 function hasMore(){return !!((book.quotes||[]).length||book.completed)}
 function next(){return mode==='front'?'inside':mode==='inside'?'access':mode==='access'?(hasMore()?'reviews':'back'):mode==='reviews'?'back':'front'}
 function prev(){return mode==='back'?(hasMore()?'reviews':'access'):mode==='reviews'?'access':mode==='access'?'inside':mode==='inside'?'front':'back'}
-function render(){stage.className='stage';controls.innerHTML='';const b=book,quotes=b.quotes||[];if(mode==='front')stage.innerHTML=front();
-else if(mode==='back')stage.innerHTML='<div class="face back" tabindex="0" aria-label="Back cover"><div class="backcopy"><p>'+esc(b.blurb)+'</p>'+(quotes.length?'<hr>'+quotes.slice(0,3).map(q=>'<blockquote>“'+esc(q.quote)+'”<small>'+esc(q.name.toUpperCase())+'</small></blockquote>').join(''):'')+'</div><div class="bookfooter">'+mark()+'<div><strong>ROSEVILLE</strong>BOOK CLUB</div><div class="middle">FROM THE<br>BOOKSHELF</div>'+barcode()+'</div></div>';
+function render(){stage.className='stage';controls.innerHTML='';const b=book,quotes=b.quotes||[],backQuotes=quotes.length?quotes:(b.excerpt_quotes||[]);if(mode==='front')stage.innerHTML=front();
+else if(mode==='back')stage.innerHTML='<div class="face back" tabindex="0" aria-label="Back cover"><div class="backcopy"><p>'+esc(b.blurb)+'</p>'+(backQuotes.length?'<hr>'+backQuotes.slice(0,3).map(q=>'<blockquote>“'+esc(q.quote)+'”<small>'+esc(q.name.toUpperCase())+'</small></blockquote>').join(''):'')+'</div><div class="bookfooter">'+mark()+'<div><strong>ROSEVILLE</strong>BOOK CLUB</div><div class="middle">FROM THE<br>BOOKSHELF</div>'+barcode()+'</div></div>';
 else if(mode==='inside')stage.innerHTML=spread(page(cardMini(),0,'pocketpage'),page('<small>'+esc(b.author.toUpperCase())+'</small><h2>'+esc(b.title)+'</h2><em>'+esc(b.subtitle)+'</em><div class="dedication">'+esc(b.reason)+'</div><div class="imprint">ROSEVILLE BOOKS</div>',1,'titlepage'));
 else if(mode==='access')stage.innerHTML=spread(page(access(),2),page(b.completed?'<div class="stamp">FINISHED<br>'+esc(b.completed)+'</div>':'',3));
 else stage.innerHTML=spread(page('<h2>In the margins</h2>'+quotes.map(q=>'<p>“'+esc(q.quote)+'”<br>— '+esc(q.name)+'</p>').join(''),4),page(b.completed?'<div class="stamp">FINISHED<br>'+esc(b.completed)+'</div>':'',5));
@@ -56,23 +56,30 @@ function go(target){
  const forward=target===next();
  function copy(node){if(!node)return null;const c=node.cloneNode(true);c.removeAttribute('id');c.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));c.inert=true;c.setAttribute('aria-hidden','true');return c}
  const turning=copy(oldSpread?.children[forward?1:0]),stationary=copy(oldSpread?.children[forward?0:1]),cover=copy(oldFace);
+ const oldRect=oldFace?.getBoundingClientRect();
  mode=target;render();const dest=stage.querySelector('.spread');if(reduced()||!dest)return;
  const receiving=dest.children[forward?0:1];
- if((oldMode==='front'&&cover)||turning){
+ if(oldMode==='front'&&cover){
   busy=true;
-  const leaf=document.createElement('div'),under=document.createElement('div');
-  const opening=oldMode==='front'&&cover;
-  leaf.className=opening?'opening-cover':'page-turn-sheet '+(forward?'forward':'reverse');
-  under.className='stationary-leaf '+(forward?'left':'right');under.inert=true;under.setAttribute('aria-hidden','true');
-  if(stationary)under.append(stationary);
-  else under.classList.add('empty-leaf');
-  const frontSide=document.createElement('div');frontSide.className='sheet-side';frontSide.append(opening?cover:turning);
-  const reverseSide=document.createElement('div');reverseSide.className='sheet-side backside';reverseSide.append(copy(receiving));
-  leaf.append(frontSide,reverseSide);
-  receiving.style.visibility='hidden';
-  dest.append(under,leaf);
-  const done=()=>{receiving.style.visibility='';under.remove();leaf.remove();busy=false};
-  leaf.addEventListener('animationend',done,{once:true});setTimeout(()=>{if(leaf.isConnected)done()},800);
+  const leaf=document.createElement('div');leaf.className='cover-opening-leaf';
+  const f=document.createElement('div');f.className='sheet-side';f.append(cover);
+  const back=document.createElement('div');back.className='sheet-side backside';back.append(copy(receiving));
+  leaf.append(f,back);receiving.style.visibility='hidden';dest.append(leaf);
+  const right=dest.children[1],r=right.getBoundingClientRect();
+  const initialX=oldRect?oldRect.left-r.left:0,initialY=oldRect?oldRect.top-r.top:0,scale=oldRect?oldRect.width/r.width:1;
+  const bookAnim=dest.animate([{transform:'translateX('+(-r.width/2)+'px) scale('+Math.min(1.25,scale)+')'},{transform:'none'}],{duration:620,easing:'cubic-bezier(.35,.02,.24,1)'});
+  // Keep the front rigid and attached to the hinge; reveal the inner cover only on its reverse.
+  const anim=leaf.animate([{transform:'rotateY(0deg)'},{transform:'rotateY(-180deg)'}],{duration:620,easing:'cubic-bezier(.35,.02,.24,1)',fill:'forwards'});
+  const done=()=>{if(!leaf.isConnected)return;receiving.style.visibility='';leaf.remove();busy=false};
+  anim.onfinish=done;setTimeout(done,740);return
+ }
+ if(turning){
+  busy=true;const leaf=document.createElement('div'),under=document.createElement('div');
+  leaf.className='page-turn-sheet '+(forward?'forward':'reverse');
+  under.className='stationary-leaf '+(forward?'left':'right');under.inert=true;under.setAttribute('aria-hidden','true');if(stationary)under.append(stationary);else under.classList.add('empty-leaf');
+  const f=document.createElement('div');f.className='sheet-side';f.append(turning);
+  const back=document.createElement('div');back.className='sheet-side backside';back.append(copy(receiving));leaf.append(f,back);receiving.style.visibility='hidden';dest.append(under,leaf);
+  const done=()=>{receiving.style.visibility='';under.remove();leaf.remove();busy=false};leaf.addEventListener('animationend',done,{once:true});setTimeout(()=>{if(leaf.isConnected)done()},800)
  }
 }
 function wireCard(){const card=stage.querySelector('.pocketpage .cardmini');if(!card)return;let start=null,moved=false;card.style.setProperty('--lift','0px');card.onpointerdown=e=>{if(e.target.closest('button'))return;e.stopPropagation();start={x:e.clientX,y:e.clientY};moved=false;card.setPointerCapture(e.pointerId);card.style.transition='none'};card.onpointermove=e=>{if(!start)return;const delta=start.y-e.clientY;if(Math.abs(delta)>4)moved=true;card.style.setProperty('--lift',-Math.max(0,Math.min(card.offsetHeight*.25,delta))+'px')};card.onpointerup=e=>{if(!start)return;e.stopPropagation();const delta=start.y-e.clientY;start=null;card.style.transition='';if(!moved||delta>8)extractCard();else card.style.setProperty('--lift','0px')};card.onpointercancel=()=>{start=null;card.style.transition='';card.style.setProperty('--lift','0px')};card.onkeydown=e=>{if(e.target===card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopPropagation();extractCard()}};card.onclick=e=>e.stopPropagation();const add=card.querySelector('#add');if(add)add.onclick=e=>{e.stopPropagation();extractCard();signup()};const fin=card.querySelector('#finish');if(fin)fin.onclick=e=>{e.stopPropagation();extractCard()}}
@@ -85,4 +92,4 @@ stage.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-poi
 stage.addEventListener('click',e=>{if(ignoreClick||busy||e.target.closest('.cardmini,.signpop,.card-extracted,button,input,a'))return;if(e.target===stage){const popup=stage.querySelector('.signpop');if(popup)popup.remove();else close();return}const page=e.target.closest('.page');if(page){go(page===page.parentElement.firstElementChild?prev():next());return}if(e.target.closest('.face'))go(next())});
 stage.addEventListener('keydown',e=>{if(stage.querySelector('.card-extracted')){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(stage.querySelector('.signpop'))stage.querySelector('.signpop').remove();else reinsertCard()}return}if(e.target.closest('input,button,.cardmini,.signpop,a'))return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key==='Enter'||e.key===' '){e.preventDefault();go(e.key==='ArrowLeft'?prev():next())}});
 window.addEventListener('resize',fitAll);document.querySelector('.menu').onclick=e=>{const v=document.querySelector('nav').classList.toggle('open');e.currentTarget.setAttribute('aria-expanded',String(v))};
-fetch('../assets/book-club.json?v=7').then(r=>{if(!r.ok)throw Error('Content unavailable');return r.json()}).then(data=>{books=data.books;for(const b of books){const shelf=document.getElementById(b.shelf==='recommended'?'recommended':'club');shelf.append(spine(b))}}).catch(()=>{$('.hint').textContent='The bookshelf could not load. Please refresh.'});})();
+fetch('../assets/book-club.json?v=8').then(r=>{if(!r.ok)throw Error('Content unavailable');return r.json()}).then(data=>{books=data.books;for(const b of books){const shelf=document.getElementById('club');shelf.append(spine(b))}}).catch(()=>{$('.hint').textContent='The bookshelf could not load. Please refresh.'});})();
