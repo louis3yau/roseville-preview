@@ -239,12 +239,16 @@ function revealBookworm(b){
  let firstContact=null,grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
  const clamp01=x=>Math.max(0,Math.min(1,x));
  function anchor(){const u=(localX-50)*b.w/110,v=21*b.h/110,c=Math.cos(b.angle),s=Math.sin(b.angle);return [b.x+u*c-v*s,b.y+u*s+v*c]}
- function draw(points,facing){
+ function draw(points,facing,emerging=false){
   const normals=points.map((p,i)=>{const u=points[Math.max(0,i-1)],v=points[Math.min(points.length-1,i+1)],dx=v[0]-u[0],dy=v[1]-u[1],m=Math.hypot(dx,dy)||1;return [-dy/m,dx/m]});
-  const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(.76+.24*Math.min(1,i/4));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
-  const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailTip=[points[0][0]-normals[0][1]*radius*.76,points[0][1]+normals[0][0]*radius*.76];
+  const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(emerging?1:(.76+.24*Math.min(1,i/4)));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
+  const fmt=p=>p[0].toFixed(2)+' '+p[1].toFixed(2),n=points.length-1; const headTip=[points[n][0]+normals[n][1]*radius,points[n][1]-normals[n][0]*radius],tailTip=emerging?points[0]:[points[0][0]-normals[0][1]*radius*.76,points[0][1]+normals[0][0]*radius*.76];
   body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' Q'+fmt([edges[1][0][0]-normals[0][1]*radius*.76,edges[1][0][1]+normals[0][0]*radius*.76])+' '+fmt(tailTip)+' Q'+fmt([edges[0][0][0]-normals[0][1]*radius*.76,edges[0][0][1]+normals[0][0]*radius*.76])+' '+fmt(edges[0][0])+' Z');
-  let marks='';for(let i=4;i<n-2;i+=5){marks+='M'+fmt(edges[0][i])+' Q'+fmt([points[i][0]+facing*radius*.4,points[i][1]])+' '+fmt(edges[1][i])}stripes.setAttribute('d',marks);
+  // Stripe spacing follows the body, not the number of visible path samples.
+  let marks='',distance=0,nextStripe=radius*2.5;
+  for(let i=n;i>0;i--){const p=points[i],q=points[i-1],seg=Math.hypot(p[0]-q[0],p[1]-q[1]);if(seg<.0001)continue;
+   while(nextStripe<=distance+seg){const f=(nextStripe-distance)/seg;if(i>1||f<.7){const blend=(u,v)=>[u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f],c=blend(p,q),l=blend(edges[0][i],edges[0][i-1]),r=blend(edges[1][i],edges[1][i-1]);marks+='M'+fmt(l)+' Q'+fmt([c[0]+facing*radius*.4,c[1]])+' '+fmt(r)}nextStripe+=radius*2.3}distance+=seg}
+  stripes.setAttribute('d',marks);
   const h=points[n];eye.setAttribute('r',String(Math.max(.55,scale*.8)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
  }
  function gait(head,floor,k,facing,idle=false){
@@ -264,12 +268,14 @@ function revealBookworm(b){
   hole.setAttribute('rx',String(3.4*r));hole.setAttribute('ry',String(4.2*r));
   if(t<.85){requestAnimationFrame(paint);return}
   if(t<2.85){
-   // Two small reach-and-contract motions while the tail is inside.
-   const p=clamp01((t-.85)/2),pts=[];
-   const ease=p*p*(3-2*p),pulse=Math.pow(Math.sin(p*2*Math.PI),2);
-   const reach=len*(.62*ease-.065*pulse*p),gap=floor-a[1];
-   for(let i=0;i<=40;i++){const q=i/40,u=Math.max(0,Math.min(1,(q-.12)/.74));pts.push([a[0]+dir*reach*q,a[1]+gap*ease*(1-Math.pow(1-q,2))-Math.pow(Math.sin(Math.PI*u),1.7)*len*.12*pulse*p])}
-   draw(pts,dir);
+   // Feed a full-width worm along a fixed curved route, revealing its
+   // actual length progressively. The rounded head never scales.
+   const p=clamp01((t-.85)/2),ease=p*p*(3-2*p),gap=floor-a[1],route=[],lengths=[0];
+   for(let i=0;i<=80;i++){const q=i/80;route.push([a[0]+dir*len*.62*q,a[1]+gap*(1-Math.pow(1-q,2))]);if(i){const u=route[i-1],v=route[i];lengths.push(lengths[i-1]+Math.hypot(v[0]-u[0],v[1]-u[1]))}}
+   const total=lengths.at(-1),visible=Math.min(total,radius*1.25+(total-radius*1.25)*ease);
+   const pts=[];
+   for(let i=0;i<=40;i++){const d=visible*i/40;let j=1;while(j<80&&lengths[j]<d)j++;const f=(d-lengths[j-1])/Math.max(.0001,lengths[j]-lengths[j-1]),u=route[j-1],v=route[j];pts.push([u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f])}
+   draw(pts,dir,true);
   }else if(t<4.95){
    if(!firstContact)firstContact={x:a[0]+dir*len*.62,ax:a[0],ay:a[1]};
    // Two complete pull/extend cycles: head stays planted on contraction;
