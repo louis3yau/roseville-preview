@@ -266,8 +266,22 @@ function revealBookworm(b){
  }
  // Use a rounded, clearance-offset contour of grounded displaced books.
  // A moving airborne book is never a climbing surface.
- function terrain(floor){
-  const obstacles=booksNow().filter(q=>!q.displayRest&&!q.drag&&Math.hypot(q.vx,q.vy)<45&&Math.abs(q.spin)<.65).map(q=>({poly:corners(q),e:extent(q)})).filter(q=>q.e.b>=floor-radius*2&&q.e.t<floor-radius);
+ const passedObstacles=new Map();
+ function terrain(floor,hx,facing){
+  const obstacles=[];
+  for(const q of booksNow()){
+   if(q.displayRest||q.drag||Math.hypot(q.vx,q.vy)>=45||Math.abs(q.spin)>=.65){passedObstacles.delete(q);continue}
+   const e=extent(q);if(e.b<floor-radius*2||e.t>=floor-radius){passedObstacles.delete(q);continue}
+   const previous=passedObstacles.get(q),entry=facing<0?e.r:e.l,exit=facing<0?e.l:e.r;
+   // Reassess only if a book has actually been displaced or direction changes.
+   const moved=!previous||previous.facing!==facing||Math.abs(previous.x-q.x)>radius*2||Math.abs(previous.y-q.y)>radius*2||Math.abs(previous.angle-q.angle)>.2;
+   let state=previous;
+   if(moved){state={x:q.x,y:q.y,angle:q.angle,facing,ignore:(hx-entry)*facing>0};passedObstacles.set(q,state)}
+   // Once the head has passed an ignored object's far edge, the body
+   // continues on the original floor path; never lift it onto that book.
+   if(state.ignore)continue;
+   obstacles.push({poly:corners(q),e});
+  }
   const pad=Math.max(radius*2.5,5);
   return x=>{let y=floor;for(const {poly,e} of obstacles){
    const sx=Math.max(e.l+.001,Math.min(e.r-.001,x)),d=Math.abs(x-sx);
@@ -279,8 +293,9 @@ function revealBookworm(b){
  }
  let routeState=null;
  function gait(head,floor,k,facing,idle=false){
-  const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2,height=terrain(floor);
+  const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2;
   if(!routeState||routeState.facing!==facing||head*facing<routeState.nominal*facing-2)routeState={facing,nominal:head,x:head,y:floor};
+  const height=terrain(floor,routeState.x,facing);
   let advance=Math.max(0,(head-routeState.nominal)*facing);routeState.nominal=head;
   // Limit vertical displacement by the same distance budget as horizontal
   // crawling, even when an obstacle appears underneath the head.
