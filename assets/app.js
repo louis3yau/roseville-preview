@@ -295,7 +295,7 @@ function loadSign(){
  display();
 }
 function setupStaff(){const form=document.getElementById('staff-form');if(form)form.outerHTML='<p>Church editors sign in through <a class="textlink" href="https://app.pagescms.org" target="_blank" rel="noopener">Pages CMS →</a>.</p>'}
-async function loadCMS(){try{const response=await fetch('assets/site-content.json');if(!response.ok)return;cmsData=await response.json();const d=cmsData.details;document.querySelectorAll('.contact-details').forEach(el=>{const a=el.querySelectorAll('a');a[0].textContent=d.address;a[0].href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.address);a[1].textContent=d.email;a[1].href='mailto:'+d.email;a[2].textContent=d.phone;a[2].href='tel:'+d.phone.replace(/[^+\d]/g,'')});current='';render()}catch(error){console.warn('Editor content unavailable',error)}}
+async function loadCMS(){try{const response=await fetch('assets/site-content.json?v=50');if(!response.ok)return;cmsData=await response.json();const d=cmsData.details;document.querySelectorAll('.contact-details').forEach(el=>{const a=el.querySelectorAll('a');a[0].textContent=d.address;a[0].href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.address);a[1].textContent=d.email;a[1].href='mailto:'+d.email;a[2].textContent=d.phone;a[2].href='tel:'+d.phone.replace(/[^+\d]/g,'')});current='';render()}catch(error){console.warn('Editor content unavailable',error)}}
 function updateCMSPage(page){
  if(!cmsData)return;
  const data=cmsData, details=data.details||{};
@@ -321,7 +321,7 @@ function updateCMSPage(page){
  if(page==='visit'&&copy.heading)document.querySelector('#content .service-times')?.closest('div')?.querySelector('h2')?.replaceChildren(document.createTextNode(copy.heading));
  // User-entered content is always inserted as text, never executed as HTML.
  const setText=(element,value)=>{if(element&&typeof value==='string'&&value.trim())element.textContent=value};
- const setLink=(element,value)=>{if(!element||!value)return;const link=String(value).trim();if(/^#[a-z-]+(?:\/[a-z-]+)?$/.test(link)||/^https:\/\/[^\s/@]+[^\s]*$/i.test(link)||/^mailto:[^\s<>]+$/i.test(link))element.href=link};
+ const setLink=(element,value)=>{if(!element||!value)return;const link=String(value).trim();if(link==='book-club/'||/^#[a-z-]+(?:\/[a-z-]+)?$/.test(link)||/^https:\/\/[^\s/@]+[^\s]*$/i.test(link)||/^mailto:[^\s<>]+$/i.test(link))element.href=link};
  let section,paragraphs=[];
  if(page==='home'){
    section=document.querySelector('#content.section.split');
