@@ -921,12 +921,12 @@ credits:pageSection('Scripture credits',`<p>Scripture quotations marked CSB have
 staff:`<section class="section staff-page"><h1>Update the church sign</h1><p>Announcements or a verse for the week. Only authorised staff can save changes.</p><form id="staff-form"><label for="sign-type">Sign type</label><select id="sign-type"><option value="Announcement">Announcement</option><option value="Verse of the week">Verse of the week</option></select><label for="sign-text">Message</label><textarea id="sign-text" maxlength="180" rows="5" required></textarea><button class="outline" type="submit">Save sign</button><p id="staff-status" role="status"></p></form></section>`,
 resources:photo('Worship & Bible','Explore','resourceshero')+`<section id="content" class="section"><h2>Worship &amp; Bible</h2><div class="rows"><div class="row"><h3>Worship guides</h3><p>The order of morning worship and a guide for worship at home.</p><a href="#worship/latest-guide">Latest guides →</a></div><div class="row"><h3>Watch online</h3><p>Watch the Sunday morning livestream on the church’s YouTube channel.</p><a href="#worship">Watch online →</a></div><div class="row"><h3>Bible reading plan</h3><p>Follow the church's daily readings or download the plan.</p><a href="#reading">Reading plan →</a></div><div class="row"><h3>Bible study</h3><p>Wednesday evenings at 7:30pm during school terms, in Brice Hall and on Zoom.</p><a href="#study">Study together →</a></div></div></section>`};
 
-let nightMode=false;
+let nightMode=false;try{nightMode=sessionStorage.getItem('roseville-night-mode')==='1'}catch{}
 let doorLightsOn=false;
 let doorOpened=false;
 let entryTimer=null;
 function toggleDayNight(){
- nightMode=!nightMode;
+ nightMode=!nightMode;try{sessionStorage.setItem('roseville-night-mode',nightMode?'1':'0')}catch{}
  doorLightsOn=false;doorOpened=false;
  if(entryTimer){clearTimeout(entryTimer);entryTimer=null}
  document.querySelector('.entry-button')?.classList.remove('is-selected');
