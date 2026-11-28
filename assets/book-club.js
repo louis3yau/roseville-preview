@@ -288,6 +288,7 @@ function revealBookworm(b){
  let firstContact=null,grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
  const clamp01=x=>Math.max(0,Math.min(1,x));
  function anchor(){const svg=b.el.querySelector('svg'),m=svg.getScreenCTM(),world=art.getScreenCTM();if(m&&world){const p=art.createSVGPoint();p.x=localX;p.y=53;const q=p.matrixTransform(m).matrixTransform(world.inverse());return [q.x,q.y]}const u=(localX-50)*b.w/110,v=-2*b.h/110,c=Math.cos(b.angle),s=Math.sin(b.angle);return [b.x+u*c-v*s,b.y+u*s+v*c]}
+ function openingRadius(){const m=b.el.querySelector('svg').getScreenCTM(),world=art.getScreenCTM();if(m&&world){const t=world.inverse().multiply(m),unit=Math.hypot(t.a,t.b);if(unit>0)return radius/unit}return radius/scale}
  function draw(points,facing,emerging=false){
   const normals=points.map((p,i)=>{const u=points[Math.max(0,i-1)],v=points[Math.min(points.length-1,i+1)],dx=v[0]-u[0],dy=v[1]-u[1],m=Math.hypot(dx,dy)||1;return [-dy/m,dx/m]});
   const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(emerging?1:(.76+.24*Math.min(1,i/4)));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
@@ -299,7 +300,7 @@ function revealBookworm(b){
   for(let i=n;i>0;i--){const p=points[i],q=points[i-1],seg=Math.hypot(p[0]-q[0],p[1]-q[1]);if(seg<.0001)continue;
    while(nextStripe<=distance+seg){const f=(nextStripe-distance)/seg;if(i>1||f<.7){const blend=(u,v)=>[u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f],c=blend(p,q),l=blend(edges[0][i],edges[0][i-1]),r=blend(edges[1][i],edges[1][i-1]);if(!lastMark||Math.min(Math.hypot(l[0]-lastMark.l[0],l[1]-lastMark.l[1]),Math.hypot(r[0]-lastMark.r[0],r[1]-lastMark.r[1]))>radius*.85){marks+='M'+fmt(l)+' Q'+fmt([c[0]+facing*radius*.25,c[1]])+' '+fmt(r);lastMark={l,r}}}nextStripe+=radius*2.3}distance+=seg}
   stripes.setAttribute('d',marks);
-  const h=points[n];lastHead=h[0];lastFacing=facing;eye.setAttribute('r',String(Math.max(.43,scale*.68)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
+  const h=points[n];lastHead=h[0];lastFacing=facing;eye.setAttribute('r',String(Math.max(.43,scale*.68)));eye.setAttribute('cx',String(h[0]+facing*radius*.24));eye.setAttribute('cy',String(h[1]-radius*.17));
  }
  // Use a rounded, clearance-offset contour of grounded displaced books.
  // A moving airborne book is never a climbing surface.
@@ -358,7 +359,7 @@ function revealBookworm(b){
   if(!b.el.isConnected||!art.isConnected){cleanup();return}
   if(pausedAt!==null){requestAnimationFrame(paint);return}
   const t=(now-t0-pausedTotal)/1000,floor=field.clientHeight-8-radius,a=anchor(),r=clamp01((t-.1)/.7);
-  hole.setAttribute('rx',String(3.4*r));hole.setAttribute('ry',String(4.2*r));
+  const aperture=openingRadius()*r;hole.setAttribute('rx',String(aperture));hole.setAttribute('ry',String(aperture));
   if(t<.85){requestAnimationFrame(paint);return}
   if(t<2.85){
    // Feed a full-width worm along a fixed curved route, revealing its
@@ -397,7 +398,7 @@ function revealBookworm(b){
   }
   requestAnimationFrame(paint)
  }
- if(reduced()){hole.setAttribute('rx','3.4');hole.setAttribute('ry','4.2');cleanup();b.wormDone=true;return}
+ if(reduced()){hole.setAttribute('rx',String(openingRadius()));hole.setAttribute('ry',String(openingRadius()));cleanup();b.wormDone=true;return}
  requestAnimationFrame(paint)
 }
 
