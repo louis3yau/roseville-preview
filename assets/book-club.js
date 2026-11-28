@@ -98,25 +98,31 @@ if(!p.body&&stableSurface&&speed<65&&Math.abs(b.spin)<1.6){
  b.vx*=Math.exp(-5*t)
 }
 // Flexible leaf is decorative, never part of the rigid collision hull.
-function flexLeaf(b){const leaf=b.el.querySelector('.apple-leaf');if(!leaf)return;const c=Math.cos(b.angle),s=Math.sin(b.angle),k=b.w/110,floor=field.clientHeight-8;
-const samples=[[51,29],[58,18],[65,12],[77,5],[74,16],[64,25],[57,29]];
-function pressure(deg){let max=0;const a=deg*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);for(const [x,y] of samples){const u=x-51,v=y-29,lx=(51+u*ca-v*sa-50)*k,ly=(29+u*sa+v*ca-55)*k,px=b.x+lx*c-ly*s,py=b.y+lx*s+ly*c;max=Math.max(max,py-floor);for(const q of bodies){if(q===b)continue;const e=extent(q);if(px>e.l&&px<e.r&&py>e.t&&py<e.b)max=Math.max(max,Math.min(px-e.l,e.r-px,py-e.t,e.b-py)+1)}}return max}
-let target=0,best=pressure(0);
-if(best>.2){
- for(let i=1;i<=6;i++){let clear=false;for(const sign of [1,-1]){const deg=sign*i*5,v=pressure(deg);if(v<best-.05){best=v;target=deg}if(v<.2){target=deg;clear=true;break}}if(clear)break}
+function flexLeaf(b){
+ const leaf=b.el.querySelector('.apple-leaf');if(!leaf)return;
+ const svg=leaf.ownerSVGElement,ns='http://www.w3.org/2000/svg',floor=field.clientHeight-8,rect=field.getBoundingClientRect(),matrix=svg.getScreenCTM();
+ if(!matrix)return;
+ const inverse=matrix.inverse(),pivot=[51,29],world=p=>{const v=svg.createSVGPoint();v.x=p[0];v.y=p[1];const t=v.matrixTransform(matrix);return [t.x-rect.left,t.y-rect.top]},local=p=>{const v=svg.createSVGPoint();v.x=p[0]+rect.left;v.y=p[1]+rect.top;const t=v.matrixTransform(inverse);return [t.x,t.y]};
+ if(!b.leafSamples){const length=leaf.getTotalLength();b.leafSamples=Array.from({length:40},(_,i)=>{const p=leaf.getPointAtLength(length*i/39);return [p.x,p.y]})}
+ const obstacles=bodies.filter(q=>q!==b&&q.el.style.visibility!=='hidden').map(q=>corners(q));
+ function penetration(p,poly){let sign=0,min=Infinity;for(let i=0;i<poly.length;i++){const a=poly[i],c=poly[(i+1)%poly.length],dx=c[0]-a[0],dy=c[1]-a[1],v=(dx*(p[1]-a[1])-dy*(p[0]-a[0]))/(Math.hypot(dx,dy)||1);if(Math.abs(v)>.001){const n=Math.sign(v);if(sign&&n!==sign)return 0;sign=n}min=Math.min(min,Math.abs(v))}return min+.4}
+ function pressure(deg,stretch=1){const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a);let max=0;for(const p of b.leafSamples){const u=(p[0]-51)*stretch,v=(p[1]-29)*stretch;if(Math.hypot(u,v)<2)continue;const pt=world([51+u*c-v*s,29+u*s+v*c]);max=Math.max(max,pt[1]-floor+.3);for(const poly of obstacles)max=Math.max(max,penetration(pt,poly))}return max}
+ let target=0,stretch=1,best=pressure(0);
+ if(best>.15){let bestScore=Infinity;for(const k of [1,.94,.86,.76,.66]){for(let d=0;d<=40;d+=4){for(const sign of (d?[1,-1]:[1])){const angle=d*sign,p=pressure(angle,k),score=p*20+d*.025+(1-k)*6;if(score<bestScore){bestScore=score;target=angle;stretch=k}}}if(bestScore<1)break}}
+ const now=performance.now(),dt=Math.min(.05,Math.max(.001,(now-(b.leafTime||now-16))/1000));b.leafTime=now;
+ let pos=b.leafAngle||0,velocity=b.leafVelocity||0,scale=b.leafStretch??1;
+ if(reduced()){pos=target;velocity=0;scale=stretch}
+ else{const steps=Math.max(1,Math.ceil(dt/.004)),h=dt/steps;for(let i=0;i<steps;i++){velocity+=((target-pos)*850-velocity*27)*h;pos+=velocity*h;if(Math.abs(pos)>40){pos=Math.sign(pos)*40;velocity*=.15}}if(Math.abs(target-pos)<.12&&Math.abs(velocity)<1){pos=target;velocity=0}scale+=(stretch-scale)*(1-Math.exp(-22*dt))}
+ b.leafAngle=pos;b.leafVelocity=velocity;b.leafStretch=scale;
+ const idle=target===0&&best<=.15&&b.asleep&&!b.drag&&!reduced()?Math.sin(now/750)*3:0;
+ leaf.setAttribute('transform','translate(51 29) rotate('+(pos+idle)+') scale('+scale+') translate(-51 -29)');
+ // If a book physically covers the leaf even at maximum flex, occlude just
+ // the intersecting pixels. The mask lives on an untransformed parent, so
+ // it stays aligned with the real book rather than rotating with the leaf.
+ if(!b.leafOcclusion){const defs=document.createElementNS(ns,'defs'),mask=document.createElementNS(ns,'mask'),white=document.createElementNS(ns,'rect'),cut=document.createElementNS(ns,'path'),wrap=document.createElementNS(ns,'g');mask.id='apple-leaf-occlusion';mask.setAttribute('maskUnits','userSpaceOnUse');mask.setAttribute('maskContentUnits','userSpaceOnUse');mask.setAttribute('x','-100');mask.setAttribute('y','-100');mask.setAttribute('width','300');mask.setAttribute('height','310');white.setAttribute('x','-100');white.setAttribute('y','-100');white.setAttribute('width','300');white.setAttribute('height','310');white.setAttribute('fill','white');cut.setAttribute('fill','black');mask.append(white,cut);defs.append(mask);svg.prepend(defs);leaf.parentNode.insertBefore(wrap,leaf);wrap.append(leaf);b.leafOcclusion={wrap,cut}}
+ const {wrap,cut}=b.leafOcclusion;
+ if(pressure(pos+idle,scale)>.15){const polys=obstacles.concat([[[ -10000,floor],[10000,floor],[10000,floor+10000],[-10000,floor+10000]]]);cut.setAttribute('d',polys.map(poly=>'M'+poly.map(p=>local(p).map(v=>v.toFixed(2)).join(' ')).join(' L')+' Z').join(' '));wrap.setAttribute('mask','url(#apple-leaf-occlusion)')}else{wrap.removeAttribute('mask');cut.setAttribute('d','')}
 }
-const now=performance.now(),dt=Math.min(.05,Math.max(.001,(now-(b.leafTime||now-16))/1000));b.leafTime=now;
-let pos=b.leafAngle||0,velocity=b.leafVelocity||0;
-if(reduced()){pos=target;velocity=0}
-else{
- // Small elastic overshoot and fast recovery; never fold the leaf behind the apple.
- const steps=Math.max(1,Math.ceil(dt/.004)),h=dt/steps;
- for(let i=0;i<steps;i++){velocity+=( (target-pos)*(target===0?850:640)-velocity* (target===0?27:35))*h;pos+=velocity*h;if(Math.abs(pos)>32){pos=Math.sign(pos)*32;velocity*=.15}}
- if(Math.abs(target-pos)<.12&&Math.abs(velocity)<1){pos=target;velocity=0}
-}
-b.leafAngle=pos;b.leafVelocity=velocity;
-const idle=target===0&&b.asleep&&!b.drag&&!reduced()?Math.sin(now/750)*3:0;
-leaf.setAttribute('transform','rotate('+(pos+idle)+' 51 29)')}
 
 function drawBody(b){if(b.shadow){const c=corners(b),gap=Math.max(0,field.clientHeight-8-Math.max(...c.map(p=>p[1]))),width=Math.max(...c.map(p=>p[0]))-Math.min(...c.map(p=>p[0]));b.shadow.style.left=b.x+'px';b.shadow.style.top=(field.clientHeight-6)+'px';b.shadow.style.bottom='auto';b.shadow.style.width=Math.max(7,width*.92+gap*.12)+'px';b.shadow.style.height=(3+gap*.04)+'px';b.shadow.style.opacity=String(gap<5?.035:gap<35?.018*(1-gap/45):0);b.shadow.style.filter='blur('+(2+gap*.045)+'px)';b.shadow.style.visibility=b.el.style.visibility==='hidden'?'hidden':'visible'}b.el.style.transform='translate3d('+(b.x-b.w/2)+'px,'+(b.y-b.h/2)+'px,0) rotate('+b.angle+'rad)';if(b.kind==='apple'){flexLeaf(b);return}b.el.querySelector('.book-solid').style.transform='rotateY('+(b.yaw||0)+'rad)';b.el.classList.toggle('spine-only',Math.abs(Math.atan2(Math.sin(b.yaw||0),Math.cos(b.yaw||0)))<.025);b.el.classList.toggle('supported',!b.drag&&support(b))}
 function tick(now){frame=0;const dt=Math.min(.04,(now-(last||now))/1000);last=now;if(dialog.open||reduced())return;const bounds=field.getBoundingClientRect(),W=document.documentElement.clientWidth-bounds.left,L=-bounds.left,T=-bounds.top,H=field.clientHeight-8;
