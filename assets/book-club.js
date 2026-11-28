@@ -493,14 +493,14 @@ function revealBookworm(b){
    
 
    if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.68:a[0]+dir*len*1.30,time:4.95};
-   if(forceExit){forceExit=false;if(leave===null){const x=lastHead===null?grounded.x:lastHead;rest={x,time:t};leave=t;escapeDir=-1;escapeX=lastFacing===-1?(routeState?.nominal??x):x-len}}
+   if(forceExit){forceExit=false;if(leave===null){const x=lastHead===null?grounded.x:lastHead;rest={x,time:t};leave=t;escapeDir=lastFacing;escapeX=routeState?.nominal??x}}
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
    const goal=dir<0?Math.min(grounded.x,edge+radius*2):Math.max(grounded.x,edge-radius*2);
    let head=grounded.x+dir*travel(t-grounded.time);
    if(!rest&&(dir<0?(lastHead??head)<=goal:(lastHead??head)>=goal))rest={x:goal,time:t};
    if(rest){head=rest.x;const disturbed=booksNow().some(q=>q.drag||Math.hypot(q.vx,q.vy)>70);
-    if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=routeState?.nominal??head;escapeDir=-1;if(dir!==escapeDir)escapeX=head-dir*len}
-    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(lastHead!==null&&lastHead< -field.getBoundingClientRect().left-len-15){cleanup();b.wormDone=true;return}}
+    if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=routeState?.nominal??head;escapeDir=lastFacing}
+    if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(lastHead!==null&&((escapeDir<0&&lastHead< -field.getBoundingClientRect().left-len-15)||(escapeDir>0&&lastHead>document.documentElement.clientWidth-field.getBoundingClientRect().left+len+15))){cleanup();b.wormDone=true;return}}
     else draw(gait(head,floor,0,dir,true),dir);
    }else draw(gait(head,floor,t-grounded.time,dir),dir);
   }
