@@ -243,9 +243,16 @@ body.night .drawing .night-window-glow{display:block}
 }
 @media(prefers-reduced-motion:reduce){.drawing .door-light{transition:none}}
 
-/* Supplied aligned artwork: the lit image is revealed over the unlit image. */
-.drawing .church-lit{position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:0;pointer-events:none;transition:opacity .42s ease;object-fit:fill}
-.drawing.lights-on .church-lit{opacity:1}.drawing .church-open{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:3;opacity:0;pointer-events:none;transition:opacity .3s ease}.drawing.door-open .church-open{opacity:1}
+/* The supplied PNGs are complete illustrations, not transparent light-only overlays.
+   Show exactly one artwork state at a time so translucent ink never accumulates.
+   The unlit element retains its layout size; the separate warm glow still fades. */
+.drawing .church-art{visibility:visible;opacity:1;transition:none}
+.drawing .church-lit{position:absolute;inset:0;width:100%;height:100%;z-index:2;visibility:hidden;opacity:0;pointer-events:none;transition:none;object-fit:fill}
+.drawing .church-open{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:3;visibility:hidden;opacity:0;pointer-events:none;transition:none}
+.drawing.lights-on .church-art,.drawing.door-open .church-art{visibility:hidden;opacity:0}
+.drawing.lights-on:not(.door-open) .church-lit{visibility:visible;opacity:1}
+.drawing.door-open .church-lit{visibility:hidden;opacity:0}
+.drawing.door-open .church-open{visibility:visible;opacity:1}
 .drawing .window-spill{position:absolute;z-index:3;left:27%;top:58%;width:12%;height:17%;border-radius:50%;background:#fceab3;filter:blur(23px);opacity:0;pointer-events:none;mix-blend-mode:screen;transition:opacity .48s ease}
 .drawing.lights-on .window-spill{opacity:.43}
 .drawing .art-hit{position:absolute;z-index:4;border:0;padding:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
