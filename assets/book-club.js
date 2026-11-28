@@ -332,26 +332,41 @@ function revealBookworm(b){
  let routeState=null;
  function gait(head,floor,k,facing,idle=false){
   const phase=k*2*Math.PI/1.05,arch=idle?0:(1-Math.cos(phase))/2;
-  if(!routeState||routeState.facing!==facing||head*facing<routeState.nominal*facing-2)routeState={facing,nominal:head,x:head,y:floor};
-  const height=terrain(floor,routeState.x,facing);
-  let advance=Math.max(0,(head-routeState.nominal)*facing);routeState.nominal=head;
-  // Limit vertical displacement by the same distance budget as horizontal
-  // crawling, even when an obstacle appears underneath the head.
-  while(advance>.001){const step=Math.min(.5,advance),x=routeState.x,y=routeState.y,goal=height(x+facing*step),dy=goal-y;
-   if(Math.abs(dy)>step*2){routeState.y+=Math.sign(dy)*step}
-   else{const dx=step/Math.max(1,Math.hypot(step,dy)/step);routeState.x+=facing*dx;routeState.y+=clamp(height(routeState.x)-y,-step,step)}
-   advance-=step
+  // Record the head's actual route; the rear may only follow that route,
+  // never discover a new obstacle or climb independently.
+  if(!routeState||routeState.facing!==facing){
+   const x=routeState?routeState.x:head,y=routeState?routeState.y:floor;
+   const start=routeState&&routeState.facing!==facing?x-facing*len:x;
+   routeState={facing,nominal:head,x:start,y,trail:[]};
+   for(let i=80;i>=0;i--)routeState.trail.push([start-facing*i*len/64,y]);
   }
-  const hx=routeState.x,hy=routeState.y,pts=[],track=[[hx,hy]];
-  const climbing=Math.abs(hy-floor)>radius||Array.from({length:9},(_,i)=>height(hx-facing*len*i/8)).some(y=>y<floor-radius);
-  const span=len*(1-(climbing?.08:.27)*arch);
-  let x=hx,y=hy,dist=0;
-  for(let i=1;i<=40;i++){const target=span*i/40;while(dist<target-.001){
-    const dx=Math.min(.65,target-dist),nx=x-facing*dx,ny=height(nx),d=Math.hypot(nx-x,ny-y),f=Math.min(1,(target-dist)/Math.max(.0001,d));x+=(nx-x)*f;y+=(ny-y)*f;dist+=d*f;
-   }track.push([x,y])}
-  // Round sharp changes in direction before offsetting the outline.
-  for(let pass=0;pass<4;pass++){const old=track.map(p=>p.slice());for(let i=1;i<40;i++){track[i][0]=(old[i-1][0]+2*old[i][0]+old[i+1][0])/4;track[i][1]=Math.min(height(track[i][0]),(old[i-1][1]+2*old[i][1]+old[i+1][1])/4)}}
-  for(let i=0;i<=40;i++){const q=i/40,u=clamp01((q-.19)/.62),p=track[40-i],loop=Math.pow(Math.sin(Math.PI*u),1.65);pts.push([p[0],p[1]-loop*(climbing?radius*.35:len*.33)*arch])}
+  const state=routeState,height=terrain(floor,state.x,facing);
+  let advance=Math.max(0,(head-state.nominal)*facing);state.nominal=Math.max(head*facing,state.nominal*facing)*facing;
+  advance=Math.min(advance,8);
+  while(advance>.001){
+   const step=Math.min(.4,advance),x=state.x,y=state.y;
+   // Always move forward, even on steep slopes; no vertical jumps or backtracking.
+   const slope=clamp((height(x+facing*1.2)-y)/1.2,-3.2,3.2);
+   const dx=step/Math.sqrt(1+slope*slope),nx=x+facing*dx;
+   const ny=y+clamp(height(nx)-y,-step*Math.abs(slope)/Math.sqrt(1+slope*slope),step*Math.abs(slope)/Math.sqrt(1+slope*slope));
+   state.x=nx;state.y=ny;state.trail.push([nx,ny]);advance-=step;
+  }
+  // Keep only a little more history than the body needs.
+  let total=0,cut=0;for(let i=state.trail.length-1;i>0;i--){const p=state.trail[i],q=state.trail[i-1];total+=Math.hypot(p[0]-q[0],p[1]-q[1]);if(total>len*1.8){cut=i-1;break}}
+  if(cut>0)state.trail.splice(0,cut);
+  const trail=state.trail,climbing=trail.slice(-Math.min(trail.length,Math.ceil(len*2.5))).some(p=>Math.abs(p[1]-floor)>radius);
+  const span=len*(1-(climbing?.04:.27)*arch),track=[[state.x,state.y]];
+  let j=trail.length-1,dist=0;
+  for(let i=1;i<=40;i++){
+   const wanted=span*i/40;
+   while(j>0){const p=trail[j],q=trail[j-1],d=Math.hypot(p[0]-q[0],p[1]-q[1]);if(dist+d>=wanted&&d>.00001)break;dist+=d;j--}
+   if(j>0){const p=trail[j],q=trail[j-1],d=Math.hypot(p[0]-q[0],p[1]-q[1]),f=clamp01((wanted-dist)/Math.max(.00001,d));track.push([p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f])}
+   else{const p=trail[0];track.push([p[0]-facing*Math.max(0,wanted-dist),p[1]])}
+  }
+  // Smooth the historical centerline without projecting it onto new obstacles.
+  for(let pass=0;pass<3;pass++){const old=track.map(p=>p.slice());for(let i=1;i<40;i++){track[i][0]=(old[i-1][0]+2*old[i][0]+old[i+1][0])/4;track[i][1]=(old[i-1][1]+2*old[i][1]+old[i+1][1])/4}}
+  const pts=[];
+  for(let i=0;i<=40;i++){const q=i/40,u=clamp01((q-.19)/.62),p=track[40-i],loop=Math.pow(Math.sin(Math.PI*u),1.65);pts.push([p[0],p[1]-loop*(climbing?radius*.12:len*.33)*arch])}
   return pts
  }
  function travel(k){const cycle=1.05,step=len*.48,n=Math.floor(k/cycle),p=k/cycle-n;return step*(n+(p<.5?0:(1-Math.cos((p-.5)*2*Math.PI))/2))}
@@ -390,9 +405,9 @@ function revealBookworm(b){
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
    const goal=dir<0?Math.min(grounded.x,edge+radius*2):Math.max(grounded.x,edge-radius*2);
    let head=grounded.x+dir*travel(t-grounded.time);
-   if(!rest&&(dir<0?head<=goal:head>=goal))rest={x:goal,time:t};
+   if(!rest&&(dir<0?(lastHead??head)<=goal:(lastHead??head)>=goal))rest={x:goal,time:t};
    if(rest){head=rest.x;const disturbed=booksNow().some(q=>q.drag||Math.hypot(q.vx,q.vy)>70);
-    if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=head;escapeDir=-1;if(dir!==escapeDir)escapeX=head-dir*len}
+    if(leave===null&&(t-rest.time>=30||disturbed)){leave=t;escapeX=routeState?.nominal??head;escapeDir=-1;if(dir!==escapeDir)escapeX=head-dir*len}
     if(leave!==null){const k=t-leave;head=escapeX+escapeDir*travel(k);draw(gait(head,floor,k,escapeDir),escapeDir);if(lastHead!==null&&lastHead< -field.getBoundingClientRect().left-len-15){cleanup();b.wormDone=true;return}}
     else draw(gait(head,floor,0,dir,true),dir);
    }else draw(gait(head,floor,t-grounded.time,dir),dir);
