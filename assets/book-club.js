@@ -89,13 +89,17 @@ function appleRestSupport(b){
  }
  return best
 }
-// Prefer the base before locking rotation. Keep the contact height fixed
+// Prefer the nearer base or top before locking rotation. Keep the contact height fixed
 // and reject an upright correction if another book blocks the roll.
 function settleAppleBase(b,p,t){
  const angle=Math.atan2(Math.sin(b.angle),Math.cos(b.angle));
+ // The base has a wider resting basin, but an apple already near its top
+ // settles upside down instead of being forced through a half-turn.
+ const target=Math.abs(angle)<=Math.PI*110/180?0:Math.sign(angle)*Math.PI;
+ const delta=Math.atan2(Math.sin(target-angle),Math.cos(target-angle));
  const supportY=extent(b).b+p.gap;
- if(Math.abs(angle)<.035)return false;
- const step=-Math.sign(angle)*Math.min(Math.abs(angle),Math.max(.45,Math.min(5,Math.abs(angle)*6))*t);
+ if(Math.abs(delta)<.035)return false;
+ const step=Math.sign(delta)*Math.min(Math.abs(delta),Math.max(.35,Math.min(3.4,Math.abs(delta)*4.5))*t);
  const next={...b,angle:b.angle+step};
  next.y+=supportY-extent(next).b;
  const e=extent(next),bounds=field.getBoundingClientRect();
@@ -130,14 +134,13 @@ if(Math.abs(p.gap)<1.5&&b.vy>=-12)b.y+=p.gap*.6;
 b.vx*=Math.exp(-(stableSurface?5.2:2.4)*t);b.spin*=Math.exp(-(stableSurface?5.8:2.8)*t);
 if(!stableSurface&&Math.abs(b.vx)<32)b.vx+=clamp(p.slope*100,-70,70)*t;
 if(stableSurface&&speed<32&&Math.abs(b.spin)<.9){b.spin*=Math.exp(-8*t)}
-if(!p.body&&stableSurface&&speed<65&&Math.abs(b.spin)<1.6){
- // Pick a broad supporting face, not a single corner. Roll gradually while maintaining floor contact.
- const hull=corners({...b,angle:0}), candidates=[];
- for(let i=0;i<hull.length;i++){const u=hull[i],v=hull[(i+1)%hull.length],dx=v[0]-u[0],dy=v[1]-u[1],length=Math.hypot(dx,dy);if(length<b.w*.16)continue;
- let angle=-Math.atan2(dy,dx);for(let j=0;j<2;j++,angle+=Math.PI){const delta=Math.atan2(Math.sin(angle-b.angle),Math.cos(angle-b.angle)),pose={...b,angle:b.angle+delta},poly=corners(pose),bottom=Math.max(...poly.map(q=>q[1])),a=poly[i],c=poly[(i+1)%poly.length];if(bottom-a[1]>1||bottom-c[1]>1)continue;const lo=Math.min(a[0],c[0]),hi=Math.max(a[0],c[0]);if(b.x<lo-b.w*.04||b.x>hi+b.w*.04)continue;candidates.push({delta,score:Math.abs(delta)-length/b.w*.35})}}
- candidates.sort((a,c)=>a.score-c.score);const target=candidates[0];
- if(target){const d=target.delta;if(Math.abs(d)>.012){const step=Math.sign(d)*Math.min(Math.abs(d),Math.max(.18,Math.abs(d)*3.8)*t);b.angle+=step;b.x-=step*radius*.65;b.spin=0;b.vy=0;b.y+=field.clientHeight-8-extent(b).b;b.appleQuiet=0;return}b.angle+=d;b.y+=field.clientHeight-8-extent(b).b;b.spin=0;if(speed<18){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.22&&!settleAppleBase(b,{...p,gap:0},t))parkApple(b,{...p,gap:0});return}}
+if(!p.body&&stableSurface&&speed<40&&Math.abs(b.spin)<1.0){
+ // Use the same orientation preference on the floor as on a book.
+ // Never alternate between a polygon face target and the resting target.
+ if(b.appleRestTimer>.35&&settleAppleBase(b,p,t))return;
+ if(speed<18&&Math.abs(b.spin)<.32){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.22){if(!settleAppleBase(b,p,t))parkApple(b,p);return}}
  }
+
  if(p.body&&stableSurface&&stableCenter&&speed<18&&Math.abs(b.spin)<.32){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.25&&!settleAppleBase(b,p,t))parkApple(b,p)}else b.appleQuiet=0;return}const level=supportLevel(b);if(!Number.isFinite(level)){b.quiet=0;return}
  const target=Math.round(b.angle/(Math.PI/2))*Math.PI/2,delta=target-b.angle,flat=Math.abs(Math.sin(target))>.9,slow=Math.abs(b.vy)<90;
  if(!slow){b.quiet=0;return}
