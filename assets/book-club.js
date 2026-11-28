@@ -310,11 +310,16 @@ function revealBookworm(b){
   for(const q of booksNow()){
    if(q.displayRest||q.drag||Math.hypot(q.vx,q.vy)>=45||Math.abs(q.spin)>=.65){passedObstacles.delete(q);continue}
    const e=extent(q);if(e.b<floor-radius*2||e.t>=floor-radius){passedObstacles.delete(q);continue}
+   // Only low, fallen books with a reachable exterior edge can be climbed.
+   // A standing book, even if nudged out of its display pose, is passed on
+   // the shelf instead of treating its entire front face as a ramp.
+   const rise=floor-(e.t-radius),upright=Math.abs(Math.cos(q.angle))>.72;
+   if(upright||rise>len*.72){passedObstacles.set(q,{x:q.x,y:q.y,angle:q.angle,facing,ignore:true});continue}
    const previous=passedObstacles.get(q),entry=facing<0?e.r:e.l,exit=facing<0?e.l:e.r;
    // Reassess only if a book has actually been displaced or direction changes.
    const moved=!previous||previous.facing!==facing||Math.abs(previous.x-q.x)>radius*2||Math.abs(previous.y-q.y)>radius*2||Math.abs(previous.angle-q.angle)>.2;
    let state=previous;
-   if(moved){state={x:q.x,y:q.y,angle:q.angle,facing,ignore:(hx-entry)*facing>0};passedObstacles.set(q,state)}
+   if(moved){state={x:q.x,y:q.y,angle:q.angle,facing,ignore:(hx-entry)*facing>=-radius*.5};passedObstacles.set(q,state)}
    // Once the head has passed an ignored object's far edge, the body
    // continues on the original floor path; never lift it onto that book.
    if(state.ignore)continue;
@@ -346,7 +351,7 @@ function revealBookworm(b){
   while(advance>.001){
    const step=Math.min(.4,advance),x=state.x,y=state.y;
    // Always move forward, even on steep slopes; no vertical jumps or backtracking.
-   const slope=clamp((height(x+facing*1.2)-y)/1.2,-3.2,3.2);
+   const slope=clamp((height(x+facing*1.2)-y)/1.2,-1.65,1.65);
    const dx=step/Math.sqrt(1+slope*slope),nx=x+facing*dx;
    const ny=y+clamp(height(nx)-y,-step*Math.abs(slope)/Math.sqrt(1+slope*slope),step*Math.abs(slope)/Math.sqrt(1+slope*slope));
    state.x=nx;state.y=ny;state.trail.push([nx,ny]);advance-=step;
@@ -401,7 +406,7 @@ function revealBookworm(b){
    
 
    if(!grounded)grounded={x:firstContact?firstContact.x+dir*len*.68:a[0]+dir*len*1.30,time:4.95};
-   if(forceExit){forceExit=false;if(leave===null){const x=lastHead===null?grounded.x:lastHead;rest={x,time:t};leave=t;escapeDir=-1;escapeX=lastFacing===-1?x:x-len}}
+   if(forceExit){forceExit=false;if(leave===null){const x=lastHead===null?grounded.x:lastHead;rest={x,time:t};leave=t;escapeDir=-1;escapeX=lastFacing===-1?(routeState?.nominal??x):x-len}}
    const book=nearest(),edge=book?(dir<0?book.x+book.w/2:book.x-book.w/2):grounded.x+dir*len;
    const goal=dir<0?Math.min(grounded.x,edge+radius*2):Math.max(grounded.x,edge-radius*2);
    let head=grounded.x+dir*travel(t-grounded.time);
