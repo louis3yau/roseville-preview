@@ -99,10 +99,10 @@ if(!p.body&&stableSurface&&speed<65&&Math.abs(b.spin)<1.6){
 }
 // Flexible leaf is decorative, never part of the rigid collision hull.
 function flexLeaf(b){const leaf=b.el.querySelector('.apple-leaf');if(!leaf)return;const c=Math.cos(b.angle),s=Math.sin(b.angle),k=b.w/110,floor=field.clientHeight-8;
-const samples=[[65,23],[72,15],[78,10],[86,10],[92,9],[98,5],[92,17],[84,24],[72,28]];
-function pressure(deg){let max=0;const a=deg*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);for(const [x,y] of samples){const u=x-61,v=y-29,lx=(61+u*ca-v*sa-50)*k,ly=(29+u*sa+v*ca-55)*k,px=b.x+lx*c-ly*s,py=b.y+lx*s+ly*c;max=Math.max(max,py-floor);for(const q of bodies){if(q===b)continue;const e=extent(q);if(px>e.l&&px<e.r&&py>e.t&&py<e.b)max=Math.max(max,Math.min(px-e.l,e.r-px,py-e.t,e.b-py)+1)}}return max}
+const samples=[[51,29],[58,18],[65,12],[77,5],[74,16],[64,25],[57,29]];
+function pressure(deg){let max=0;const a=deg*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);for(const [x,y] of samples){const u=x-51,v=y-29,lx=(51+u*ca-v*sa-50)*k,ly=(29+u*sa+v*ca-55)*k,px=b.x+lx*c-ly*s,py=b.y+lx*s+ly*c;max=Math.max(max,py-floor);for(const q of bodies){if(q===b)continue;const e=extent(q);if(px>e.l&&px<e.r&&py>e.t&&py<e.b)max=Math.max(max,Math.min(px-e.l,e.r-px,py-e.t,e.b-py)+1)}}return max}
 let target=0,best=pressure(0);if(best>.2){for(let i=1;i<=12;i++){const deg=i*5,v=pressure(deg);if(v<best-.05){best=v;target=deg}if(v<.2){target=deg;break}}}
-const now=performance.now(),dt=Math.min(.05,Math.max(.008,(now-(b.leafTime||now-16))/1000));b.leafTime=now;const prev=b.leafAngle||0;b.leafAngle=prev+(target-prev)*(1-Math.exp(-(target>prev?8:5)*dt));if(Math.abs(b.leafAngle-target)<.1)b.leafAngle=target;leaf.setAttribute('transform','rotate('+b.leafAngle+' 52 29)')}
+const now=performance.now(),dt=Math.min(.05,Math.max(.008,(now-(b.leafTime||now-16))/1000));b.leafTime=now;const prev=b.leafAngle||0;b.leafAngle=prev+(target-prev)*(1-Math.exp(-(target>prev?8:5)*dt));if(Math.abs(b.leafAngle-target)<.1)b.leafAngle=target;leaf.setAttribute('transform','rotate('+(b.leafAngle+(b.asleep&&!b.drag&&!reduced()?Math.sin(now/750)*3:0))+' 51 29)')}
 function drawBody(b){if(b.shadow){const c=corners(b),gap=Math.max(0,field.clientHeight-8-Math.max(...c.map(p=>p[1]))),width=Math.max(...c.map(p=>p[0]))-Math.min(...c.map(p=>p[0]));b.shadow.style.left=b.x+'px';b.shadow.style.top=(field.clientHeight-6)+'px';b.shadow.style.bottom='auto';b.shadow.style.width=Math.max(7,width*.92+gap*.12)+'px';b.shadow.style.height=(3+gap*.04)+'px';b.shadow.style.opacity=String(gap<5?.035:gap<35?.018*(1-gap/45):0);b.shadow.style.filter='blur('+(2+gap*.045)+'px)';b.shadow.style.visibility=b.el.style.visibility==='hidden'?'hidden':'visible'}b.el.style.transform='translate3d('+(b.x-b.w/2)+'px,'+(b.y-b.h/2)+'px,0) rotate('+b.angle+'rad)';if(b.kind==='apple'){flexLeaf(b);return}b.el.querySelector('.book-solid').style.transform='rotateY('+(b.yaw||0)+'rad)';b.el.classList.toggle('spine-only',Math.abs(Math.atan2(Math.sin(b.yaw||0),Math.cos(b.yaw||0)))<.025);b.el.classList.toggle('supported',!b.drag&&support(b))}
 function tick(now){frame=0;const dt=Math.min(.04,(now-(last||now))/1000);last=now;if(dialog.open||reduced())return;const bounds=field.getBoundingClientRect(),W=document.documentElement.clientWidth-bounds.left,L=-bounds.left,T=-bounds.top,H=field.clientHeight-8;
  for(let k=0;k<6;k++){const t=dt/6;for(const b of bodies){if(b.asleep&&!b.displayRest){if(b.kind==='apple'){const p=appleSupport(b,1.8),q=b.appleSupportBody,pose=b.appleSupportPose,moved=q&&(q.drag||!pose||Math.hypot(q.x-pose.x,q.y-pose.y)>.7||Math.abs(q.angle-pose.a)>.018||Math.abs(q.yaw-pose.yaw)>.018);if(!p||p.body!==q&&q||moved||Math.abs(p.slope)>.12){b.asleep=false;b.appleQuiet=0}else{b.y+=p.gap;b.vx=b.vy=b.spin=0}}else{const level=supportLevel(b);if(!Number.isFinite(level)||Math.abs(level-b.supportY)>5){b.asleep=false;b.quiet=0}}}if(!b.drag&&!b.asleep&&!b.displayRest){b.vy=Math.min(1600,b.vy+2600*t);b.x+=b.vx*t;b.y+=b.vy*t;b.angle+=b.spin*t;b.yaw=(b.yaw||0)+(b.yawVelocity||0)*t;b.yawVelocity=(b.yawVelocity||0)*Math.exp(-2.8*t);b.vx*=Math.exp(-.6*t);b.vy*=Math.exp(-.25*t);b.spin*=Math.exp(-(b.kind==='apple'?.65:.9)*t)}wall(b,[0,1],H);wall(b,[1,0],W);wall(b,[-1,0],-L);wall(b,[0,-1],-T)}
@@ -248,15 +248,15 @@ function revealBookworm(b){
  art.setAttribute('width','100%');art.setAttribute('height','100%');art.setAttribute('aria-hidden','true');
  Object.assign(art.style,{position:'absolute',inset:'0',overflow:'visible',pointerEvents:'none',zIndex:'10000',opacity:'1',mixBlendMode:'normal'});
  const make=(tag)=>{const e=document.createElementNS(ns,tag);art.append(e);return e};
- const backing=make('path'),body=make('path'),stripes=make('path'),eye=make('circle');
+ const backing=make('path'),body=make('path'),stripes=make('path'),eye=make('circle'),glasses=make('path');
  // Explicit opaque paint and top layer, including Safari SVG compositing.
  art.style.setProperty('isolation','isolate');art.style.setProperty('z-index','2147483000','important');
  body.style.setProperty('fill','#f3f0e7','important');body.style.setProperty('fill-opacity','1','important');body.style.setProperty('opacity','1','important');body.style.setProperty('mix-blend-mode','normal','important');
- const ink='#514e48',paper='#f3f0e7';
+ const ink='#272622',paper='#f3f0e7';glasses.setAttribute('fill','none');glasses.setAttribute('stroke',ink);glasses.setAttribute('stroke-width','1.05');glasses.setAttribute('stroke-linecap','round');glasses.style.pointerEvents='none';
  backing.style.cssText='fill:'+paper+' !important;fill-opacity:1 !important;stroke:'+paper+' !important;stroke-width:.72px !important;stroke-linejoin:round !important;opacity:1 !important;mix-blend-mode:normal !important;';backing.setAttribute('fill-rule','nonzero');
  body.setAttribute('fill',paper);body.setAttribute('fill-opacity','1');body.setAttribute('stroke',ink);body.setAttribute('stroke-width','.72');body.setAttribute('stroke-linejoin','round');body.setAttribute('fill-rule','nonzero');
  stripes.setAttribute('fill','none');stripes.setAttribute('stroke',ink);stripes.setAttribute('stroke-width','.43');stripes.setAttribute('stroke-linecap','round');eye.setAttribute('fill',ink);field.append(art);
- const scale=b.w/110,width=Math.max(3.8,7*scale),radius=width/2,len=67*scale,t0=performance.now();
+ const scale=b.w/110,width=Math.max(3.8,10*scale),radius=width/2,len=72*scale,t0=performance.now();
  let pausedAt=null,pausedTotal=0,forceExit=false,lastHead=null,lastFacing=-1;
  body.style.setProperty('pointer-events','all');body.style.cursor='pointer';body.style.touchAction='none';
  stripes.style.pointerEvents=eye.style.pointerEvents=backing.style.pointerEvents='none';
@@ -268,11 +268,11 @@ function revealBookworm(b){
  const booksNow=()=>bodies.filter(q=>q.kind!=='apple');
  const nearest=()=>booksNow().reduce((best,q)=>!best||Math.abs(q.x-b.x)<Math.abs(best.x-b.x)?q:best,null);
  const target=nearest();let dir=target&&target.x>b.x?1:-1;
- const localX=dir*Math.cos(b.angle)>0?81:19;
- hole.setAttribute('cx',String(localX));hole.setAttribute('cy','76');
+ const localX=dir*Math.cos(b.angle)>0?76:24;
+ hole.setAttribute('cx',String(localX));hole.setAttribute('cy','53');
  let firstContact=null,grounded=null,rest=null,leave=null,escapeX=null,escapeDir=dir;
  const clamp01=x=>Math.max(0,Math.min(1,x));
- function anchor(){const svg=b.el.querySelector('svg'),m=svg.getScreenCTM(),world=art.getScreenCTM();if(m&&world){const p=art.createSVGPoint();p.x=localX;p.y=76;const q=p.matrixTransform(m).matrixTransform(world.inverse());return [q.x,q.y]}const u=(localX-50)*b.w/110,v=21*b.h/110,c=Math.cos(b.angle),s=Math.sin(b.angle);return [b.x+u*c-v*s,b.y+u*s+v*c]}
+ function anchor(){const svg=b.el.querySelector('svg'),m=svg.getScreenCTM(),world=art.getScreenCTM();if(m&&world){const p=art.createSVGPoint();p.x=localX;p.y=53;const q=p.matrixTransform(m).matrixTransform(world.inverse());return [q.x,q.y]}const u=(localX-50)*b.w/110,v=-2*b.h/110,c=Math.cos(b.angle),s=Math.sin(b.angle);return [b.x+u*c-v*s,b.y+u*s+v*c]}
  function draw(points,facing,emerging=false){
   const normals=points.map((p,i)=>{const u=points[Math.max(0,i-1)],v=points[Math.min(points.length-1,i+1)],dx=v[0]-u[0],dy=v[1]-u[1],m=Math.hypot(dx,dy)||1;return [-dy/m,dx/m]});
   const edges=[1,-1].map(sign=>points.map((p,i)=>{const rr=radius*(emerging?1:(.76+.24*Math.min(1,i/4)));return [p[0]+normals[i][0]*rr*sign,p[1]+normals[i][1]*rr*sign]}));
@@ -280,11 +280,11 @@ function revealBookworm(b){
   body.setAttribute('d','M'+edges[0].map(fmt).join(' L')+' Q'+fmt([edges[0][n][0]+normals[n][1]*radius,edges[0][n][1]-normals[n][0]*radius])+' '+fmt(headTip)+' Q'+fmt([edges[1][n][0]+normals[n][1]*radius,edges[1][n][1]-normals[n][0]*radius])+' '+fmt(edges[1][n])+' L'+edges[1].slice(0,n).reverse().map(fmt).join(' L')+' A'+tailRadius+' '+tailRadius+' 0 0 0 '+fmt(edges[0][0])+' Z');
   backing.setAttribute('d',body.getAttribute('d'));
   // Stripe spacing follows the body, not the number of visible path samples.
-  let marks='',distance=0,nextStripe=radius*2.5,lastMark=null;
+  let marks='',distance=0,nextStripe=radius*3.1,lastMark=null;
   for(let i=n;i>0;i--){const p=points[i],q=points[i-1],seg=Math.hypot(p[0]-q[0],p[1]-q[1]);if(seg<.0001)continue;
    while(nextStripe<=distance+seg){const f=(nextStripe-distance)/seg;if(i>1||f<.7){const blend=(u,v)=>[u[0]+(v[0]-u[0])*f,u[1]+(v[1]-u[1])*f],c=blend(p,q),l=blend(edges[0][i],edges[0][i-1]),r=blend(edges[1][i],edges[1][i-1]);if(!lastMark||Math.min(Math.hypot(l[0]-lastMark.l[0],l[1]-lastMark.l[1]),Math.hypot(r[0]-lastMark.r[0],r[1]-lastMark.r[1]))>radius*.85){marks+='M'+fmt(l)+' Q'+fmt([c[0]+facing*radius*.25,c[1]])+' '+fmt(r);lastMark={l,r}}}nextStripe+=radius*2.3}distance+=seg}
   stripes.setAttribute('d',marks);
-  const h=points[n];lastHead=h[0];lastFacing=facing;eye.setAttribute('r',String(Math.max(.43,scale*.68)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.33));
+  const h=points[n];lastHead=h[0];lastFacing=facing;eye.setAttribute('r',String(Math.max(.43,scale*.68)));eye.setAttribute('cx',String(h[0]+facing*radius*.45));eye.setAttribute('cy',String(h[1]-radius*.24));const gx=h[0]+facing*radius*.45,gy=h[1]-radius*.24,gr=radius*.72,fx=gx+facing*radius*1.13,fy=gy-radius*.35,fr=radius*.44;glasses.setAttribute('d','M'+(gx-gr)+' '+gy+' a'+gr+' '+gr+' 0 1 0 '+(2*gr)+' 0 a'+gr+' '+gr+' 0 1 0 '+(-2*gr)+' 0 M'+(gx+facing*gr)+' '+(gy-radius*.15)+' Q'+(gx+facing*radius*.85)+' '+(gy-radius*.64)+' '+(fx-facing*fr)+' '+fy+' M'+(fx-fr)+' '+fy+' a'+fr+' '+fr+' 0 1 0 '+(2*fr)+' 0 a'+fr+' '+fr+' 0 1 0 '+(-2*fr)+' 0');
  }
  // Use a rounded, clearance-offset contour of grounded displaced books.
  // A moving airborne book is never a climbing surface.
@@ -343,7 +343,7 @@ function revealBookworm(b){
   if(!b.el.isConnected||!art.isConnected){cleanup();return}
   if(pausedAt!==null){requestAnimationFrame(paint);return}
   const t=(now-t0-pausedTotal)/1000,floor=field.clientHeight-8-radius,a=anchor(),r=clamp01((t-.1)/.7);
-  hole.setAttribute('rx',String(3.4*r));hole.setAttribute('ry',String(4.2*r));
+  hole.setAttribute('rx',String(6*r));hole.setAttribute('ry',String(6.3*r));
   if(t<.85){requestAnimationFrame(paint);return}
   if(t<2.85){
    // Feed a full-width worm along a fixed curved route, revealing its
@@ -382,12 +382,12 @@ function revealBookworm(b){
   }
   requestAnimationFrame(paint)
  }
- if(reduced()){hole.setAttribute('rx','3.4');hole.setAttribute('ry','4.2');cleanup();b.wormDone=true;return}
+ if(reduced()){hole.setAttribute('rx','6');hole.setAttribute('ry','6.3');cleanup();b.wormDone=true;return}
  requestAnimationFrame(paint)
 }
 
 // Apple and bookworm are independent from the reader modal.
-function addApple(){const el=document.createElement('button');el.type='button';el.className='spine apple-object';el.setAttribute('aria-label','Apple, tap for worm or drag to throw');el.innerHTML='<svg viewBox="0 0 100 110" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.05" d="M44 31 Q36 28 28 31 C20 33 14 39 10 47 C6.5 53 5 60 6 67 Q6.5 76 11 84 C15 93 23 101 31 105 Q35 107 40 106 46 104.5 51 105 55 107 61 106.5 68 104 74 99 80 92 84 85 88 76 90 69 90 63 88 56 88 50 85 43 81 39 76 35 70 32 63 30 57 31"/><path fill="currentColor" stroke-width=".4" d="M45 33 Q48 32 46 28 L41 22 Q40 20 42 19 L44 19 Q48 24 50 29 L51 33 Q50 35 45 34Z"/><path class="apple-leaf" fill="currentColor" stroke-width=".5" d="M52 30 54 24 58 17 63 12 69 9 77 8 86 8 91 7 96 5 93 11 90 16 85 21 79 24 73 26 66 25.5 59 26 55 28Z"/><g stroke-width=".65"><path d="M14 51l2 -4 M17 80l1 3 M21 90l1 5 M24 91l1 8 M27 93l1 8 M30 96l1 7 M33 98l1 5 M37 99l.5 4 M41 101l.5 2 M45 100l.5 3 M49 98l.5 5 M53 95l1 7 M57 94l.5 9 M60 91v12 M63 88l-.5 14 M66 87l-1 14 M69 83l-1 17 M72 79l-1 19 M75 76l-1 19 M78 73l-1 18 M82 68v15 M86 60l1 13 M75 53l1 4 M77 48l1 10 M79 47l2 8 M82 47l1 8 M85 50v5"/></g><ellipse class="worm-hole" cx="19" cy="76" rx="0" ry="0" fill="currentColor" stroke="none"/></g></svg>';attachPhysics(el,{kind:'apple',thickness:40,height:40,title:'Apple'});field.append(el)}
+function addApple(){const el=document.createElement('button');el.type='button';el.className='spine apple-object';el.setAttribute('aria-label','Apple, tap for worm or drag to throw');el.innerHTML='<svg viewBox="0 0 100 110" aria-hidden="true"><g stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M48 31 C39 25 28 27 19 32 C8 38 3 49 4 63 C4 78 11 91 23 99 C32 106 41 107 51 107 C64 108 77 103 86 94 C95 84 97 69 95 55 C94 43 87 32 76 28 C66 24 55 27 48 31 Z"/><path fill="none" stroke="currentColor" stroke-width="2.1" d="M49 31 Q44 20 46 10 Q48 8 49 11 Q48 21 51 30"/><path class="apple-leaf" fill="none" stroke="currentColor" stroke-width="1.3" d="M51 29 Q58 12 77 5 Q77 16 64 25 Q57 30 51 29Z"/><path fill="none" stroke="#f3f0e7" stroke-width="1.5" d="M40 33 Q49 39 58 31"/><ellipse class="worm-hole" cx="24" cy="53" rx="0" ry="0" fill="#f3f0e7" stroke="none"/></g></svg>';attachPhysics(el,{kind:'apple',thickness:40,height:40,title:'Apple'});field.append(el)}
 
 let joinedApple=false;
 $('#join-club').onclick=()=>{if(joinedApple||!books.length||restacking||activeDrag)return;joinedApple=true;addApple();const b=bodies.at(-1),size=Math.max(56,Math.min(88,field.clientWidth*.21)),total=bodies.filter(q=>q.kind!=='apple').reduce((s,q)=>s+q.w+5,0);b.w=b.h=size;b.x=Math.min(field.clientWidth-size/2-12,field.clientWidth/2+total/2+size/2+22);b.y=size/2;b.angle=b.yaw=b.vx=b.spin=b.yawVelocity=0;b.vy=reduced()?0:40;b.mass=.95;b.inertia=b.mass*Math.pow(size*.36,2)*.55;b.drag=false;b.asleep=false;b.displayRest=false;b.el.style.width=size+'px';b.el.style.height=size+'px';b.el.style.zIndex=++layer;if(reduced()){b.y=field.clientHeight-8-(extent(b).b-b.y);b.asleep=true;b.supportY=field.clientHeight-8}drawBody(b);wake()};
