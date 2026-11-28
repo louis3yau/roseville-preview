@@ -89,6 +89,21 @@ function appleRestSupport(b){
  }
  return best
 }
+// Prefer the base before locking rotation. Keep the contact height fixed
+// and reject an upright correction if another book blocks the roll.
+function settleAppleBase(b,p,t){
+ const angle=Math.atan2(Math.sin(b.angle),Math.cos(b.angle));
+ const supportY=extent(b).b+p.gap;
+ if(Math.abs(angle)<.035)return false;
+ const step=-Math.sign(angle)*Math.min(Math.abs(angle),Math.max(.45,Math.min(5,Math.abs(angle)*6))*t);
+ const next={...b,angle:b.angle+step};
+ next.y+=supportY-extent(next).b;
+ const e=extent(next),bounds=field.getBoundingClientRect();
+ if(e.l< -bounds.left-.5||e.r>document.documentElement.clientWidth-bounds.left+.5)return false;
+ for(const q of bodies){if(q===b)continue;const hit=contact(next,q),before=contact(b,q);if(hit&&hit.depth>Math.max(1.2,(before?.depth||0)+.4))return false}
+ b.angle=next.angle;b.y=next.y;b.spin=0;b.vx*=Math.exp(-20*t);b.vy=0;
+ return true
+}
 function parkApple(b,p){b.y+=p.gap;b.vx=b.vy=b.spin=b.yawVelocity=0;b.asleep=true;b.appleQuiet=0;b.appleContactTime=0;b.appleRestLock=true;b.appleSupportBody=p.body;b.appleSupportPose=p.body?{x:p.body.x,y:p.body.y,a:p.body.angle,yaw:p.body.yaw}:null}
 function settle(b,t){if(b.drag||b.displayRest||b.asleep)return;if(b.kind==='apple'){
  // Hard stop for a supported apple after a brief settling period. In a
@@ -99,13 +114,16 @@ function settle(b,t){if(b.drag||b.displayRest||b.asleep)return;if(b.kind==='appl
   if(prior&&prior.body===resting.body&&Math.hypot(b.x-prior.x,b.y-prior.y)<b.w*.22)b.appleRestTimer=(b.appleRestTimer||0)+t;
   else{b.appleRestCandidate={body:resting.body,x:b.x,y:b.y};b.appleRestTimer=0}
   if(b.appleRestTimer>.35){b.spin*=Math.exp(-24*t);b.vx*=Math.exp(-12*t)}
-  if(b.appleRestTimer>.85){parkApple(b,resting);return}
+  if(b.appleRestTimer>.85){
+   if(settleAppleBase(b,resting,t)){b.appleRestCandidate={body:resting.body,x:b.x,y:b.y};return}
+   parkApple(b,resting);return
+  }
  }else{b.appleRestCandidate=null;b.appleRestTimer=0}
  const p=appleSupport(b,2);if(!p){b.appleQuiet=0;b.appleContactTime=Math.max(0,(b.appleContactTime||0)-t*.35);b.spin*=Math.exp(-1.8*t);return}const speed=Math.hypot(b.vx,b.vy),radius=b.w*.35;const stableSurface=Math.abs(p.slope)<.10;const stableCenter=Math.abs(p.x-b.x)<radius*.22;
 // Contact friction must dissipate rotation even when wedged between books.
 const supportStill=!p.body||(!p.body.drag&&Math.hypot(p.body.vx,p.body.vy)<22&&Math.abs(p.body.spin)<.5);
 b.appleContactTime=supportStill?(b.appleContactTime||0)+t:0;
-if(supportStill&&p.body&&Math.abs(p.slope)<.45&&speed<75&&b.appleContactTime>.65){b.spin*=Math.exp(-16*t);b.vx*=Math.exp(-10*t);if(b.appleContactTime>1.25&&Math.abs(b.spin)<1.4){parkApple(b,p);return}}
+if(supportStill&&p.body&&Math.abs(p.slope)<.45&&speed<75&&b.appleContactTime>.65){b.spin*=Math.exp(-16*t);b.vx*=Math.exp(-10*t);if(b.appleContactTime>1.25&&Math.abs(b.spin)<1.4){if(!settleAppleBase(b,p,t))parkApple(b,p);return}}
 if(supportStill&&Math.abs(p.slope)<.45&&speed<40&&b.appleContactTime>2.3){parkApple(b,p);return}
 if(Math.abs(p.gap)<1.5&&b.vy>=-12)b.y+=p.gap*.6;
 // Rolling resistance is applied only during real contact. No angle targets.
@@ -118,9 +136,9 @@ if(!p.body&&stableSurface&&speed<65&&Math.abs(b.spin)<1.6){
  for(let i=0;i<hull.length;i++){const u=hull[i],v=hull[(i+1)%hull.length],dx=v[0]-u[0],dy=v[1]-u[1],length=Math.hypot(dx,dy);if(length<b.w*.16)continue;
  let angle=-Math.atan2(dy,dx);for(let j=0;j<2;j++,angle+=Math.PI){const delta=Math.atan2(Math.sin(angle-b.angle),Math.cos(angle-b.angle)),pose={...b,angle:b.angle+delta},poly=corners(pose),bottom=Math.max(...poly.map(q=>q[1])),a=poly[i],c=poly[(i+1)%poly.length];if(bottom-a[1]>1||bottom-c[1]>1)continue;const lo=Math.min(a[0],c[0]),hi=Math.max(a[0],c[0]);if(b.x<lo-b.w*.04||b.x>hi+b.w*.04)continue;candidates.push({delta,score:Math.abs(delta)-length/b.w*.35})}}
  candidates.sort((a,c)=>a.score-c.score);const target=candidates[0];
- if(target){const d=target.delta;if(Math.abs(d)>.012){const step=Math.sign(d)*Math.min(Math.abs(d),Math.max(.18,Math.abs(d)*3.8)*t);b.angle+=step;b.x-=step*radius*.65;b.spin=0;b.vy=0;b.y+=field.clientHeight-8-extent(b).b;b.appleQuiet=0;return}b.angle+=d;b.y+=field.clientHeight-8-extent(b).b;b.spin=0;if(speed<18){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.22)parkApple(b,{...p,gap:0});return}}
+ if(target){const d=target.delta;if(Math.abs(d)>.012){const step=Math.sign(d)*Math.min(Math.abs(d),Math.max(.18,Math.abs(d)*3.8)*t);b.angle+=step;b.x-=step*radius*.65;b.spin=0;b.vy=0;b.y+=field.clientHeight-8-extent(b).b;b.appleQuiet=0;return}b.angle+=d;b.y+=field.clientHeight-8-extent(b).b;b.spin=0;if(speed<18){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.22&&!settleAppleBase(b,{...p,gap:0},t))parkApple(b,{...p,gap:0});return}}
  }
- if(p.body&&stableSurface&&stableCenter&&speed<18&&Math.abs(b.spin)<.32){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.25)parkApple(b,p)}else b.appleQuiet=0;return}const level=supportLevel(b);if(!Number.isFinite(level)){b.quiet=0;return}
+ if(p.body&&stableSurface&&stableCenter&&speed<18&&Math.abs(b.spin)<.32){b.appleQuiet=(b.appleQuiet||0)+t;if(b.appleQuiet>.25&&!settleAppleBase(b,p,t))parkApple(b,p)}else b.appleQuiet=0;return}const level=supportLevel(b);if(!Number.isFinite(level)){b.quiet=0;return}
  const target=Math.round(b.angle/(Math.PI/2))*Math.PI/2,delta=target-b.angle,flat=Math.abs(Math.sin(target))>.9,slow=Math.abs(b.vy)<90;
  if(!slow){b.quiet=0;return}
  b.yawVelocity*=Math.exp(-12*t);const spineTurn=Math.round(b.yaw/(2*Math.PI))*2*Math.PI,offset=b.yaw-spineTurn;const edge=Math.abs(offset)>Math.PI*.72?spineTurn+Math.sign(offset)*Math.PI:spineTurn,y=b.yaw-edge;b.yaw-=y*Math.min(1,10*t);if(Math.abs(y)<.025){b.yaw=edge;b.yawVelocity=0}
